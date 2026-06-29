@@ -21,13 +21,41 @@ copy .env.example .env
 ```
 You'll need:
 - `POSTGRES_URL` — get this from the team's Vercel Postgres dashboard
-- `FIREBASE_SERVICE_ACCOUNT` — ask the backend lead for this (never commit this file or its contents to git)
+- `FIREBASE_SERVICE_ACCOUNT_PATH` — local path to your downloaded Firebase service account JSON
+- `FIREBASE_SERVICE_ACCOUNT` — deployment-only single-line JSON value for the same service account
+- `FIREBASE_API_KEY`, `FIREBASE_AUTH_DOMAIN`, and `FIREBASE_PROJECT_ID` — the web client config for Firebase email/password sign-in
 
 ### 4. Run the app locally
 ```bash
 uv run flask --app api.index run --debug
 ```
 The site should now be running at `http://127.0.0.1:5000`.
+
+### Firebase setup
+Firebase email/password authentication is a client-side sign-in provider. The backend does not receive user passwords. Instead, the frontend signs the user in with Firebase and sends the Firebase ID token to Flask as:
+```http
+Authorization: Bearer <firebase-id-token>
+```
+
+The backend verifies that token with the Firebase Admin SDK before allowing protected requests.
+
+For local development, put the downloaded service account JSON somewhere ignored by git, for example:
+```bash
+mkdir -p .firebase
+mv ~/Downloads/your-service-account.json .firebase/service-account.json
+```
+
+Then set this in `.env`:
+```bash
+FIREBASE_SERVICE_ACCOUNT_PATH=.firebase/service-account.json
+```
+
+For Vercel or another hosted environment, set `FIREBASE_SERVICE_ACCOUNT` to the full service account JSON as a single-line environment variable instead of uploading the file.
+
+Once Firebase is configured, you can test backend token verification with:
+```bash
+curl -H "Authorization: Bearer <firebase-id-token>" http://127.0.0.1:5000/admin/me
+```
 
 ### 5. Adding a new dependency
 If you need a new package:

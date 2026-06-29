@@ -157,6 +157,12 @@ ENV/
 env.bak/
 venv.bak/
 
+# Firebase service account secrets
+.firebase/
+serviceAccountKey.json
+firebase-service-account*.json
+*service-account*.json
+
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -216,10 +222,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
-
-# Firebase
-firebase-service-account.json
-
 
 # Vercel
 .vercel/
