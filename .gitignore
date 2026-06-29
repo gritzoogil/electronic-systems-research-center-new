@@ -225,3 +225,5 @@ __marimo__/
 
 # Vercel
 .vercel/
+
+image_url_map.json
