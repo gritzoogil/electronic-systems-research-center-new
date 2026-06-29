@@ -1,4 +1,5 @@
 import os
+import tempfile
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -10,10 +11,12 @@ load_dotenv()
 db = SQLAlchemy()
 migrate = Migrate()
 
+instance_path = "/tmp/instance" if os.environ.get("VERCEL") else os.path.join(tempfile.gettempdir(), "instance")
+
 def create_app():
     app = Flask(
         __name__,
-        instance_path="/tmp/instance",
+        instance_path=instance_path,
         template_folder="../templates",
         static_folder="../static"
     )
