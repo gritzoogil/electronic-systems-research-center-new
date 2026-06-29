@@ -12,6 +12,7 @@ migrate = Migrate()
 def create_app():
     app = Flask(
         __name__,
+        instance_path="/tmp/instance",
         template_folder="../templates",
         static_folder="../static"
     )
