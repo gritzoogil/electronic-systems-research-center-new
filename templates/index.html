@@ -3,114 +3,11 @@
 {% block content %}
 
 {# ═══ 1. HERO ═══════════════════════════════════════════════════════ #}
-<section class="hero" aria-label="Hero">
-
+<section class="hero" aria-label="Hero" style="background:linear-gradient(to bottom, rgba(10,30,60,.82), rgba(10,30,60,.82)), url('https://5xb2ufjgpdzgmhwg.public.blob.vercel-storage.com/images/esrc4-Um1zHQhHBYOg3udUymNY5Okg2toNze.webp') center/cover no-repeat;">
   <!-- Background glows -->
   <div class="hero-glow hero-glow-1" aria-hidden="true"></div>
   <div class="hero-glow hero-glow-2" aria-hidden="true"></div>
 
-  <!-- Circuit board illustration (right side) -->
-  <div class="hero-circuit-bg" aria-hidden="true">
-    <svg class="circuit-svg" viewBox="0 0 560 480" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- Dot grid -->
-      <defs>
-        <pattern id="dots" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
-          <circle cx="16" cy="16" r="1.1" fill="#00B8D9" opacity=".15"/>
-        </pattern>
-      </defs>
-      <rect width="560" height="480" fill="url(#dots)"/>
-
-      <!-- Trace grid (dim) -->
-      <g class="trace trace-dim" stroke-width="1">
-        <line x1="0" y1="96" x2="560" y2="96"/>
-        <line x1="0" y1="192" x2="560" y2="192"/>
-        <line x1="0" y1="288" x2="560" y2="288"/>
-        <line x1="0" y1="384" x2="560" y2="384"/>
-        <line x1="96" y1="0" x2="96" y2="480"/>
-        <line x1="192" y1="0" x2="192" y2="480"/>
-        <line x1="288" y1="0" x2="288" y2="480"/>
-        <line x1="384" y1="0" x2="384" y2="480"/>
-        <line x1="480" y1="0" x2="480" y2="480"/>
-      </g>
-
-      <!-- Active highlight traces -->
-      <g class="trace trace-on" stroke-linecap="round">
-        <path d="M 96 96 H 288 V 192 H 384 V 96 H 480"/>
-        <path d="M 192 288 V 384 H 384 V 288"/>
-        <path d="M 0 192 H 96 V 288 H 192"/>
-        <path d="M 480 192 V 288"/>
-        <path d="M 384 384 H 480 V 288"/>
-      </g>
-
-      <!-- Junction nodes -->
-      <g class="node">
-        <circle cx="96" cy="96"  r="4.5" opacity=".9"/>
-        <circle cx="288" cy="96"  r="4.5" opacity=".9"/>
-        <circle cx="384" cy="96"  r="4.5" opacity=".9"/>
-        <circle cx="480" cy="96"  r="4.5" opacity=".8"/>
-        <circle cx="192" cy="192" r="4"   opacity=".75"/>
-        <circle cx="384" cy="192" r="4"   opacity=".75"/>
-        <circle cx="96" cy="288"  r="4"   opacity=".75"/>
-        <circle cx="192" cy="288" r="4"   opacity=".75"/>
-        <circle cx="384" cy="288" r="4"   opacity=".75"/>
-        <circle cx="480" cy="288" r="4"   opacity=".75"/>
-        <circle cx="192" cy="384" r="4"   opacity=".7"/>
-        <circle cx="384" cy="384" r="4"   opacity=".7"/>
-        <circle cx="480" cy="384" r="4"   opacity=".7"/>
-        <!-- Large glow node -->
-        <circle cx="288" cy="96" r="10" opacity=".12"/>
-        <circle cx="288" cy="96" r="18" opacity=".05"/>
-      </g>
-
-      <!-- Main CPU chip -->
-      <rect class="chip" x="260" y="164" width="104" height="88" rx="7"/>
-      <!-- CPU pins top -->
-      <g class="pin"><line x1="284" y1="164" x2="284" y2="150"/><line x1="306" y1="164" x2="306" y2="150"/><line x1="328" y1="164" x2="328" y2="150"/><line x1="350" y1="164" x2="350" y2="150"/></g>
-      <!-- CPU pins bottom -->
-      <g class="pin"><line x1="284" y1="252" x2="284" y2="266"/><line x1="306" y1="252" x2="306" y2="266"/><line x1="328" y1="252" x2="328" y2="266"/><line x1="350" y1="252" x2="350" y2="266"/></g>
-      <!-- CPU pins left -->
-      <g class="pin"><line x1="260" y1="188" x2="246" y2="188"/><line x1="260" y1="208" x2="246" y2="208"/><line x1="260" y1="228" x2="246" y2="228"/></g>
-      <!-- CPU pins right -->
-      <g class="pin"><line x1="364" y1="188" x2="378" y2="188"/><line x1="364" y1="208" x2="378" y2="208"/><line x1="364" y1="228" x2="378" y2="228"/></g>
-      <!-- CPU label -->
-      <text class="chip-label" x="312" y="201" text-anchor="middle" font-size="10">MCU</text>
-      <text class="chip-label" x="312" y="215" text-anchor="middle" font-size="7" opacity=".65">32-BIT CORE</text>
-      <text class="chip-label" x="312" y="228" text-anchor="middle" font-size="7" opacity=".65">ESRC·v2</text>
-
-      <!-- Pulse on chip -->
-      <rect x="256" y="160" width="112" height="96" rx="9" fill="none" stroke="#00B8D9" stroke-width=".6" opacity=".5">
-        <animate attributeName="opacity" values=".5;.1;.5" dur="2.8s" repeatCount="indefinite"/>
-      </rect>
-
-      <!-- Small IC chips -->
-      <rect class="chip" x="68" y="68" width="52" height="36" rx="5" opacity=".85"/>
-      <text class="chip-label" x="94" y="89" text-anchor="middle" font-size="7.5">IC-01</text>
-      <rect class="chip" x="404" y="356" width="52" height="36" rx="5" opacity=".85"/>
-      <text class="chip-label" x="430" y="377" text-anchor="middle" font-size="7.5">IC-02</text>
-      <rect class="chip" x="164" y="356" width="52" height="36" rx="5" opacity=".7"/>
-      <text class="chip-label" x="190" y="377" text-anchor="middle" font-size="7.5">MEM</text>
-
-      <!-- Capacitors -->
-      <rect x="164" y="80" width="9" height="18" rx="2" fill="#00B8D9" opacity=".45"/>
-      <rect x="178" y="80" width="9" height="18" rx="2" fill="#00B8D9" opacity=".45"/>
-      <rect x="396" y="172" width="18" height="9" rx="2" fill="#00B8D9" opacity=".45"/>
-      <rect x="396" y="186" width="18" height="9" rx="2" fill="#00B8D9" opacity=".45"/>
-
-      <!-- Animated signal pulses -->
-      <circle r="3.5" fill="#00B8D9" opacity=".9">
-        <animateMotion dur="2.8s" repeatCount="indefinite" path="M 96 96 H 480"/>
-      </circle>
-      <circle r="2.8" fill="#00B8D9" opacity=".75">
-        <animateMotion dur="4.2s" repeatCount="indefinite" begin="1.1s" path="M 192 96 V 192 H 96 V 288 H 192 V 384"/>
-      </circle>
-      <circle r="2.2" fill="#00B8D9" opacity=".85">
-        <animateMotion dur="3.6s" repeatCount="indefinite" begin=".5s" path="M 384 96 V 192 H 480 V 288 H 384 V 384"/>
-      </circle>
-      <circle r="2" fill="#00B8D9" opacity=".65">
-        <animateMotion dur="5s" repeatCount="indefinite" begin="2s" path="M 0 192 H 96 V 288 H 192 V 288"/>
-      </circle>
-    </svg>
-  </div>
 
   <!-- Hero content -->
   <div class="hero-inner">
@@ -126,7 +23,7 @@
       </h1>
 
       <p class="hero-p">
-        We pioneer breakthroughs in electronic systems engineering — developing
+        We pioneer breakthroughs in electronic systems engineering, developing
         next-generation technologies that bridge academia and industry, empowering
         students, researchers, and communities at BatStateU.
       </p>
@@ -144,16 +41,16 @@
 
       <div class="hero-stats" role="list" aria-label="Key statistics">
         <div class="hero-stat" role="listitem">
-          <div class="hero-stat-n">50+</div>
+          <div class="hero-stat-n">{{ stats.projects }}+</div>
           <div class="hero-stat-l">Research Projects</div>
         </div>
         <div class="hero-stat" role="listitem">
-          <div class="hero-stat-n">120+</div>
+          <div class="hero-stat-n">{{ stats.publications }}+</div>
           <div class="hero-stat-l">Publications</div>
         </div>
         <div class="hero-stat" role="listitem">
-          <div class="hero-stat-n">200+</div>
-          <div class="hero-stat-l">Students</div>
+          <div class="hero-stat-n">{{ stats.staff }}</div>
+          <div class="hero-stat-l">Faculty Members</div>
         </div>
       </div>
     </div>
@@ -185,7 +82,7 @@
       <h2 class="sec-h2" id="research-heading">Research Areas</h2>
       <p class="sec-lead">
         Our multidisciplinary teams push the boundaries of electronic systems across
-        seven core domains, tackling real-world challenges with cutting-edge methods.
+        five core domains, tackling real-world challenges with cutting-edge methods.
       </p>
     </div>
 
@@ -206,24 +103,6 @@
         </div>
         <h3 class="r-title">Internet of Things (IoT)</h3>
         <p class="r-desc">Building connected sensor networks and edge computing platforms for smart infrastructure and environmental monitoring.</p>
-      </div>
-
-      <!-- AI -->
-      <div class="r-card reveal">
-        <div class="r-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/><path d="M18 2v4m2-2h-4"/></svg>
-        </div>
-        <h3 class="r-title">Artificial Intelligence</h3>
-        <p class="r-desc">Applying machine learning and deep learning to automate inspection, classify signals, and optimize system performance.</p>
-      </div>
-
-      <!-- Robotics -->
-      <div class="r-card reveal">
-        <div class="r-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M12 2v9M8 2h8"/><circle cx="8" cy="16" r="1.5"/><circle cx="16" cy="16" r="1.5"/><path d="M5 11V9a7 7 0 0 1 14 0v2"/></svg>
-        </div>
-        <h3 class="r-title">Robotics</h3>
-        <p class="r-desc">Developing autonomous robotic systems and control algorithms for agriculture, manufacturing, and assistive technology.</p>
       </div>
 
       <!-- Signal Processing -->
@@ -276,6 +155,105 @@
   </svg>
 </div>
 
+{# ═══ ABOUT US ═══════════════════════════════════════════════════════ #}
+<section id="about" class="section" aria-labelledby="about-heading">
+  <div class="wrap">
+    <div class="sec-header center reveal">
+      <span class="eyebrow">Who We Are</span>
+      <h2 class="sec-h2" id="about-heading">About Us</h2>
+      <p class="sec-lead">
+        The Electronic Systems Research Center (ESRC) is at the forefront of innovation in
+        electronics engineering. We provide state-of-the-art facilities, foster collaborative
+        research, and develop cutting-edge solutions that bridge the gap between academia and industry.
+      </p>
+    </div>
+
+    <div class="research-grid" data-stagger style="grid-template-columns:repeat(2,1fr);">
+      <div class="r-card reveal">
+        <h3 class="r-title">Services Offered</h3>
+        <p class="r-desc" style="margin-bottom:8px;">The ESRC offers a wide range of services:</p>
+        <ul style="font-size:.85rem;color:var(--gray-500);line-height:1.7;list-style:disc;padding-left:18px;">
+          <li>Electronic Prototyping</li>
+          <li>PCB Fabrication</li>
+          <li>3D Modeling and Printing</li>
+          <li>Data Logging</li>
+          <li>Schematic Design</li>
+          <li>Research Consultation</li>
+        </ul>
+      </div>
+
+      <div class="r-card reveal">
+        <h3 class="r-title">Equipment Available</h3>
+        <ul style="font-size:.85rem;color:var(--gray-500);line-height:1.7;list-style:disc;padding-left:18px;">
+          <li>Spectral Camera, Weather Station</li>
+          <li>Test &amp; Measurement Instruments</li>
+          <li>Data Loggers, Dremel Tools</li>
+          <li>3D Printers, Solder Workstations</li>
+          <li>Function Generators</li>
+          <li>Bench Power Supplies</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# Circuit divider #}
+<div class="circuit-divider" aria-hidden="true">
+  <svg viewBox="0 0 1440 28" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+    <rect width="1440" height="28" fill="var(--gray-50)"/>
+    <line x1="0" y1="14" x2="680" y2="14" stroke="#E2E8F0" stroke-width="1"/>
+    <line x1="760" y1="14" x2="1440" y2="14" stroke="#E2E8F0" stroke-width="1"/>
+    <circle cx="720" cy="14" r="8" fill="var(--navy)"/>
+    <circle cx="720" cy="14" r="4" fill="var(--cyan)"/>
+    <circle cx="680" cy="14" r="3" fill="var(--navy)" opacity=".35"/>
+    <circle cx="760" cy="14" r="3" fill="var(--navy)" opacity=".35"/>
+  </svg>
+</div>
+
+{# ═══ ESRC VIDEO (AVP) ═══════════════════════════════════════════════ #}
+<section id="esrc-video" class="section bg-gray" aria-labelledby="video-heading">
+  <div class="wrap">
+    <div style="display:grid;grid-template-columns:1fr;gap:32px;align-items:center;" class="video-grid">
+      <div class="reveal">
+        <span class="eyebrow">Who We Are</span>
+        <h2 class="sec-h2" id="video-heading" style="margin-bottom:14px;">What is ESRC built for?</h2>
+        <p style="font-size:.95rem;color:var(--gray-500);line-height:1.7;">
+          Electronic Systems Research Center provides technical support for research and development
+          related to the field of electronics. We develop prototypes for various fields of research
+          involving electronic systems, offer space and technical mentoring to researchers conducting
+          development work, and engage in the innovation of existing projects by collaborating with
+          stakeholders. Watch how we push the boundaries in semiconductor and nanoelectronics research,
+          empowering students and researchers at Batangas State University.
+        </p>
+      </div>
+      <div class="reveal" style="transition-delay:.1s">
+        <div style="position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.12);">
+          <iframe
+            style="width:100%;height:100%;border:0;"
+            src="https://www.youtube.com/embed/Wa1IqM9Hn3c?si=azTQLVApmpeWe909"
+            title="ESRC Video"
+            allowfullscreen
+            loading="lazy">
+          </iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# Circuit divider #}
+<div class="circuit-divider" aria-hidden="true">
+  <svg viewBox="0 0 1440 28" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+    <rect width="1440" height="28" fill="var(--white)"/>
+    <line x1="0" y1="14" x2="680" y2="14" stroke="#E2E8F0" stroke-width="1"/>
+    <line x1="760" y1="14" x2="1440" y2="14" stroke="#E2E8F0" stroke-width="1"/>
+    <circle cx="720" cy="14" r="8" fill="var(--navy)"/>
+    <circle cx="720" cy="14" r="4" fill="var(--cyan)"/>
+    <circle cx="680" cy="14" r="3" fill="var(--navy)" opacity=".35"/>
+    <circle cx="760" cy="14" r="3" fill="var(--navy)" opacity=".35"/>
+  </svg>
+</div>
+
 {# ═══ 3. STATS ═══════════════════════════════════════════════════════ #}
 <section class="stats-section section-sm" aria-label="Key statistics">
   <div class="wrap">
@@ -284,36 +262,22 @@
         <div class="stat-ico" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
         </div>
-        <div class="stat-num" data-target="53" data-suffix="+">0</div>
+        <div class="stat-num" data-target="{{ stats.projects }}" data-suffix="+">0</div>
         <div class="stat-lbl">Research Projects</div>
       </div>
       <div class="stat-cell reveal" role="listitem" style="transition-delay:.08s">
         <div class="stat-ico" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
         </div>
-        <div class="stat-num" data-target="120" data-suffix="+">0</div>
+        <div class="stat-num" data-target="{{ stats.publications }}" data-suffix="+">0</div>
         <div class="stat-lbl">Publications</div>
       </div>
       <div class="stat-cell reveal" role="listitem" style="transition-delay:.16s">
         <div class="stat-ico" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </div>
-        <div class="stat-num" data-target="8" data-suffix="">0</div>
+        <div class="stat-num" data-target="{{ stats.staff }}" data-suffix="">0</div>
         <div class="stat-lbl">Faculty Members</div>
-      </div>
-      <div class="stat-cell reveal" role="listitem" style="transition-delay:.24s">
-        <div class="stat-ico" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-        </div>
-        <div class="stat-num" data-target="15" data-suffix="+">0</div>
-        <div class="stat-lbl">Industry Partners</div>
-      </div>
-      <div class="stat-cell reveal" role="listitem" style="transition-delay:.32s">
-        <div class="stat-ico" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-        </div>
-        <div class="stat-num" data-target="200" data-suffix="+">0</div>
-        <div class="stat-lbl">Students</div>
       </div>
     </div>
   </div>
@@ -340,7 +304,7 @@
         <span class="eyebrow">What We Build</span>
         <h2 class="sec-h2" id="projects-heading">Featured Projects</h2>
       </div>
-      <a href="#" class="btn btn-outline btn-sm">View All Projects</a>
+      <a href="{{ url_for('public.projects') }}" class="btn btn-outline btn-sm">View All Projects</a>
     </div>
 
     {% if projects %}
@@ -376,8 +340,8 @@
           {% endif %}
           <div class="proj-footer">
             <div></div>
-            {% if project.more_info_img %}
-            <a href="{{ project.more_info_img }}" target="_blank" class="learn-more">
+            {% if project.id %}
+            <a href="{{ url_for('public.project_detail', project_id=project.id) }}" class="learn-more">
               Learn More
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -392,79 +356,6 @@
     {% else %}
     <p style="text-align:center;color:var(--gray-400);padding:40px 0;">No projects available yet.</p>
     {% endif %}
-  </div>
-</section>
-
-{# Circuit divider #}
-<div class="circuit-divider" aria-hidden="true">
-  <svg viewBox="0 0 1440 28" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-    <rect width="1440" height="28" fill="var(--gray-50)"/>
-    <line x1="0" y1="14" x2="680" y2="14" stroke="#E2E8F0" stroke-width="1"/>
-    <line x1="760" y1="14" x2="1440" y2="14" stroke="#E2E8F0" stroke-width="1"/>
-    <circle cx="720" cy="14" r="8" fill="var(--navy)"/>
-    <circle cx="720" cy="14" r="4" fill="var(--cyan)"/>
-    <circle cx="680" cy="14" r="3" fill="var(--navy)" opacity=".35"/>
-    <circle cx="760" cy="14" r="3" fill="var(--navy)" opacity=".35"/>
-  </svg>
-</div>
-
-{# ═══ 5. NEWS & EVENTS ═══════════════════════════════════════════════ #}
-<section id="news" class="section bg-gray" aria-labelledby="news-heading">
-  <div class="wrap">
-    <div class="sec-header reveal" style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;">
-      <div>
-        <span class="eyebrow">Stay Updated</span>
-        <h2 class="sec-h2" id="news-heading">Latest News &amp; Events</h2>
-      </div>
-      <a href="#" class="btn btn-outline btn-sm">All News</a>
-    </div>
-
-    <div class="news-grid" data-stagger>
-      <article class="news-card reveal">
-        <div class="news-img">
-          <svg class="news-img-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-        </div>
-        <div class="news-body">
-          <div class="news-meta">
-            <span class="badge badge-cat">Event</span>
-            <time class="news-date" datetime="2025-03-15">Mar 15, 2025</time>
-          </div>
-          <h3 class="news-title">ESRC Hosts the 5th National Electronics Research Symposium</h3>
-          <p class="news-excerpt">Over 300 researchers and students gathered at BatStateU for a two-day symposium showcasing breakthroughs in embedded systems and IoT.</p>
-          <a href="#" class="read-more">Read More <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
-        </div>
-      </article>
-
-      <article class="news-card reveal">
-        <div class="news-img" style="background:linear-gradient(135deg,#0A3560,#1A6DB5);">
-          <svg class="news-img-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-        </div>
-        <div class="news-body">
-          <div class="news-meta">
-            <span class="badge badge-cat">Partnership</span>
-            <time class="news-date" datetime="2025-02-20">Feb 20, 2025</time>
-          </div>
-          <h3 class="news-title">New MOU Signed with Leading Semiconductor Firm</h3>
-          <p class="news-excerpt">ESRC formalizes a research and internship partnership with a top Philippine semiconductor company, opening 20 new research positions.</p>
-          <a href="#" class="read-more">Read More <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
-        </div>
-      </article>
-
-      <article class="news-card reveal">
-        <div class="news-img" style="background:linear-gradient(135deg,#064e3b,#0F4C81);">
-          <svg class="news-img-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8.56 2.9A7 7 0 0 1 19 9v1l1 1-1 2-2.07.62A5 5 0 0 1 13 17H7a5 5 0 0 1-5-5v-2l1-1V9a7 7 0 0 1 .44-2.5"/></svg>
-        </div>
-        <div class="news-body">
-          <div class="news-meta">
-            <span class="badge badge-cat">Achievement</span>
-            <time class="news-date" datetime="2025-01-10">Jan 10, 2025</time>
-          </div>
-          <h3 class="news-title">ESRC Students Win Gold at National Engineering Olympiad</h3>
-          <p class="news-excerpt">A team of four ESRC-mentored students took gold in robotics and silver in embedded systems at the 2025 Philippine Engineering Olympiad.</p>
-          <a href="#" class="read-more">Read More <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
-        </div>
-      </article>
-    </div>
   </div>
 </section>
 
@@ -506,55 +397,19 @@
     </div>
 
     <div class="pub-list" id="pubList">
-      <div class="pub-item reveal" data-type="journal">
+      {% for pub in publications[:3] %}
+      <a href="{{ url_for('public.publication_detail', pub_id=pub.id) }}" class="pub-item reveal" data-type="{{ pub.type|lower|replace(' ', '') }}" style="text-decoration:none;color:inherit;">
         <div>
-          <div class="pub-type">Journal Article · IEEE Transactions on Industrial Electronics</div>
-          <h3 class="pub-title">Adaptive Impedance Matching Network for IoT Energy Harvesting at 915 MHz</h3>
-          <p class="pub-authors">Sangalang, R.G.B., Arroyo, C.J.A., Rosales, A.M.</p>
-          <p class="pub-venue">IEEE Transactions on Industrial Electronics, Vol. 71, No. 4, 2024</p>
+          <div class="pub-type">{{ pub.type }}</div>
+          <h3 class="pub-title">{{ pub.title }}</h3>
+          <p class="pub-venue">{{ pub.date }}</p>
         </div>
-        <div class="pub-year">2024</div>
-      </div>
-
-      <div class="pub-item reveal" data-type="conference">
-        <div>
-          <div class="pub-type">Conference Paper · IEEE TENCON 2024</div>
-          <h3 class="pub-title">Deep Learning-Based PCB Defect Detection using Transfer Learning on Limited Datasets</h3>
-          <p class="pub-authors">Arroyo, C.J.A., Sangalang, R.G.B.</p>
-          <p class="pub-venue">Proc. IEEE TENCON 2024, Singapore, Nov. 2024</p>
-        </div>
-        <div class="pub-year">2024</div>
-      </div>
-
-      <div class="pub-item reveal" data-type="journal">
-        <div>
-          <div class="pub-type">Journal Article · Sensors (MDPI)</div>
-          <h3 class="pub-title">Low-Power Wireless Sensor Node for Agricultural Microclimate Monitoring in Tropical Environments</h3>
-          <p class="pub-authors">Rosales, A.M., Sangalang, R.G.B., Cruz, M.L.</p>
-          <p class="pub-venue">Sensors 2023, 23(15), 6842; doi:10.3390/s23156842</p>
-        </div>
-        <div class="pub-year">2023</div>
-      </div>
-
-      <div class="pub-item reveal" data-type="conference">
-        <div>
-          <div class="pub-type">Conference Paper · ICCIT 2023</div>
-          <h3 class="pub-title">FPGA Implementation of a Real-Time Edge Detection Algorithm for Embedded Vision Systems</h3>
-          <p class="pub-authors">Amante, A.D., Arroyo, C.J.A.</p>
-          <p class="pub-venue">Proc. 2023 Int. Conf. on Computer &amp; Information Technology, Dhaka, 2023</p>
-        </div>
-        <div class="pub-year">2023</div>
-      </div>
-
-      <div class="pub-item reveal" data-type="report">
-        <div>
-          <div class="pub-type">Technical Report · DOST-PCIEERD</div>
-          <h3 class="pub-title">Final Report: Solar-Powered Environmental Sensor Network Deployment at BatStateU</h3>
-          <p class="pub-authors">ESRC Research Team</p>
-          <p class="pub-venue">DOST-PCIEERD Project No. 09197, Completed 2023</p>
-        </div>
-        <div class="pub-year">2023</div>
-      </div>
+        <div class="pub-year">{{ pub.date[-4:] if pub.date }}</div>
+      </a>
+      {% endfor %}
+    </div>
+    <div style="text-align:center;margin-top:24px;">
+      <a href="{{ url_for('public.publications') }}" class="btn btn-outline">View All Publications</a>
     </div>
   </div>
 </section>
@@ -582,143 +437,26 @@
     </div>
 
     <div class="faculty-grid" data-stagger>
+      {% for member in staff %}
       <div class="f-card reveal">
         <div class="f-avatar-wrap">
-          <div class="f-avatar-ph" aria-label="Assoc. Prof Albertson D. Amante initials">AA</div>
-          <div class="f-online" aria-label="Active member"></div>
+          {% if member.photo_url %}
+          <img src="{{ member.photo_url }}" alt="{{ member.name }}" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+          {% else %}
+          <div class="f-avatar-ph" aria-label="{{ member.name }} initials">{{ member.name[:2]|upper }}</div>
+          {% endif %}
         </div>
-        <p class="f-name">Assoc. Prof Albertson D. Amante</p>
-        <p class="f-pos">Director, STEERHUB · VPRDES BatStateU</p>
-        <p class="f-interests">Embedded systems, FPGA design, power electronics, industry-academia linkage</p>
-        <div class="f-socials">
-          <a href="#" class="soc-btn" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg></a>
-          <a href="#" class="soc-btn" aria-label="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
-        </div>
+        <p class="f-name">{{ member.name }}</p>
+        <p class="f-pos">{{ member.role }}</p>
+        {% if member.bio %}
+        <p class="f-interests">{{ member.bio[:120] }}{% if member.bio|length > 120 %}…{% endif %}</p>
+        {% endif %}
       </div>
-
-      <div class="f-card reveal">
-        <div class="f-avatar-wrap">
-          <div class="f-avatar-ph" style="background:linear-gradient(135deg,#0A3560,var(--cyan));" aria-label="Dr Ralph Gerard B. Sangalang initials">RS</div>
-          <div class="f-online"></div>
-        </div>
-        <p class="f-name">Dr. Ralph Gerard B. Sangalang</p>
-        <p class="f-pos">Center Head, ESRC</p>
-        <p class="f-interests">IoT systems, wireless communications, signal processing, nanoelectronics</p>
-        <div class="f-socials">
-          <a href="#" class="soc-btn" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg></a>
-          <a href="#" class="soc-btn" aria-label="Google Scholar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></a>
-          <a href="#" class="soc-btn" aria-label="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
-        </div>
-      </div>
-
-      <div class="f-card reveal">
-        <div class="f-avatar-wrap">
-          <div class="f-avatar-ph" style="background:linear-gradient(135deg,var(--navy),#0093AE);" aria-label="Engr. Carlos Jhay A. Arroyo initials">CA</div>
-          <div class="f-online"></div>
-        </div>
-        <p class="f-name">Engr. Carlos Jhay A. Arroyo</p>
-        <p class="f-pos">University Research Associate, ESRC</p>
-        <p class="f-interests">Machine learning, PCB fabrication, computer vision, prototype development</p>
-        <div class="f-socials">
-          <a href="#" class="soc-btn" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg></a>
-          <a href="#" class="soc-btn" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg></a>
-        </div>
-      </div>
-
-      <div class="f-card reveal">
-        <div class="f-avatar-wrap">
-          <div class="f-avatar-ph" style="background:linear-gradient(135deg,#064e3b,var(--navy));" aria-label="Engr. Ariel M. Rosales initials">AR</div>
-        </div>
-        <p class="f-name">Engr. Ariel M. Rosales</p>
-        <p class="f-pos">Project Staff, EIS</p>
-        <p class="f-interests">Wireless sensor networks, renewable energy systems, data logging, 3D modeling</p>
-        <div class="f-socials">
-          <a href="#" class="soc-btn" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg></a>
-          <a href="#" class="soc-btn" aria-label="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
-        </div>
-      </div>
+      {% endfor %}
     </div>
 
     <div style="text-align:center;margin-top:40px;" class="reveal">
       <a href="{{ url_for('public.team') }}" class="btn btn-outline">View All Faculty</a>
-    </div>
-  </div>
-</section>
-
-{# Circuit divider #}
-<div class="circuit-divider" aria-hidden="true">
-  <svg viewBox="0 0 1440 28" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-    <rect width="1440" height="28" fill="var(--white)"/>
-    <line x1="0" y1="14" x2="680" y2="14" stroke="#E2E8F0" stroke-width="1"/>
-    <line x1="760" y1="14" x2="1440" y2="14" stroke="#E2E8F0" stroke-width="1"/>
-    <circle cx="720" cy="14" r="8" fill="var(--navy)"/>
-    <circle cx="720" cy="14" r="4" fill="var(--cyan)"/>
-    <circle cx="680" cy="14" r="3" fill="var(--navy)" opacity=".35"/>
-    <circle cx="760" cy="14" r="3" fill="var(--navy)" opacity=".35"/>
-  </svg>
-</div>
-
-{# ═══ 8. LABORATORIES ════════════════════════════════════════════════ #}
-<section id="labs" class="section" aria-labelledby="labs-heading">
-  <div class="wrap">
-    <div class="sec-header center reveal">
-      <span class="eyebrow">Our Facilities</span>
-      <h2 class="sec-h2" id="labs-heading">Laboratories</h2>
-      <p class="sec-lead">State-of-the-art facilities equipped for electronics prototyping, fabrication, and research development.</p>
-    </div>
-
-    <div class="labs-grid" data-stagger>
-      <div class="lab-card reveal">
-        <div class="lab-img">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M7 9H4M7 12H2M7 15H4M17 9h3M17 12h5M17 15h3"/></svg>
-        </div>
-        <div class="lab-body">
-          <h3 class="lab-name">Electronics Prototyping Lab</h3>
-          <p class="lab-desc">Full-service prototyping facility for designing and assembling electronic circuits, PCBs, and embedded systems for research and development projects.</p>
-          <div class="lab-equip">
-            <span class="lab-tag">Solder Stations</span>
-            <span class="lab-tag">Oscilloscopes</span>
-            <span class="lab-tag">Function Generators</span>
-            <span class="lab-tag">Power Supplies</span>
-          </div>
-          <a href="#" class="learn-more">Learn More <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
-        </div>
-      </div>
-
-      <div class="lab-card reveal">
-        <div class="lab-img" style="background:linear-gradient(135deg,#0A3560,var(--navy));">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-        </div>
-        <div class="lab-body">
-          <h3 class="lab-name">PCB Fabrication &amp; 3D Printing Lab</h3>
-          <p class="lab-desc">Advanced manufacturing lab for rapid PCB prototyping, 3D-printed enclosures, and mechanical component fabrication to support hardware development cycles.</p>
-          <div class="lab-equip">
-            <span class="lab-tag">PCB Mill</span>
-            <span class="lab-tag">3D Printers</span>
-            <span class="lab-tag">Dremel Tools</span>
-            <span class="lab-tag">Reflow Oven</span>
-          </div>
-          <a href="#" class="learn-more">Learn More <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
-        </div>
-      </div>
-
-      <div class="lab-card reveal">
-        <div class="lab-img" style="background:linear-gradient(135deg,#064e3b,#0F4C81);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="2"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14M19.07 4.93a10 10 0 0 1 0 14.14M7.76 7.76a6 6 0 0 0 0 8.48M16.24 7.76a6 6 0 0 1 0 8.48"/></svg>
-        </div>
-        <div class="lab-body">
-          <h3 class="lab-name">IoT &amp; Data Science Lab</h3>
-          <p class="lab-desc">Connected systems research lab featuring edge computing platforms, cloud integration tools, and environmental monitoring equipment for IoT experiments.</p>
-          <div class="lab-equip">
-            <span class="lab-tag">Raspberry Pi</span>
-            <span class="lab-tag">Arduino</span>
-            <span class="lab-tag">Spectral Camera</span>
-            <span class="lab-tag">Weather Station</span>
-            <span class="lab-tag">Data Loggers</span>
-          </div>
-          <a href="#" class="learn-more">Learn More <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
-        </div>
-      </div>
     </div>
   </div>
 </section>
@@ -747,32 +485,38 @@
 
   <div class="partners-mask">
     <div class="partners-track" aria-label="Partner logos carousel">
-      {# First set #}
+      {# First set — based on real institutions/orgs that engaged with ESRC per Center Highlights data #}
       <div class="partner-tile">BatStateU</div>
-      <div class="partner-tile">DOST–PCIEERD</div>
-      <div class="partner-tile">IEEE Philippines</div>
-      <div class="partner-tile">CHED</div>
-      <div class="partner-tile">Analog Devices</div>
-      <div class="partner-tile">Texas Instruments</div>
-      <div class="partner-tile">Microchip Technology</div>
-      <div class="partner-tile">DLSU Manila</div>
-      <div class="partner-tile">UP Diliman</div>
-      <div class="partner-tile">MAPÚA University</div>
-      <div class="partner-tile">Semiconductor &amp; Electronics Ind.</div>
       <div class="partner-tile">TESDA</div>
+      <div class="partner-tile">AboitizPower</div>
+      <div class="partner-tile">Don Bosco Technical College</div>
+      <div class="partner-tile">MSU General Santos</div>
+      <div class="partner-tile">Mindoro State University</div>
+      <div class="partner-tile">SPAMAST</div>
+      <div class="partner-tile">Rizal Technological University</div>
+      <div class="partner-tile">Tarlac State University</div>
+      <div class="partner-tile">National University Laguna</div>
+      <div class="partner-tile">OmniFab Inc.</div>
+      <div class="partner-tile">Collins Aerospace</div>
+      <div class="partner-tile">Phil Railways Institute - DOTr</div>
+      <div class="partner-tile">Thai Nguyen University of Technology</div>
+      <div class="partner-tile">Indian Maritime University</div>
       {# Duplicate for seamless loop #}
       <div class="partner-tile" aria-hidden="true">BatStateU</div>
-      <div class="partner-tile" aria-hidden="true">DOST–PCIEERD</div>
-      <div class="partner-tile" aria-hidden="true">IEEE Philippines</div>
-      <div class="partner-tile" aria-hidden="true">CHED</div>
-      <div class="partner-tile" aria-hidden="true">Analog Devices</div>
-      <div class="partner-tile" aria-hidden="true">Texas Instruments</div>
-      <div class="partner-tile" aria-hidden="true">Microchip Technology</div>
-      <div class="partner-tile" aria-hidden="true">DLSU Manila</div>
-      <div class="partner-tile" aria-hidden="true">UP Diliman</div>
-      <div class="partner-tile" aria-hidden="true">MAPÚA University</div>
-      <div class="partner-tile" aria-hidden="true">Semiconductor &amp; Electronics Ind.</div>
       <div class="partner-tile" aria-hidden="true">TESDA</div>
+      <div class="partner-tile" aria-hidden="true">AboitizPower</div>
+      <div class="partner-tile" aria-hidden="true">Don Bosco Technical College</div>
+      <div class="partner-tile" aria-hidden="true">MSU General Santos</div>
+      <div class="partner-tile" aria-hidden="true">Mindoro State University</div>
+      <div class="partner-tile" aria-hidden="true">SPAMAST</div>
+      <div class="partner-tile" aria-hidden="true">Rizal Technological University</div>
+      <div class="partner-tile" aria-hidden="true">Tarlac State University</div>
+      <div class="partner-tile" aria-hidden="true">National University Laguna</div>
+      <div class="partner-tile" aria-hidden="true">OmniFab Inc.</div>
+      <div class="partner-tile" aria-hidden="true">Collins Aerospace</div>
+      <div class="partner-tile" aria-hidden="true">Phil Railways Institute - DOTr</div>
+      <div class="partner-tile" aria-hidden="true">Thai Nguyen University of Technology</div>
+      <div class="partner-tile" aria-hidden="true">Indian Maritime University</div>
     </div>
   </div>
 </section>
@@ -796,7 +540,7 @@
     <div class="sec-header reveal">
       <span class="eyebrow">Get In Touch</span>
       <h2 class="sec-h2" id="contact-heading">Contact Us</h2>
-      <p class="sec-lead">Whether you're a student, researcher, or industry partner — we'd love to hear from you.</p>
+      <p class="sec-lead">Whether you're a student, researcher, or industry partner, we'd love to hear from you.</p>
     </div>
 
     <div class="contact-grid">
@@ -818,7 +562,7 @@
           </div>
           <div>
             <p class="c-lbl">Phone</p>
-            <p class="c-val"><a href="tel:+63439800385">(043) 980-0385 local 2405</a></p>
+            <p class="c-val"><a href="tel:+63439800385">(043) 980-0385 LOC. 2405</a></p>
           </div>
         </div>
 
@@ -828,7 +572,7 @@
           </div>
           <div>
             <p class="c-lbl">Address</p>
-            <p class="c-val">ESRC Building, Batangas State University<br>Pablo Borbon Campus, Rizal Ave.<br>Batangas City 4200, Philippines</p>
+            <p class="c-val">2nd Flr. STEER Hub Building, Batangas State University<br>Alangilan Campus<br>Batangas City 4200, Philippines</p>
           </div>
         </div>
 
@@ -838,7 +582,7 @@
           </div>
           <div>
             <p class="c-lbl">Office Hours</p>
-            <p class="c-val">Monday – Friday, 8:00 AM – 5:00 PM</p>
+            <p class="c-val">Monday – Thursday, 7:00 AM – 8:00 PM</p>
           </div>
         </div>
 
@@ -858,9 +602,12 @@
         </div>
 
         <!-- Map placeholder -->
-        <div class="map-box" role="img" aria-label="Map location of ESRC">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <p class="map-box-label">Batangas State University · Batangas City</p>
+        <div class="map-box" style="padding:0;overflow:hidden;">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3874.904454032709!2d121.0711339756138!3d13.784632996531561!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x33bd0f3a2014be09%3A0x19a47167a4f63785!2sBatStateU%20Science%2C%20Technology%2C%20Engineering%20and%20Environment%20Research%20-%20STEER%20Hub!5e0!3m2!1sen!2sph!4v1782795245985!5m2!1sen!2sph"
+            width="100%" height="100%" style="border:0;" loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
         </div>
       </div>
 
@@ -869,7 +616,7 @@
         <h3 style="font-family:var(--font-d);font-size:1.15rem;font-weight:700;color:var(--dark);margin-bottom:6px;">Send a Message</h3>
         <p style="font-size:.84rem;color:var(--gray-500);margin-bottom:24px;">We'll get back to you within 1–2 business days.</p>
 
-        <form id="contactForm" novalidate>
+        <form id="tempForm" action="{{ url_for('public.contact_submit') }}" method="POST">
           <div class="form-row">
             <div class="form-group">
               <label class="form-label" for="cf-name">Full Name</label>

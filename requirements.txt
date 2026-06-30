@@ -140,6 +140,9 @@ requests==2.34.2
     #   cachecontrol
     #   google-api-core
     #   google-cloud-storage
+    #   resend
+resend==2.32.2
+    # via electronic-systems-research-center-new
 sqlalchemy==2.0.51
     # via
     #   alembic
@@ -148,6 +151,7 @@ typing-extensions==4.15.0
     # via
     #   alembic
     #   grpcio
+    #   resend
     #   sqlalchemy
 urllib3==2.7.0
     # via requests

@@ -329,7 +329,7 @@ input,textarea,select { font-family: inherit; }
 /* ── RESEARCH AREAS ────────────────────────────────────────────── */
 .research-grid {
   display: grid;
-  grid-template-columns: repeat(4,1fr);
+  grid-template-columns: repeat(3,1fr);
   gap: 20px;
 }
 .r-card {
@@ -373,7 +373,7 @@ input,textarea,select { font-family: inherit; }
   background-size: 32px 32px;
 }
 .stats-grid {
-  display: grid; grid-template-columns: repeat(5,1fr);
+  display: grid; grid-template-columns: repeat(3,1fr);
   border: 1px solid rgba(255,255,255,.07);
   border-radius: var(--r-xl); overflow: hidden; position: relative; z-index: 1;
 }

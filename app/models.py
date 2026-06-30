@@ -11,6 +11,8 @@ class Staff(db.Model):
     role = db.Column(db.String(150))  # e.g. "Center Head, ESRC"
     bio = db.Column(db.Text)
     photo_url = db.Column(db.String(255))
+    image_position = db.Column(db.String(30), default="center")
+    image_scale = db.Column(db.Float, default=1.0)  
     order = db.Column(db.Integer, default=0)
     is_published = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -114,4 +116,15 @@ class LearningResource(db.Model):
     link = db.Column(db.String(255))  # links to the manager page with full content
     order = db.Column(db.Integer, default=0)
     is_published = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class ContactMessage(db.Model):
+    __tablename__ = "contact_message"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(150), nullable=False)
+    email = db.Column(db.String(150), nullable=False)
+    subject = db.Column(db.String(255))
+    organization = db.Column(db.String(255))
+    message = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

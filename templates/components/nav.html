@@ -4,12 +4,7 @@
     <!-- Brand -->
     <a href="{{ url_for('public.home') }}" class="nav-brand" aria-label="ESRC Home">
       <div class="nav-brand-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-          <rect x="3" y="14" width="7" height="7" rx="1"/>
-          <circle cx="17.5" cy="17.5" r="3.5"/>
-          <line x1="14" y1="17.5" x2="11" y2="17.5"/>
-        </svg>
+        <img src="https://5xb2ufjgpdzgmhwg.public.blob.vercel-storage.com/images/esrc%20logo%202-99vaSkd9QVs9devJoP8w4NSzF0YblX.webp" alt="ESRC" style="width:100%;height:100%;object-fit:contain;">
       </div>
       <div class="nav-brand-text">
         ESRC
@@ -22,11 +17,10 @@
       <li><a href="{{ url_for('public.home') }}">Home</a></li>
       <li><a href="#about">About</a></li>
       <li><a href="#research">Research</a></li>
-      <li><a href="#projects">Projects</a></li>
-      <li><a href="#labs">Laboratories</a></li>
-      <li><a href="#publications">Publications</a></li>
-      <li><a href="#news">News &amp; Events</a></li>
-      <li><a href="{{ url_for('public.team') }}">Faculty</a></li>
+      <li><a href="{{ url_for('public.team') }}">Team</a></li>
+      <li><a href="{{ url_for('public.center_highlights') }}">Center Highlights</a></li>
+      <li><a href="{{ url_for('public.resources') }}">Resources</a></li>
+      <li><a href="{{ url_for('public.accomplishments') }}">Accomplishments</a></li>
       <li><a href="#contact" class="nav-cta">Contact</a></li>
     </ul>
 
@@ -43,12 +37,9 @@
   <a href="{{ url_for('public.home') }}">Home</a>
   <a href="#about">About</a>
   <a href="#research">Research</a>
-  <a href="#projects">Projects</a>
-  <a href="#labs">Laboratories</a>
-  <a href="#publications">Publications</a>
-  <a href="#news">News &amp; Events</a>
-  <a href="{{ url_for('public.team') }}">Faculty</a>
-  <a href="{{ url_for('public.accomplishments') }}">Accomplishments</a>
+  <a href="{{ url_for('public.team') }}">Team</a>
+  <a href="{{ url_for('public.center_highlights') }}">Center Highlights</a>
   <a href="{{ url_for('public.resources') }}">Resources</a>
+  <a href="{{ url_for('public.accomplishments') }}">Accomplishments</a>
   <a href="#contact" style="color:var(--cyan);font-weight:700;">Contact</a>
 </div>

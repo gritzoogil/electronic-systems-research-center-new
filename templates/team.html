@@ -65,7 +65,7 @@
       <h2 class="sec-h2" id="ojt-heading">OJT / Interns</h2>
     </div>
 
-    {% for batch_label, members in ojt_batches.items() %}
+    {% for batch_label, members in ojt_batches|dictsort(reverse=true) %}
     <div style="margin-bottom:56px;" class="reveal">
       <h3 style="font-family:var(--font-d);font-size:1.1rem;font-weight:700;color:var(--navy);
                  margin-bottom:24px;padding-bottom:10px;border-bottom:2px solid var(--gray-200);">
