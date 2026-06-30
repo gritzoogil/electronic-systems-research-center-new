@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Resources — ESRC{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section style="padding:140px 0 80px;background:linear-gradient(135deg,var(--gray-900),var(--navy-dark),var(--navy));">
+  <div class="wrap" style="text-align:center;">
+    <span class="eyebrow" style="justify-content:center;">Learning Materials</span>
+    <h1 class="sec-h2 light" style="margin-bottom:.75rem;">Resources</h1>
+    <p class="sec-lead light" style="margin:0 auto;text-align:center;">
+      Books, course materials, and reference guides curated by the ESRC team.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    {% if resources %}
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px;">
+      {% for item in resources %}
+      <div class="proj-card reveal">
+        <!-- Thumbnail -->
+        <div class="proj-img" style="height:220px;{% if item.thumbnail_url %}background:url('{{ item.thumbnail_url }}') center/cover no-repeat;{% endif %}">
+          {% if not item.thumbnail_url %}
+          <svg class="proj-img-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          {% endif %}
+        </div>
+        <div class="proj-body">
+          <h3 class="proj-title">{{ item.title }}</h3>
+          {% if item.description %}
+            <p class="proj-desc">{{ item.description[:120] }}{% if item.description|length > 120 %}…{% endif %}</p>
+          {% endif %}
+          {% if item.link %}
+          <div class="proj-footer" style="margin-top:16px;padding-top:14px;border-top:1px solid var(--gray-100);">
+            <a href="{{ item.link }}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Access Resource
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:64px 0;color:var(--gray-400);">
+      <svg style="width:48px;height:48px;margin:0 auto 16px;opacity:.3;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <p>No resources available yet.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

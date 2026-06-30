@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Accomplishments — ESRC{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section style="padding:140px 0 80px;background:linear-gradient(135deg,var(--gray-900),var(--navy-dark),var(--navy));">
+  <div class="wrap" style="text-align:center;">
+    <span class="eyebrow" style="justify-content:center;">What We've Achieved</span>
+    <h1 class="sec-h2 light" style="margin-bottom:.75rem;">Accomplishment Reports</h1>
+    <p class="sec-lead light" style="margin:0 auto;text-align:center;">
+      Quarterly accomplishment reports documenting ESRC's research milestones and activities.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    {% if reports %}
+
+    {# Group reports by year #}
+    {% set years = reports | map(attribute='year') | unique | list %}
+    {% for year in years %}
+    <div style="margin-bottom:64px;" class="reveal">
+      <h2 style="font-family:var(--font-d);font-size:1.5rem;font-weight:800;color:var(--navy);margin-bottom:28px;padding-bottom:12px;border-bottom:2px solid var(--gray-200);">
+        {{ year }}
+      </h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px;">
+        {% for report in reports if report.year == year %}
+        <div class="lab-card reveal">
+          <!-- Thumbnail -->
+          <div class="lab-img" style="{% if report.thumbnail_url %}background:url('{{ report.thumbnail_url }}') center/cover no-repeat;{% endif %}">
+            {% if not report.thumbnail_url %}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            {% endif %}
+          </div>
+          <div class="lab-body">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+              <span class="badge badge-cat">Q{{ report.quarter }}</span>
+              <span style="font-size:.78rem;color:var(--gray-400);">{{ report.year }}</span>
+            </div>
+            <h3 class="lab-name">
+              {{ report.title if report.title else 'Q' ~ report.quarter ~ ' Report ' ~ report.year }}
+            </h3>
+            {% if report.description %}
+              <p class="lab-desc">{{ report.description }}</p>
+            {% endif %}
+            {% if report.flipbook_link %}
+            <a href="{{ report.flipbook_link }}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="margin-top:8px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              View Flipbook
+            </a>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+
+    {% else %}
+    <div style="text-align:center;padding:64px 0;color:var(--gray-400);">
+      <p>No accomplishment reports found.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}
