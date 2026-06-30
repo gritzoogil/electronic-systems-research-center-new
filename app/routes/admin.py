@@ -1,21 +1,10 @@
-from flask import Blueprint, g, jsonify
-from app.auth import require_firebase_user
+from flask import Blueprint, render_template
+from app.auth import require_auth
 
 admin_bp = Blueprint("admin", __name__)
 
-@admin_bp.get("/me")
-@require_firebase_user
-def current_admin_user():
-    firebase_user = g.firebase_user
-    return jsonify(
-        {
-            "uid": firebase_user.get("uid"),
-            "email": firebase_user.get("email"),
-            "email_verified": firebase_user.get("email_verified", False),
-        }
-    )
 
-@admin_bp.route("/ping")
-@require_firebase_user
-def ping():
-    return jsonify({"message": "Admin access confirmed"})
+@admin_bp.route("/")
+@require_auth
+def dashboard():
+    return render_template("admin/dashboard.html")

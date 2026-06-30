@@ -1,0 +1,52 @@
+<nav class="nav" id="siteNav" role="navigation" aria-label="Main navigation">
+  <div class="nav-wrap">
+
+    <!-- Brand -->
+    <a href="{{ url_for('public.index') }}" class="nav-brand" aria-label="ESRC Home">
+        <div class="nav-brand-icon">
+            <img src="{{ url_for('static', filename='img/esrc logo 2.webp') }}"
+                alt="ESRC Logo"
+                class="logo">
+        </div>
+
+        <div class="nav-brand-text">
+            ESRC
+            <small>Electronic Systems Research Center</small>
+        </div>
+    </a>
+
+    <!-- Desktop links -->
+    <ul class="nav-links" role="list">
+      <li><a href="{{ url_for('public.index') }}">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#research">Research</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#labs">Laboratories</a></li>
+      <li><a href="#publications">Publications</a></li>
+      <li><a href="#news">News &amp; Events</a></li>
+      <li><a href="{{ url_for('public.team') }}">Faculty</a></li>
+      <li><a href="#contact" class="nav-cta">Contact</a></li>
+    </ul>
+
+    <!-- Mobile toggle -->
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="mobileNav">
+      <span></span><span></span><span></span>
+    </button>
+
+  </div>
+</nav>
+
+<!-- Mobile nav drawer -->
+<div class="mobile-nav" id="mobileNav" role="dialog" aria-label="Mobile navigation" aria-modal="true">
+  <a href="{{ url_for('public.index') }}">Home</a>
+  <a href="#about">About</a>
+  <a href="#research">Research</a>
+  <a href="#projects">Projects</a>
+  <a href="#labs">Laboratories</a>
+  <a href="#publications">Publications</a>
+  <a href="#news">News &amp; Events</a>
+  <a href="{{ url_for('public.team') }}">Faculty</a>
+  <a href="{{ url_for('public.accomplishments') }}">Accomplishments</a>
+  <a href="{{ url_for('public.resources') }}">Resources</a>
+  <a href="#contact" style="color:var(--cyan);font-weight:700;">Contact</a>
+</div>

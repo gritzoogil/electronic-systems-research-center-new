@@ -1,44 +1,30 @@
-import os
-import tempfile
-from flask import Flask, jsonify
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from dotenv import load_dotenv
-from app.firebase import init_firebase_app
-
-load_dotenv()
+import os
 
 db = SQLAlchemy()
 migrate = Migrate()
 
-instance_path = "/tmp/instance" if os.environ.get("VERCEL") else os.path.join(tempfile.gettempdir(), "instance")
 
 def create_app():
-    app = Flask(
-        __name__,
-        instance_path=instance_path,
-        template_folder="../templates",
-        static_folder="../static"
-    )
-    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret")
+    app = Flask(__name__, template_folder="../templates", static_folder="../static")
+
+    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-key")
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("POSTGRES_URL", "sqlite:///dev.db")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)
     migrate.init_app(app, db)
 
-    firebase_app = init_firebase_app()
+    # Import models so Flask-Migrate can detect them
+    from app import models  # noqa: F401
 
+    # Register blueprints
     from app.routes.public import public_bp
     from app.routes.admin import admin_bp
+
     app.register_blueprint(public_bp)
     app.register_blueprint(admin_bp, url_prefix="/admin")
-
-    @app.get("/health")
-    def health_check():
-        return jsonify({
-            "status": "ok",
-            "firebase": "configured" if firebase_app else "not_configured",
-        })
 
     return app
