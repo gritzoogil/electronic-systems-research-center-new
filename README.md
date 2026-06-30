@@ -24,6 +24,7 @@ You'll need:
 - `FIREBASE_SERVICE_ACCOUNT_PATH` — local path to your downloaded Firebase service account JSON
 - `FIREBASE_SERVICE_ACCOUNT` — deployment-only single-line JSON value for the same service account
 - `FIREBASE_API_KEY`, `FIREBASE_AUTH_DOMAIN`, and `FIREBASE_PROJECT_ID` — the web client config for Firebase email/password sign-in
+- `ADMIN_EMAILS` — comma-separated list of Firebase-authenticated emails that may access the admin endpoints, for example `admin@example.com,team@example.com`
 
 ### 4. Run the app locally
 ```bash
