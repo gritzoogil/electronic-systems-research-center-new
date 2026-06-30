@@ -5,15 +5,21 @@ Run with: uv run python seed.py
 """
 import csv
 import json
+import os
 import re
 from datetime import datetime
 from app import create_app, db
-from app.models import Staff, OJT, Project, Publication, CenterHighlight, CenterHighlightImage
+from app.models import AccomplishmentReport, Staff, OJT, Project, Publication, CenterHighlight, CenterHighlightImage
 
 app = create_app()
 
-with open("image_url_map.json", encoding="utf-8") as f:
-    url_map = json.load(f)
+image_map_path = "image_url_map.json"
+if os.path.exists(image_map_path):
+    with open(image_map_path, encoding="utf-8") as f:
+        url_map = json.load(f)
+else:
+    url_map = {}
+    print(f"{image_map_path} not found; continuing without resolved image URLs.")
 
 
 def resolve_image(old_path):
@@ -127,6 +133,26 @@ with app.app_context():
                         db.session.add(CenterHighlightImage(
                             highlight_id=highlight.id, image_url=resolved, order=i,
                         ))
+
+    # --- ACCOMPLISHMENT REPORTS (skip duplicate 2026 report) ---
+    db.session.query(AccomplishmentReport).delete()
+    with open("seed_data/accomplishment_reports.csv", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            year = row.get("year", "").strip()
+            quarter = row.get("quarter", "").strip()
+            if year == "2026":
+                continue
+
+            db.session.add(AccomplishmentReport(
+                year=int(year),
+                quarter=int(quarter),
+                title=row.get("title", "").strip(),
+                description=row.get("description", "").strip(),
+                thumbnail_url=row.get("thumbnail_url", "").strip() or None,
+                flipbook_link=row.get("flipbook_link", "").strip() or None,
+                is_published=(row.get("is_published", "true").strip().lower() not in ["false", "0", "no"]),
+            ))
 
     db.session.commit()
     print("Seeding complete.")
