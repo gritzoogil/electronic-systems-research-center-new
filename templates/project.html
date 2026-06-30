@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Projects — ESRC{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section style="padding:140px 0 80px;
+                background:linear-gradient(135deg,var(--gray-900),var(--navy-dark),var(--navy));">
+  <div class="wrap" style="text-align:center;">
+    <span class="eyebrow" style="justify-content:center;">What We Build</span>
+    <h1 class="sec-h2 light" style="margin-bottom:.75rem;">Research Projects</h1>
+    <p class="sec-lead light" style="margin:0 auto;text-align:center;">
+      Technology-driven projects advancing electronic systems engineering
+      and solving real-world challenges at BatStateU.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    {% if projects %}
+    <div class="proj-grid" data-stagger>
+      {% for project in projects %}
+      <article class="proj-card reveal">
+
+        <!-- Project image from Vercel Blob URL, fallback to placeholder -->
+        <div class="proj-img"
+             {% if project.img_path %}
+             style="background:url('{{ project.img_path }}') {{ project.image_position or 'center' }}/cover no-repeat;"
+             {% endif %}>
+          {% if not project.img_path %}
+          <svg class="proj-img-icon" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/>
+            <path d="M14 17h7M17 14v7"/>
+          </svg>
+          {% endif %}
+        </div>
+
+        <div class="proj-body">
+          <div class="proj-meta">
+            <span class="badge badge-ongoing">Project</span>
+            {% if project.year %}
+            <span style="font-size:.75rem;color:var(--gray-400);">{{ project.year }}</span>
+            {% endif %}
+          </div>
+          <h2 class="proj-title">{{ project.title }}</h2>
+          {% if project.description %}
+          <p class="proj-desc">
+            {{ project.description[:160] }}{% if project.description|length > 160 %}…{% endif %}
+          </p>
+          {% endif %}
+          <div class="proj-footer">
+            <div></div>
+            <a href="{{ url_for('public.project_detail', project_id=project.id) }}"
+               class="learn-more">
+              Learn More
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" aria-hidden="true">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:80px 0;color:var(--gray-400);">
+      <svg style="width:52px;height:52px;margin:0 auto 16px;opacity:.3;"
+           viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="3" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+        <path d="M14 17h7M17 14v7"/>
+      </svg>
+      <p>No projects available yet.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}
