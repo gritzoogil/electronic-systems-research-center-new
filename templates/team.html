@@ -22,18 +22,22 @@
       <h2 class="sec-h2" id="staff-heading">Faculty &amp; Research Staff</h2>
     </div>
 
-    {% if staff %}
-    <div class="faculty-grid" data-stagger>
-      {% for member in staff %}
-      <div class="f-card reveal">
+    {% set staff = staff|rejectattr('name', 'equalto', 'Prof. Albertson D. Amante')|list %}
+    {% set head = staff|selectattr('role', 'equalto', 'Center Head, ESRC')|list %}
+    {% set others = staff|rejectattr('role', 'equalto', 'Center Head, ESRC')|list %}
+
+    {% if head %}
+    <div style="display:flex;justify-content:center;margin-bottom:40px;">
+      {% for member in head %}
+      <div class="f-card reveal" style="max-width:280px;width:100%;">
         <div class="f-avatar-wrap">
           {% if member.photo_url %}
             <img src="{{ member.photo_url }}"
-                 alt="{{ member.name }}"
-                 class="f-avatar"
-                 loading="lazy"
-                 draggable="false"
-                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+                alt="{{ member.name }}"
+                class="f-avatar"
+                loading="lazy"
+                draggable="false"
+                onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
             <div class="f-avatar-ph" style="display:none;">
               {{ member.name[0] }}{{ member.name.split()[-1][0] if member.name.split()|length > 1 else '' }}
             </div>
@@ -50,8 +54,37 @@
       </div>
       {% endfor %}
     </div>
-    {% else %}
-    <p style="text-align:center;color:var(--gray-400);padding:40px 0;">No staff members found.</p>
+    <div style="border-bottom:2px solid var(--gray-200);max-width:640px;margin:0 auto 48px;"></div>
+    {% endif %}
+
+    {% if others %}
+    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:24px;" data-stagger>
+      {% for member in others %}
+      <div class="f-card reveal" style="width:240px;">
+        <div class="f-avatar-wrap">
+          {% if member.photo_url %}
+            <img src="{{ member.photo_url }}"
+                alt="{{ member.name }}"
+                class="f-avatar"
+                loading="lazy"
+                draggable="false"
+                onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+            <div class="f-avatar-ph" style="display:none;">
+              {{ member.name[0] }}{{ member.name.split()[-1][0] if member.name.split()|length > 1 else '' }}
+            </div>
+          {% else %}
+            <div class="f-avatar-ph">
+              {{ member.name[0] }}{{ member.name.split()[-1][0] if member.name.split()|length > 1 else '' }}
+            </div>
+          {% endif %}
+          <div class="f-online" aria-label="Active"></div>
+        </div>
+        <p class="f-name">{{ member.name }}</p>
+        {% if member.role %}<p class="f-pos">{{ member.role }}</p>{% endif %}
+        {% if member.bio %}<p class="f-interests">{{ member.bio }}</p>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
     {% endif %}
   </div>
 </section>
