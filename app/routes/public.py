@@ -4,7 +4,7 @@ import os
 from collections import defaultdict
 from app.models import (
     Staff, OJT, Project, Publication,
-    AccomplishmentReport, CenterHighlight, LearningResource, db
+    AccomplishmentReport, ResourcePage, CenterHighlight, LearningResource, db
 )
 
 public_bp = Blueprint("public", __name__)
@@ -54,6 +54,11 @@ def accomplishments():
     )
     return render_template("accomplishments.html", reports=reports)
 
+@public_bp.route("/accomplishments/<int:report_id>")
+def accomplishment_detail(report_id):
+    report = AccomplishmentReport.query.get_or_404(report_id)
+    return render_template("accomplishment_detail.html", report=report)
+
 
 @public_bp.route("/center-highlights")
 def center_highlights():
@@ -63,7 +68,7 @@ def center_highlights():
         .order_by(CenterHighlight.date.desc())
         .all()
     )
-    return render_template("center_highlights.html", highlights=highlights)
+    return render_template("center-highlights.html", highlights=highlights)
 
 
 @public_bp.route("/resources")
@@ -75,6 +80,16 @@ def resources():
         .all()
     )
     return render_template("resources.html", resources=items)
+
+@public_bp.route("/resources/<int:resource_id>")
+def resource_detail(resource_id):
+    resource = LearningResource.query.get_or_404(resource_id)
+    return render_template("resource_detail.html", resource=resource)
+
+@public_bp.route("/resources/<int:resource_id>/page/<int:page_id>")
+def resource_page(resource_id, page_id):
+    page = ResourcePage.query.get_or_404(page_id)
+    return render_template("resource_page.html", page=page)
 
 @public_bp.route("/projects")
 def projects():

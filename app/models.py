@@ -106,17 +106,29 @@ class CenterHighlightImage(db.Model):
 
 
 class LearningResource(db.Model):
-    """resources.html — books and course materials"""
+    """A 'book'/course material, e.g. Design Principles and Logic Design"""
     __tablename__ = "learning_resource"
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
     thumbnail_url = db.Column(db.String(255))
-    link = db.Column(db.String(255))  # links to the manager page with full content
     order = db.Column(db.Integer, default=0)
     is_published = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    pages = db.relationship("ResourcePage", backref="resource", cascade="all, delete-orphan", order_by="ResourcePage.order")
+
+
+class ResourcePage(db.Model):
+    __tablename__ = "resource_page"
+
+    id = db.Column(db.Integer, primary_key=True)
+    resource_id = db.Column(db.Integer, db.ForeignKey("learning_resource.id"), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    page_type = db.Column(db.String(20), default="flipbook")
+    embed_url = db.Column(db.Text)
+    order = db.Column(db.Integer, default=0)
 
 class ContactMessage(db.Model):
     __tablename__ = "contact_message"

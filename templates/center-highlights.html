@@ -2,78 +2,53 @@
 {% block title %}Center Highlights — ESRC{% endblock %}
 
 {% block content %}
-
-<!-- HERO -->
-<section style="padding:140px 0 80px;background:linear-gradient(135deg,var(--gray-900),var(--navy-dark),var(--navy));">
-  <div class="wrap" style="text-align:center;">
-    <span class="eyebrow" style="justify-content:center;">News &amp; Updates</span>
-    <h1 class="sec-h2 light" style="margin-bottom:.75rem;">Center Highlights</h1>
-    <p class="sec-lead light" style="margin:0 auto;text-align:center;">
-      Events, achievements, and milestones from the Electronic Systems Research Center.
-    </p>
-  </div>
-</section>
-
-<section class="section">
+<main style="padding-top:120px;padding-bottom:60px;">
   <div class="wrap">
-    {% if highlights %}
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:28px;">
-      {% for item in highlights %}
-      <article class="news-card reveal" style="border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--gray-200);transition:all var(--dur-s) var(--ease);">
+    <h1 class="sec-h2" style="text-align:center;margin-bottom:40px;">Center Highlights</h1>
 
-        {# Show first image if available #}
-        {% if item.images %}
-        <div style="width:100%;height:220px;overflow:hidden;">
-          <img src="{{ item.images[0].image_url }}" alt="{{ item.alt_text or item.title }}"
-               style="width:100%;height:100%;object-fit:cover;transition:transform .5s ease;"
-               loading="lazy" draggable="false"/>
-        </div>
-        {% else %}
-        <div class="news-img">
-          <svg class="news-img-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        </div>
-        {% endif %}
+    {% if highlights|length == 0 %}
+    <p style="text-align:center;color:var(--gray-500);">No highlights published yet.</p>
+    {% endif %}
 
-        <div class="news-body">
-          {% if item.date %}
-          <div class="news-meta">
-            <time class="news-date" datetime="{{ item.date }}">
-              {{ item.date.strftime('%B %d, %Y') if item.date else '' }}
-            </time>
+    <div style="display:flex;flex-direction:column;gap:24px;max-width:900px;margin:0 auto;">
+      {% for highlight in highlights %}
+      <div x-data="{ images: {{ highlight.images|map(attribute='image_url')|list|tojson }}, current: 0, interval: null }"
+           x-init="interval = setInterval(() => { current = (current + 1) % images.length }, 2000)"
+           style="display:flex;flex-direction:column;background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.08);">
+        <div class="highlight-flex" style="display:flex;flex-direction:column;">
+          <div style="position:relative;width:100%;height:280px;overflow:hidden;">
+            <template x-for="(img, index) in images" :key="index">
+              <img :src="img" alt="{{ highlight.title }}" loading="lazy"
+                   style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;transition:opacity 1s ease-in-out;"
+                   :style="{ opacity: current === index ? 1 : 0 }">
+            </template>
           </div>
-          {% endif %}
-
-          <h2 class="news-title">{{ item.title }}</h2>
-
-          {% if item.description %}
-          <p class="news-excerpt">{{ item.description[:180] }}{% if item.description|length > 180 %}…{% endif %}</p>
-          {% endif %}
-
-          {# Additional images as a small strip if more than 1 #}
-          {% if item.images|length > 1 %}
-          <div style="display:flex;gap:6px;margin-top:10px;overflow-x:auto;">
-            {% for img in item.images[1:4] %}
-            <img src="{{ img.image_url }}" alt="{{ item.title }}"
-                 style="width:56px;height:56px;object-fit:cover;border-radius:var(--r-sm);flex-shrink:0;border:1px solid var(--gray-200);"
-                 loading="lazy" draggable="false"/>
-            {% endfor %}
-            {% if item.images|length > 4 %}
-            <div style="width:56px;height:56px;border-radius:var(--r-sm);background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--gray-500);flex-shrink:0;">
-              +{{ item.images|length - 4 }}
-            </div>
-            {% endif %}
+          <div style="padding:24px;">
+            <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:8px;">{{ highlight.title }}</h2>
+            <p style="color:var(--cyan);font-weight:600;margin-bottom:8px;">
+              {{ highlight.date.strftime('%B %d, %Y') if highlight.date else '' }}
+            </p>
+            <p style="color:var(--gray-500);line-height:1.6;">{{ highlight.description }}</p>
           </div>
-          {% endif %}
         </div>
-      </article>
+      </div>
       {% endfor %}
     </div>
-    {% else %}
-    <div style="text-align:center;padding:64px 0;color:var(--gray-400);">
-      <p>No highlights available yet.</p>
-    </div>
-    {% endif %}
   </div>
-</section>
+</main>
 
+<style>
+  @media (min-width: 768px) {
+    .highlight-flex {
+      flex-direction: row !important;
+    }
+    .highlight-flex > div:first-child {
+      width: 33%;
+      height: auto !important;
+    }
+    .highlight-flex > div:last-child {
+      width: 67%;
+    }
+  }
+</style>
 {% endblock %}

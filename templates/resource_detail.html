@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}{{ resource.title }} — ESRC{% endblock %}
+
+{% block content %}
+<main style="padding-top:120px;padding-bottom:60px;">
+  <div class="wrap">
+    <div style="text-align:center;margin-bottom:40px;">
+      <h1 class="sec-h2">{{ resource.title }}</h1>
+      <p style="color:var(--gray-500);max-width:600px;margin:12px auto 0;">{{ resource.description }}</p>
+    </div>
+
+    {% if resource.pages|length == 0 %}
+    <p style="text-align:center;color:var(--gray-500);">No pages added yet.</p>
+    {% endif %}
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;max-width:900px;margin:0 auto;">
+      {% for page in resource.pages %}
+      <a href="{{ url_for('public.resource_page', resource_id=resource.id, page_id=page.id) }}"
+         style="display:flex;align-items:center;gap:10px;background:white;border-radius:10px;padding:16px 20px;box-shadow:0 2px 8px rgba(0,0,0,.06);text-decoration:none;color:inherit;font-weight:600;">
+        {% if page.page_type == 'pdf' %}
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        {% else %}
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        {% endif %}
+        {{ page.title }}
+      </a>
+      {% endfor %}
+    </div>
+
+    <div style="text-align:center;margin-top:32px;">
+      <a href="{{ url_for('public.resources') }}" class="btn btn-outline">← Back to Resources</a>
+    </div>
+  </div>
+</main>
+{% endblock %}
