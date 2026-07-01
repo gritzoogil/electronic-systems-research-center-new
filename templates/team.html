@@ -1,38 +1,96 @@
 {% extends 'base.html' %}
-{% block title %}Our Team - Electronic Systems Research Center{% endblock %}
+{% block title %}Our Team — Electronic Systems Research Center{% endblock %}
 
 {% block content %}
 <div class="team-page">
+
   <!-- HERO -->
-  <section style="padding:140px 0 80px;background:linear-gradient(135deg,var(--gray-900),var(--navy-dark),var(--navy));">
+  <section style="padding:140px 0 80px;
+                  background:linear-gradient(135deg,var(--gray-900),var(--navy-dark),var(--navy));">
     <div class="wrap" style="text-align:center;">
       <span class="eyebrow" style="justify-content:center;">The People Behind ESRC</span>
       <h1 class="sec-h2 light" style="margin-bottom:.75rem;">Meet Our Team</h1>
       <p class="sec-lead light" style="margin:0 auto;text-align:center;">
-        Dedicated professionals and bright student interns driving research innovation at Batangas State University.
+        Dedicated professionals and bright student interns driving research
+        innovation at Batangas State University.
       </p>
     </div>
   </section>
 
-<!-- STAFF -->
-    <section class="section" aria-labelledby="staff-heading">
-      <div class="wrap">
-        <div class="sec-header center reveal">
-          <span class="eyebrow">Core Staff</span>
-          <h2 class="sec-h2" id="staff-heading">Faculty &amp; Research Staff</h2>
+  <!-- DIVIDER -->
+  <div class="circuit-divider" aria-hidden="true">
+    <svg viewBox="0 0 1440 28" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <rect width="1440" height="28" fill="var(--white)"/>
+      <line x1="0" y1="14" x2="680" y2="14" stroke="#E2E8F0" stroke-width="1"/>
+      <line x1="760" y1="14" x2="1440" y2="14" stroke="#E2E8F0" stroke-width="1"/>
+      <circle cx="720" cy="14" r="8" fill="var(--navy)"/>
+      <circle cx="720" cy="14" r="4" fill="var(--cyan)"/>
+      <circle cx="680" cy="14" r="3" fill="var(--navy)" opacity=".35"/>
+      <circle cx="760" cy="14" r="3" fill="var(--navy)" opacity=".35"/>
+    </svg>
+  </div>
+
+  <!-- STAFF -->
+  <section class="section" aria-labelledby="staff-heading">
+    <div class="wrap">
+      <div class="sec-header center reveal">
+        <span class="eyebrow">Core Staff</span>
+        <h2 class="sec-h2" id="staff-heading">Faculty &amp; Research Staff</h2>
+      </div>
+
+      {#
+  Filter out Prof. Amante from team page only — he appears on the homepage faculty section.
+  His record stays is_published=True in the DB so he shows on index.html.
+#}
+{% set visible_staff = staff | rejectattr('name', 'equalto', 'Prof. Albertson D. Amante') | list %}
+{% set head   = visible_staff | selectattr('role', 'equalto', 'Center Head, ESRC') | list %}
+{% set others = visible_staff | rejectattr('role', 'equalto', 'Center Head, ESRC') | list %}
+
+      <!-- Lead card -->
+      {% if head %}
+      {% for member in head %}
+      <article class="staff-card staff-lead reveal" aria-label="Center Head profile">
+        <div class="staff-photo">
+          {% if member.photo_url %}
+          <img src="{{ member.photo_url }}"
+               alt="{{ member.name }}"
+               loading="eager"
+               fetchpriority="high"
+               style="object-position:{{ member.image_position or 'center' }};
+                      transform:scale({{ member.image_scale or 1.0 }});"
+               onerror="this.style.display='none';
+                        this.nextElementSibling.style.display='flex';">
+          <div class="staff-photo-ph" style="display:none;">{{ member.name[0] }}</div>
+          {% else %}
+          <div class="staff-photo-ph">{{ member.name[0] }}</div>
+          {% endif %}
         </div>
+        <div class="staff-body">
+          <p class="staff-name">{{ member.name }}</p>
+          {% if member.role %}<p class="staff-role">{{ member.role }}</p>{% endif %}
+          {% if member.bio %}<p class="staff-bio">{{ member.bio }}</p>{% endif %}
+        </div>
+      </article>
+      {% endfor %}
+      <div style="border-bottom:2px solid var(--gray-200);
+                  max-width:900px;margin:0 auto 48px;" aria-hidden="true"></div>
+      {% endif %}
 
-        {% set staff = staff|rejectattr('name', 'equalto', 'Prof. Albertson D. Amante')|list %}
-        {% set head = staff|selectattr('role', 'equalto', 'Center Head, ESRC')|list %}
-        {% set others = staff|rejectattr('role', 'equalto', 'Center Head, ESRC')|list %}
-
-        {% if head %}
-        {% for member in head %}
-        <div class="staff-card staff-lead reveal">
+      <!-- Other staff -->
+      {% if others %}
+      <div class="staff-grid" data-stagger>
+        {% for member in others %}
+        <article class="staff-card reveal">
           <div class="staff-photo">
             {% if member.photo_url %}
-            <img src="{{ member.photo_url }}" alt="{{ member.name }}" loading="lazy"
-                onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <img src="{{ member.photo_url }}"
+                 alt="{{ member.name }}"
+                 loading="lazy"
+                 decoding="async"
+                 style="object-position:{{ member.image_position or 'center' }};
+                        transform:scale({{ member.image_scale or 1.0 }});"
+                 onerror="this.style.display='none';
+                          this.nextElementSibling.style.display='flex';">
             <div class="staff-photo-ph" style="display:none;">{{ member.name[0] }}</div>
             {% else %}
             <div class="staff-photo-ph">{{ member.name[0] }}</div>
@@ -43,39 +101,19 @@
             {% if member.role %}<p class="staff-role">{{ member.role }}</p>{% endif %}
             {% if member.bio %}<p class="staff-bio">{{ member.bio }}</p>{% endif %}
           </div>
-        </div>
+        </article>
         {% endfor %}
-        <div style="border-bottom:2px solid var(--gray-200);max-width:900px;margin:0 auto 48px;"></div>
-        {% endif %}
-
-        {% if others %}
-        <div class="staff-grid" data-stagger>
-          {% for member in others %}
-          <div class="staff-card reveal">
-            <div class="staff-photo">
-              {% if member.photo_url %}
-              <img src="{{ member.photo_url }}" alt="{{ member.name }}" loading="lazy"
-                  onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-              <div class="staff-photo-ph" style="display:none;">{{ member.name[0] }}</div>
-              {% else %}
-              <div class="staff-photo-ph">{{ member.name[0] }}</div>
-              {% endif %}
-            </div>
-            <div class="staff-body">
-              <p class="staff-name">{{ member.name }}</p>
-              {% if member.role %}<p class="staff-role">{{ member.role }}</p>{% endif %}
-              {% if member.bio %}<p class="staff-bio">{{ member.bio }}</p>{% endif %}
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-        {% elif not head %}
-        <p style="text-align:center;color:var(--gray-400);padding:40px 0;">No staff members found.</p>
-        {% endif %}
       </div>
-    </section>
+      {% elif not head %}
+      <p style="text-align:center;color:var(--gray-400);padding:40px 0;">
+        No staff members found.
+      </p>
+      {% endif %}
 
-  <!-- OJT INTERNS — grouped by batch_label via Python defaultdict -->
+    </div>
+  </section>
+
+  <!-- OJT INTERNS — grouped by batch, newest first, older batches collapsible -->
   {% if ojt_batches %}
   <section class="section bg-gray" aria-labelledby="ojt-heading">
     <div class="wrap">
@@ -84,46 +122,118 @@
         <h2 class="sec-h2" id="ojt-heading">OJT / Interns</h2>
       </div>
 
-      {% for batch_label, members in ojt_batches|dictsort(reverse=true) %}
-      <div style="margin-bottom:56px;" class="reveal">
-        <h3 style="font-family:var(--font-d);font-size:1.1rem;font-weight:700;color:var(--navy);
-                  margin-bottom:24px;padding-bottom:10px;border-bottom:2px solid var(--gray-200);">
-          {{ batch_label }}
-          <span style="font-size:.78rem;font-weight:500;color:var(--gray-400);margin-left:8px;">
-            ({{ members|length }} intern{{ 's' if members|length != 1 else '' }})
-          </span>
+      {% for batch_label, members in ojt_batches | dictsort(reverse=true) %}
+      {% set is_latest = loop.first %}
+      {% set batch_id = 'batch-' ~ loop.index %}
+
+      <div style="margin-bottom:40px;" class="reveal">
+
+        <!-- Batch header — clickable to collapse older batches -->
+        <h3 style="font-family:var(--font-d);font-size:1.05rem;font-weight:700;
+                   color:var(--navy);padding-bottom:10px;
+                   border-bottom:2px solid var(--gray-200);">
+          <button class="batch-toggle"
+                  aria-expanded="{{ 'true' if is_latest else 'false' }}"
+                  aria-controls="{{ batch_id }}">
+            <span>
+              {{ batch_label }}
+              <span style="font-size:.75rem;font-weight:500;
+                           color:var(--gray-400);margin-left:8px;">
+                ({{ members | length }}
+                intern{{ 's' if members | length != 1 else '' }})
+              </span>
+            </span>
+            <span class="batch-toggle-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </span>
+          </button>
         </h3>
-        <div class="faculty-grid" data-stagger>
-          {% for intern in members %}
-          <div class="f-card reveal">
-            <div class="f-avatar-wrap">
-              {% if intern.photo_url %}
+
+        <!-- Collapsible content — latest open, older closed -->
+        <div class="batch-content {% if not is_latest %}collapsed{% endif %}"
+             id="{{ batch_id }}"
+             style="max-height:{% if is_latest %}9999px{% else %}0{% endif %};">
+          <div class="faculty-grid" data-stagger style="margin-top:24px;">
+            {% for intern in members %}
+            <div class="f-card reveal">
+              <div class="f-avatar-wrap">
+                {% if intern.photo_url %}
                 <img src="{{ intern.photo_url }}"
-                    alt="{{ intern.name }}"
-                    class="f-avatar"
-                    loading="lazy"
-                    draggable="false"
-                    onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
-                <div class="f-avatar-ph" style="display:none;background:linear-gradient(135deg,var(--navy-dark),var(--cyan));">
+                     alt="{{ intern.name }}"
+                     class="f-avatar"
+                     loading="lazy"
+                     decoding="async"
+                     onerror="this.style.display='none';
+                              this.nextElementSibling.style.display='flex';" />
+                <div class="f-avatar-ph"
+                     style="display:none;
+                            background:linear-gradient(135deg,var(--navy-dark),var(--cyan));">
                   {{ intern.name[0] }}{{ intern.name.split()[-1][0] if intern.name.split()|length > 1 else '' }}
                 </div>
-              {% else %}
-                <div class="f-avatar-ph" style="background:linear-gradient(135deg,var(--navy-dark),var(--cyan));">
+                {% else %}
+                <div class="f-avatar-ph"
+                     style="background:linear-gradient(135deg,var(--navy-dark),var(--cyan));">
                   {{ intern.name[0] }}{{ intern.name.split()[-1][0] if intern.name.split()|length > 1 else '' }}
                 </div>
+                {% endif %}
+              </div>
+              <p class="f-name">{{ intern.name }}</p>
+              {% if intern.course %}
+              <p class="f-pos">{{ intern.course }}</p>
+              {% endif %}
+              {% if intern.email %}
+              <p class="f-interests" style="font-size:.74rem;">{{ intern.email }}</p>
               {% endif %}
             </div>
-            <p class="f-name">{{ intern.name }}</p>
-            {% if intern.course %}<p class="f-pos">{{ intern.course }}</p>{% endif %}
-            {% if intern.email %}<p class="f-interests" style="font-size:.76rem;">{{ intern.email }}</p>{% endif %}
+            {% endfor %}
           </div>
-          {% endfor %}
         </div>
+
       </div>
       {% endfor %}
 
     </div>
   </section>
   {% endif %}
+
 </div>
 {% endblock %}
+
+{% block scripts %}
+<script>
+/* Collapsible OJT batch sections */
+document.querySelectorAll('.batch-toggle').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var expanded = btn.getAttribute('aria-expanded') === 'true';
+    var contentId = btn.getAttribute('aria-controls');
+    var content = document.getElementById(contentId);
+    if (!content) return;
+
+    if (expanded) {
+      /* Collapse: animate from current height to 0 */
+      content.style.maxHeight = content.scrollHeight + 'px';
+      requestAnimationFrame(function () {
+        content.style.maxHeight = content.scrollHeight + 'px';
+        requestAnimationFrame(function () {
+          content.classList.add('collapsed');
+          content.style.maxHeight = '0';
+        });
+      });
+      btn.setAttribute('aria-expanded', 'false');
+    } else {
+      /* Expand: animate from 0 to content height */
+      content.classList.remove('collapsed');
+      content.style.maxHeight = content.scrollHeight + 'px';
+      /* Remove fixed max-height after transition so content can reflow */
+      content.addEventListener('transitionend', function handler() {
+        content.style.maxHeight = '9999px';
+        content.removeEventListener('transitionend', handler);
+      });
+      btn.setAttribute('aria-expanded', 'true');
+    }
+  });
+});
+</script>
+{% endblock %} 
