@@ -24,20 +24,25 @@
 <section class="section">
   <div class="wrap">
 
-    <div class="pub-controls reveal">
-      <div class="pub-search">
-        <div class="pub-search-ico" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        </div>
-        <input type="search" id="pubSearch" placeholder="Search by title, author, keyword…" aria-label="Search publications"/>
+  <div class="pub-controls reveal">
+    <form class="pub-search" method="GET" action="{{ url_for('public.publications') }}">
+      <input type="hidden" name="type" value="{{ active_type }}">
+      <div class="pub-search-ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       </div>
-      <div class="pub-filters" role="group" aria-label="Filter by type">
-        <button class="f-btn active" data-filter="all">All</button>
-        <button class="f-btn" data-filter="journal">Journal</button>
-        <button class="f-btn" data-filter="conference">Conference</button>
-        <button class="f-btn" data-filter="technicalreport">Technical Report</button>
-      </div>
+      <input type="search" name="q" value="{{ active_q }}" placeholder="Search by title, author, keyword…" aria-label="Search publications"/>
+    </form>
+    <div class="pub-filters" role="group" aria-label="Filter by type">
+      <a href="{{ url_for('public.publications', q=active_q, type='all') }}"
+        class="f-btn {{ 'active' if active_type == 'all' }}">All</a>
+      <a href="{{ url_for('public.publications', q=active_q, type='journal') }}"
+        class="f-btn {{ 'active' if active_type == 'journal' }}">Journal</a>
+      <a href="{{ url_for('public.publications', q=active_q, type='conference') }}"
+        class="f-btn {{ 'active' if active_type == 'conference' }}">Conference</a>
+      <a href="{{ url_for('public.publications', q=active_q, type='technicalreport') }}"
+        class="f-btn {{ 'active' if active_type == 'technicalreport' }}">Technical Report</a>
     </div>
+  </div>
 
     {% if publications %}
     <div class="pub-list" id="pubList">
@@ -96,15 +101,43 @@
         <div class="pub-year">{{ pub.date[:4] if pub.date|length >= 4 else pub.date }}</div>
         {% endif %}
 
-      {% if pub.link %}</a>{% else %}</div>{% endif %}
+        {% if pub.link %}</a>{% else %}</div>{% endif %}
 
-      {% endfor %}
-    </div>
-    {% else %}
-    <div style="text-align:center;padding:64px 0;color:var(--gray-400);">
-      <p>No publications found.</p>
-    </div>
-    {% endif %}
+              {% endfor %}
+            </div>
+
+            {% if pagination and pagination.pages > 1 %}
+            <div class="pub-pagination" role="navigation" aria-label="Publications pages">
+              <a href="{{ url_for('public.publications', page=pagination.prev_num, type=active_type, q=active_q) if pagination.has_prev else '#' }}"
+                class="pg-btn {{ 'disabled' if not pagination.has_prev }}"
+                aria-disabled="{{ 'true' if not pagination.has_prev else 'false' }}">
+                ‹ Prev
+              </a>
+
+              <div class="pg-numbers">
+                {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                  {% if p %}
+                    <a href="{{ url_for('public.publications', page=p, type=active_type, q=active_q) }}"
+                      class="pg-num {{ 'active' if p == pagination.page }}">{{ p }}</a>
+                  {% else %}
+                    <span class="pg-ellipsis">…</span>
+                  {% endif %}
+                {% endfor %}
+              </div>
+
+              <a href="{{ url_for('public.publications', page=pagination.next_num, type=active_type, q=active_q) if pagination.has_next else '#' }}"
+                class="pg-btn {{ 'disabled' if not pagination.has_next }}"
+                aria-disabled="{{ 'true' if not pagination.has_next else 'false' }}">
+                Next ›
+              </a>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div style="text-align:center;padding:64px 0;color:var(--gray-400);">
+              <p>No publications found.</p>
+            </div>
+            {% endif %}
 
   </div>
 </section>

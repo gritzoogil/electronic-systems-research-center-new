@@ -525,6 +525,28 @@ input,textarea,select { font-family: inherit; }
   color: var(--gray-200); white-space: nowrap; align-self: start;
 }
 
+.pub-pagination {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; margin-top: 32px; flex-wrap: wrap;
+}
+.pg-btn, .pg-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 9px 16px; border-radius: var(--r-md);
+  border: 1.5px solid var(--gray-200); background: var(--white);
+  font-size: .83rem; font-weight: 600; color: var(--gray-500);
+  transition: all var(--dur) var(--ease);
+}
+.pg-num { min-width: 38px; padding: 9px 12px; }
+.pg-btn:hover:not(.disabled), .pg-num:hover:not(.active) {
+  background: var(--navy); color: var(--white); border-color: var(--navy);
+}
+.pg-num.active {
+  background: var(--navy); color: var(--white); border-color: var(--navy);
+  pointer-events: none;
+}
+.pg-btn.disabled { opacity: .4; pointer-events: none; cursor: default; }
+.pg-ellipsis { padding: 0 4px; color: var(--gray-400); }
+
 /* ── FACULTY ───────────────────────────────────────────────────── */
 .faculty-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 22px; }
 .f-card {

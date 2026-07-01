@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request
 import resend
 import os
+from datetime import datetime
 from collections import defaultdict
 from app.models import (
     Staff, OJT, Project, Publication,
@@ -9,12 +10,26 @@ from app.models import (
 
 public_bp = Blueprint("public", __name__)
 
+def _parse_pub_date(date_str):
+    """Publication.date is a free-text string like 'May 07, 2025'.
+    Parse it into a real datetime so sorting is chronological, not alphabetical.
+    Unparseable/empty values sort to the very end."""
+    if not date_str:
+        return datetime.min
+    formats = ["%B %d, %Y", "%B %Y", "%Y-%m-%d", "%Y"]
+    for fmt in formats:
+        try:
+            return datetime.strptime(date_str.strip(), fmt)
+        except ValueError:
+            continue
+    return datetime.min
 
 @public_bp.route("/")
 def home():
     projects = Project.query.filter_by(is_published=True).order_by(Project.order).all()
     staff = Staff.query.filter_by(is_published=True).order_by(Staff.order).all()
-    publications = Publication.query.filter_by(is_published=True).order_by(Publication.date.desc()).all()
+    publications = Publication.query.filter_by(is_published=True).all()
+    publications.sort(key=lambda p: _parse_pub_date(p.date), reverse=True)
 
     stats = {
         "projects": Project.query.filter_by(is_published=True).count(),
@@ -40,8 +55,69 @@ def team():
 
 @public_bp.route("/publications")
 def publications():
-    pubs = Publication.query.filter_by(is_published=True).order_by(Publication.date.desc()).all()
-    return render_template("publications.html", publications=pubs)
+    page = request.args.get("page", 1, type=int)
+    type_filter = request.args.get("type", "all")
+    query_text = request.args.get("q", "").strip()
+    per_page = 5
+
+    all_pubs = Publication.query.filter_by(is_published=True).all()
+
+    # Server-side type filter
+    if type_filter != "all":
+        all_pubs = [
+            p for p in all_pubs
+            if type_filter in (p.type or "other").lower().replace(" ", "")
+        ]
+
+    # Server-side text search across title, summary, details, keywords
+    if query_text:
+        q_lower = query_text.lower()
+        def matches(p):
+            haystack = " ".join(filter(None, [
+                p.title, p.summary, p.details, p.keyword1, p.keyword2, p.keyword3
+            ])).lower()
+            return q_lower in haystack
+        all_pubs = [p for p in all_pubs if matches(p)]
+
+    all_pubs.sort(key=lambda p: _parse_pub_date(p.date), reverse=True)
+
+    total = len(all_pubs)
+    start = (page - 1) * per_page
+    end = start + per_page
+    page_items = all_pubs[start:end]
+
+    class SimplePagination:
+        def __init__(self, page, per_page, total, items):
+            self.page = page
+            self.per_page = per_page
+            self.total = total
+            self.items = items
+            self.pages = max(1, (total + per_page - 1) // per_page)
+            self.has_prev = page > 1
+            self.has_next = page < self.pages
+            self.prev_num = page - 1
+            self.next_num = page + 1
+
+        def iter_pages(self, left_edge=1, right_edge=1, left_current=1, right_current=2):
+            last = 0
+            for num in range(1, self.pages + 1):
+                if (num <= left_edge
+                        or (num > self.page - left_current - 1 and num < self.page + right_current)
+                        or num > self.pages - right_edge):
+                    if last + 1 != num:
+                        yield None
+                    yield num
+                    last = num
+
+    pagination = SimplePagination(page, per_page, total, page_items)
+
+    return render_template(
+        "publications.html",
+        publications=pagination.items,
+        pagination=pagination,
+        active_type=type_filter,
+        active_q=query_text,
+    )
 
 
 @public_bp.route("/accomplishments")
@@ -109,7 +185,7 @@ def publication_detail(pub_id):
     return render_template("publication_detail.html", publication=pub)
 
 
-from flask import request, redirect, url_for, flash
+from flask import redirect, url_for, flash
 from app.models import ContactMessage
 
 resend.api_key = os.environ.get("RESEND_API_KEY")

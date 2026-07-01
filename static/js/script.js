@@ -58,34 +58,6 @@
   }, { threshold: 0.4 });
   document.querySelectorAll('[data-target]').forEach(function (el) { statsIO.observe(el); });
 
-  /* ── PUBLICATIONS SEARCH + FILTER ───────────────────────────── */
-  var searchInput = document.getElementById('pubSearch');
-  var filterBtns  = document.querySelectorAll('.f-btn');
-  var pubItems    = document.querySelectorAll('.pub-item');
-  var activeFilter = 'all';
-
-  function filterPubs() {
-    var q = searchInput ? searchInput.value.toLowerCase() : '';
-    pubItems.forEach(function (item) {
-      var type = (item.dataset.type || '').toLowerCase();
-      var text = item.textContent.toLowerCase();
-      var matchFilter = activeFilter === 'all' || type.includes(activeFilter);
-      var matchSearch = !q || text.includes(q);
-      item.style.display = matchFilter && matchSearch ? '' : 'none';
-    });
-  }
-
-  if (searchInput) searchInput.addEventListener('input', filterPubs);
-
-  filterBtns.forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      filterBtns.forEach(function (b) { b.classList.remove('active'); });
-      btn.classList.add('active');
-      activeFilter = btn.dataset.filter || 'all';
-      filterPubs();
-    });
-  });
-
   /* ── CONTACT FORM ─────────────────────────────────────────────── */
   var form = document.getElementById('contactForm');
   if (form) {
