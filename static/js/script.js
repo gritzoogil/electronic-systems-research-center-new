@@ -137,4 +137,122 @@
     });
   });
 
+/* ─────────────────────────────────────────────
+   PARTNERS AUTO SCROLL + DRAG
+───────────────────────────────────────────── */
+
+const mask = document.querySelector(".partners-mask");
+const track = document.querySelector(".partners-track");
+
+if (mask && track) {
+
+    let position = 0;
+    let speed = 1.5;      // pixels/frame
+
+    let isDragging = false;
+    let startX = 0;
+    let startPosition = 0;
+
+    const loopWidth = track.scrollWidth / 2;
+
+    function animate() {
+
+        if (!isDragging) {
+
+            position -= speed;
+
+            if (Math.abs(position) >= loopWidth) {
+                position = 0;
+            }
+
+            track.style.transform =
+                `translateX(${position}px)`;
+        }
+
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    // -------------------------
+    // Mouse Drag
+    // -------------------------
+
+    mask.addEventListener("mousedown", e => {
+
+        isDragging = true;
+
+        mask.classList.add("dragging");
+
+        startX = e.clientX;
+
+        startPosition = position;
+    });
+
+    window.addEventListener("mousemove", e => {
+
+        if (!isDragging) return;
+
+        const dx = e.clientX - startX;
+
+        position = startPosition + dx;
+
+        if (position > 0)
+            position -= loopWidth;
+
+        if (position < -loopWidth)
+            position += loopWidth;
+
+        track.style.transform =
+            `translateX(${position}px)`;
+    });
+
+    window.addEventListener("mouseup", () => {
+
+        isDragging = false;
+
+        mask.classList.remove("dragging");
+    });
+
+    // -------------------------
+    // Touch Support
+    // -------------------------
+
+    mask.addEventListener("touchstart", e => {
+
+        isDragging = true;
+
+        startX = e.touches[0].clientX;
+
+        startPosition = position;
+
+    }, { passive: true });
+
+    window.addEventListener("touchmove", e => {
+
+        if (!isDragging) return;
+
+        const dx = e.touches[0].clientX - startX;
+
+        position = startPosition + dx;
+
+        if (position > 0)
+            position -= loopWidth;
+
+        if (position < -loopWidth)
+            position += loopWidth;
+
+        track.style.transform =
+            `translateX(${position}px)`;
+
+    }, { passive: true });
+
+    window.addEventListener("touchend", () => {
+
+        isDragging = false;
+
+    });
+
+}
+
 })();

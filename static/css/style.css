@@ -599,14 +599,37 @@ input,textarea,select { font-family: inherit; }
   mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
   -webkit-mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
 }
-.partners-track {
-  display: flex; gap: 20px; width: max-content;
-  animation: scroll-track 30s linear infinite;
+.partners-mask {
+    overflow: hidden;
+    cursor: grab;
+
+    mask-image: linear-gradient(to right,
+        transparent,
+        black 12%,
+        black 88%,
+        transparent);
+
+    -webkit-mask-image: linear-gradient(to right,
+        transparent,
+        black 12%,
+        black 88%,
+        transparent);
 }
-.partners-track:hover { animation-play-state: paused; }
-@keyframes scroll-track {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+
+.partners-mask.dragging {
+    cursor: grabbing;
+}
+
+.partners-track {
+    display: flex;
+    gap: 20px;
+    width: max-content;
+    will-change: transform;
+    user-select: none;
+}
+
+.partner-tile{
+    user-select:none;
 }
 .partner-tile {
   flex-shrink: 0; height: 54px; min-width: 150px;
