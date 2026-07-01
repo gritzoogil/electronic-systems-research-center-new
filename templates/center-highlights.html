@@ -1,54 +1,310 @@
 {% extends 'base.html' %}
 {% block title %}Center Highlights — ESRC{% endblock %}
 
-{% block content %}
-<main style="padding-top:120px;padding-bottom:60px;">
-  <div class="wrap">
-    <h1 class="sec-h2" style="text-align:center;margin-bottom:40px;">Center Highlights</h1>
-
-    {% if highlights|length == 0 %}
-    <p style="text-align:center;color:var(--gray-500);">No highlights published yet.</p>
-    {% endif %}
-
-    <div style="display:flex;flex-direction:column;gap:24px;max-width:900px;margin:0 auto;">
-      {% for highlight in highlights %}
-      <div x-data="{ images: {{ highlight.images|map(attribute='image_url')|list|tojson }}, current: 0, interval: null }"
-           x-init="interval = setInterval(() => { current = (current + 1) % images.length }, 2000)"
-           style="display:flex;flex-direction:column;background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.08);">
-        <div class="highlight-flex" style="display:flex;flex-direction:column;">
-          <div style="position:relative;width:100%;height:280px;overflow:hidden;">
-            <template x-for="(img, index) in images" :key="index">
-              <img :src="img" alt="{{ highlight.title }}" loading="lazy"
-                   style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;transition:opacity 1s ease-in-out;"
-                   :style="{ opacity: current === index ? 1 : 0 }">
-            </template>
-          </div>
-          <div style="padding:24px;">
-            <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:8px;">{{ highlight.title }}</h2>
-            <p style="color:var(--cyan);font-weight:600;margin-bottom:8px;">
-              {{ highlight.date.strftime('%B %d, %Y') if highlight.date else '' }}
-            </p>
-            <p style="color:var(--gray-500);line-height:1.6;">{{ highlight.description }}</p>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</main>
-
+{% block head %}
 <style>
+  .hl-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    box-shadow: var(--sh-sm);
+    transition: box-shadow var(--dur-s) var(--ease);
+  }
+  .hl-card:hover { box-shadow: var(--sh-lg); }
+
+  .hl-inner {
+    display: flex;
+    flex-direction: column;
+  }
   @media (min-width: 768px) {
-    .highlight-flex {
-      flex-direction: row !important;
-    }
-    .highlight-flex > div:first-child {
-      width: 33%;
-      height: auto !important;
-    }
-    .highlight-flex > div:last-child {
-      width: 67%;
-    }
+    .hl-inner { flex-direction: row; align-items: stretch; }
+  }
+
+  .hl-img-col {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--navy-xdark), var(--navy));
+    flex-shrink: 0;
+    height: 240px;
+  }
+  @media (min-width: 768px) {
+    .hl-img-col { width: 38%; height: auto; min-height: 260px; }
+  }
+
+ /* Slide track — images sit in a horizontal row, track shifts left */
+  .hl-track {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform .6s cubic-bezier(.4,0,.2,1);
+    will-change: transform;
+  }
+  .hl-slide {
+    flex-shrink: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hl-dots {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    z-index: 2;
+  }
+  .hl-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.4);
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: background .2s, transform .2s;
+  }
+  .hl-dot.active { background: var(--cyan); transform: scale(1.3); }
+
+  .hl-body {
+    padding: 28px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+    flex: 1;
+  }
+  @media (max-width: 767px) {
+    .hl-body { padding: 20px; }
+  }
+
+  .hl-date {
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--cyan);
+  }
+  .hl-title {
+    font-family: var(--font-d);
+    font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+    font-weight: 800;
+    font-style: normal;
+    color: var(--dark);
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+  .hl-desc {
+    font-size: .9rem;
+    color: var(--gray-500);
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+  .hl-count {
+    font-size: .75rem;
+    color: var(--gray-400);
+    margin-top: 4px;
+  }
+
+  .hl-empty-icon {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
   }
 </style>
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section style="padding:140px 0 80px;
+                background:linear-gradient(135deg,var(--gray-900),var(--navy-dark),var(--navy));">
+  <div class="wrap" style="text-align:center;">
+    <span class="eyebrow" style="justify-content:center;">News &amp; Updates</span>
+    <h1 class="sec-h2 light" style="margin-bottom:.75rem;font-style:normal;">
+      Center Highlights
+    </h1>
+    <p class="sec-lead light" style="margin:0 auto;text-align:center;">
+      Events, achievements, and milestones from the Electronic Systems Research Center.
+    </p>
+  </div>
+</section>
+
+<!-- DIVIDER -->
+<div class="circuit-divider" aria-hidden="true">
+  <svg viewBox="0 0 1440 28" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+    <rect width="1440" height="28" fill="var(--white)"/>
+    <line x1="0" y1="14" x2="680" y2="14" stroke="#E2E8F0" stroke-width="1"/>
+    <line x1="760" y1="14" x2="1440" y2="14" stroke="#E2E8F0" stroke-width="1"/>
+    <circle cx="720" cy="14" r="8" fill="var(--navy)"/>
+    <circle cx="720" cy="14" r="4" fill="var(--cyan)"/>
+    <circle cx="680" cy="14" r="3" fill="var(--navy)" opacity=".35"/>
+    <circle cx="760" cy="14" r="3" fill="var(--navy)" opacity=".35"/>
+  </svg>
+</div>
+
+<section class="section">
+  <div class="wrap">
+
+    {% if highlights %}
+    <div style="display:flex;flex-direction:column;gap:28px;max-width:960px;margin:0 auto;">
+
+      {% for highlight in highlights %}
+      {% set imgs = highlight.images | map(attribute='image_url') | list %}
+      {% set card_id = 'hl-' ~ loop.index %}
+
+      <article class="hl-card reveal">
+        <div class="hl-inner">
+
+          <!-- Image carousel column -->
+          <div class="hl-img-col" id="{{ card_id }}">
+
+            {% if imgs %}
+              <div class="hl-track" id="{{ card_id }}-track">
+                {% for url in imgs %}
+                <img class="hl-slide"
+                     src="{{ url }}"
+                     alt="{{ highlight.alt_text or highlight.title }}"
+                     loading="{% if loop.first %}eager{% else %}lazy{% endif %}"
+                     decoding="async" />
+                {% endfor %}
+              </div>
+
+              {% if imgs | length > 1 %}
+              <div class="hl-dots" role="tablist" aria-label="Image navigation">
+                {% for url in imgs %}
+                <button class="hl-dot {% if loop.first %}active{% endif %}"
+                        data-card="{{ card_id }}"
+                        data-idx="{{ loop.index0 }}"
+                        aria-label="Image {{ loop.index }}"
+                        role="tab"></button>
+                {% endfor %}
+              </div>
+              {% endif %}
+
+            {% else %}
+            <div class="hl-empty-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+                   stroke="rgba(255,255,255,.15)" stroke-width="1.5">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+            </div>
+            {% endif %}
+
+          </div><!-- /hl-img-col -->
+
+          <!-- Text body -->
+          <div class="hl-body">
+            {% if highlight.date %}
+            <time class="hl-date" datetime="{{ highlight.date }}">
+              {{ highlight.date.strftime('%B %d, %Y') }}
+            </time>
+            {% endif %}
+
+            <h2 class="hl-title">{{ highlight.title }}</h2>
+
+            {% if highlight.description %}
+            <p class="hl-desc">{{ highlight.description }}</p>
+            {% endif %}
+
+            {% if imgs | length > 1 %}
+            <p class="hl-count" id="{{ card_id }}-count">1 / {{ imgs | length }} photos</p>
+            {% endif %}
+          </div>
+
+        </div>
+      </article>
+      {% endfor %}
+
+    </div>
+
+    {% else %}
+    <div style="text-align:center;padding:80px 0;color:var(--gray-400);">
+      <svg style="width:52px;height:52px;margin:0 auto 16px;opacity:.3;"
+           viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      <p style="font-size:.9rem;">No highlights published yet.</p>
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  /* ── Vanilla JS carousel — no Alpine dependency ── */
+
+  var carousels = {};
+
+/* Build state for each card that has multiple slides */
+  document.querySelectorAll('.hl-img-col').forEach(function (col) {
+    var id      = col.id;
+    var track   = document.getElementById(id + '-track');
+    var slides  = track ? Array.from(track.querySelectorAll('.hl-slide')) : [];
+    var dots    = Array.from(col.querySelectorAll('.hl-dot'));
+    var countEl = document.getElementById(id + '-count');
+
+    if (!track || slides.length < 2) return;
+
+    carousels[id] = {
+      track:   track,
+      slides:  slides,
+      dots:    dots,
+      countEl: countEl,
+      current: 0,
+      timer:   null,
+    };
+
+    function goTo(idx) {
+      var c = carousels[id];
+      /* Clamp to valid range */
+      c.current = ((idx % c.slides.length) + c.slides.length) % c.slides.length;
+      /* Slide the track */
+      c.track.style.transform = 'translateX(-' + (c.current * 100) + '%)';
+      /* Update dots */
+      c.dots.forEach(function (d, i) {
+        d.classList.toggle('active', i === c.current);
+      });
+      /* Update counter */
+      if (c.countEl) {
+        c.countEl.textContent = (c.current + 1) + ' / ' + c.slides.length + ' photos';
+      }
+    }
+
+    function startTimer() {
+      carousels[id].timer = setInterval(function () {
+        goTo(carousels[id].current + 1);
+      }, 3000);
+    }
+
+    function stopTimer() {
+      clearInterval(carousels[id].timer);
+    }
+
+    /* Dot click */
+    dots.forEach(function (dot) {
+      dot.addEventListener('click', function () {
+        stopTimer();
+        goTo(parseInt(dot.dataset.idx, 10));
+        startTimer();
+      });
+    });
+
+    /* Pause on hover */
+    col.closest('.hl-card').addEventListener('mouseenter', stopTimer);
+    col.closest('.hl-card').addEventListener('mouseleave', startTimer);
+
+    startTimer();
+  });
+})();
+</script>
 {% endblock %}
