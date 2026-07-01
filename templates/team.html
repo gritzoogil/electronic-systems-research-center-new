@@ -2,142 +2,128 @@
 {% block title %}Our Team - Electronic Systems Research Center{% endblock %}
 
 {% block content %}
-
-<!-- HERO -->
-<section style="padding:140px 0 80px;background:linear-gradient(135deg,var(--gray-900),var(--navy-dark),var(--navy));">
-  <div class="wrap" style="text-align:center;">
-    <span class="eyebrow" style="justify-content:center;">The People Behind ESRC</span>
-    <h1 class="sec-h2 light" style="margin-bottom:.75rem;">Meet Our Team</h1>
-    <p class="sec-lead light" style="margin:0 auto;text-align:center;">
-      Dedicated professionals and bright student interns driving research innovation at Batangas State University.
-    </p>
-  </div>
-</section>
+<div class="team-page">
+  <!-- HERO -->
+  <section style="padding:140px 0 80px;background:linear-gradient(135deg,var(--gray-900),var(--navy-dark),var(--navy));">
+    <div class="wrap" style="text-align:center;">
+      <span class="eyebrow" style="justify-content:center;">The People Behind ESRC</span>
+      <h1 class="sec-h2 light" style="margin-bottom:.75rem;">Meet Our Team</h1>
+      <p class="sec-lead light" style="margin:0 auto;text-align:center;">
+        Dedicated professionals and bright student interns driving research innovation at Batangas State University.
+      </p>
+    </div>
+  </section>
 
 <!-- STAFF -->
-<section class="section" aria-labelledby="staff-heading">
-  <div class="wrap">
-    <div class="sec-header center reveal">
-      <span class="eyebrow">Core Staff</span>
-      <h2 class="sec-h2" id="staff-heading">Faculty &amp; Research Staff</h2>
-    </div>
-
-    {% set staff = staff|rejectattr('name', 'equalto', 'Prof. Albertson D. Amante')|list %}
-    {% set head = staff|selectattr('role', 'equalto', 'Center Head, ESRC')|list %}
-    {% set others = staff|rejectattr('role', 'equalto', 'Center Head, ESRC')|list %}
-
-    {% if head %}
-    <div style="display:flex;justify-content:center;margin-bottom:40px;">
-      {% for member in head %}
-      <div class="f-card reveal" style="max-width:280px;width:100%;">
-        <div class="f-avatar-wrap">
-          {% if member.photo_url %}
-            <img src="{{ member.photo_url }}"
-                alt="{{ member.name }}"
-                class="f-avatar"
-                loading="lazy"
-                draggable="false"
-                onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
-            <div class="f-avatar-ph" style="display:none;">
-              {{ member.name[0] }}{{ member.name.split()[-1][0] if member.name.split()|length > 1 else '' }}
-            </div>
-          {% else %}
-            <div class="f-avatar-ph">
-              {{ member.name[0] }}{{ member.name.split()[-1][0] if member.name.split()|length > 1 else '' }}
-            </div>
-          {% endif %}
-          <div class="f-online" aria-label="Active"></div>
+    <section class="section" aria-labelledby="staff-heading">
+      <div class="wrap">
+        <div class="sec-header center reveal">
+          <span class="eyebrow">Core Staff</span>
+          <h2 class="sec-h2" id="staff-heading">Faculty &amp; Research Staff</h2>
         </div>
-        <p class="f-name">{{ member.name }}</p>
-        {% if member.role %}<p class="f-pos">{{ member.role }}</p>{% endif %}
-        {% if member.bio %}<p class="f-interests">{{ member.bio }}</p>{% endif %}
-      </div>
-      {% endfor %}
-    </div>
-    <div style="border-bottom:2px solid var(--gray-200);max-width:640px;margin:0 auto 48px;"></div>
-    {% endif %}
 
-    {% if others %}
-    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:24px;" data-stagger>
-      {% for member in others %}
-      <div class="f-card reveal" style="width:240px;">
-        <div class="f-avatar-wrap">
-          {% if member.photo_url %}
-            <img src="{{ member.photo_url }}"
-                alt="{{ member.name }}"
-                class="f-avatar"
-                loading="lazy"
-                draggable="false"
-                onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
-            <div class="f-avatar-ph" style="display:none;">
-              {{ member.name[0] }}{{ member.name.split()[-1][0] if member.name.split()|length > 1 else '' }}
-            </div>
-          {% else %}
-            <div class="f-avatar-ph">
-              {{ member.name[0] }}{{ member.name.split()[-1][0] if member.name.split()|length > 1 else '' }}
-            </div>
-          {% endif %}
-          <div class="f-online" aria-label="Active"></div>
-        </div>
-        <p class="f-name">{{ member.name }}</p>
-        {% if member.role %}<p class="f-pos">{{ member.role }}</p>{% endif %}
-        {% if member.bio %}<p class="f-interests">{{ member.bio }}</p>{% endif %}
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-  </div>
-</section>
+        {% set staff = staff|rejectattr('name', 'equalto', 'Prof. Albertson D. Amante')|list %}
+        {% set head = staff|selectattr('role', 'equalto', 'Center Head, ESRC')|list %}
+        {% set others = staff|rejectattr('role', 'equalto', 'Center Head, ESRC')|list %}
 
-<!-- OJT INTERNS — grouped by batch_label via Python defaultdict -->
-{% if ojt_batches %}
-<section class="section bg-gray" aria-labelledby="ojt-heading">
-  <div class="wrap">
-    <div class="sec-header center reveal">
-      <span class="eyebrow">Student Interns</span>
-      <h2 class="sec-h2" id="ojt-heading">OJT / Interns</h2>
-    </div>
-
-    {% for batch_label, members in ojt_batches|dictsort(reverse=true) %}
-    <div style="margin-bottom:56px;" class="reveal">
-      <h3 style="font-family:var(--font-d);font-size:1.1rem;font-weight:700;color:var(--navy);
-                 margin-bottom:24px;padding-bottom:10px;border-bottom:2px solid var(--gray-200);">
-        {{ batch_label }}
-        <span style="font-size:.78rem;font-weight:500;color:var(--gray-400);margin-left:8px;">
-          ({{ members|length }} intern{{ 's' if members|length != 1 else '' }})
-        </span>
-      </h3>
-      <div class="faculty-grid" data-stagger>
-        {% for intern in members %}
-        <div class="f-card reveal">
-          <div class="f-avatar-wrap">
-            {% if intern.photo_url %}
-              <img src="{{ intern.photo_url }}"
-                   alt="{{ intern.name }}"
-                   class="f-avatar"
-                   loading="lazy"
-                   draggable="false"
-                   onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
-              <div class="f-avatar-ph" style="display:none;background:linear-gradient(135deg,var(--navy-dark),var(--cyan));">
-                {{ intern.name[0] }}{{ intern.name.split()[-1][0] if intern.name.split()|length > 1 else '' }}
-              </div>
+        {% if head %}
+        {% for member in head %}
+        <div class="staff-card staff-lead reveal">
+          <div class="staff-photo">
+            {% if member.photo_url %}
+            <img src="{{ member.photo_url }}" alt="{{ member.name }}" loading="lazy"
+                onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <div class="staff-photo-ph" style="display:none;">{{ member.name[0] }}</div>
             {% else %}
-              <div class="f-avatar-ph" style="background:linear-gradient(135deg,var(--navy-dark),var(--cyan));">
-                {{ intern.name[0] }}{{ intern.name.split()[-1][0] if intern.name.split()|length > 1 else '' }}
-              </div>
+            <div class="staff-photo-ph">{{ member.name[0] }}</div>
             {% endif %}
           </div>
-          <p class="f-name">{{ intern.name }}</p>
-          {% if intern.course %}<p class="f-pos">{{ intern.course }}</p>{% endif %}
-          {% if intern.email %}<p class="f-interests" style="font-size:.76rem;">{{ intern.email }}</p>{% endif %}
+          <div class="staff-body">
+            <p class="staff-name">{{ member.name }}</p>
+            {% if member.role %}<p class="staff-role">{{ member.role }}</p>{% endif %}
+            {% if member.bio %}<p class="staff-bio">{{ member.bio }}</p>{% endif %}
+          </div>
         </div>
         {% endfor %}
+        <div style="border-bottom:2px solid var(--gray-200);max-width:900px;margin:0 auto 48px;"></div>
+        {% endif %}
+
+        {% if others %}
+        <div class="staff-grid" data-stagger>
+          {% for member in others %}
+          <div class="staff-card reveal">
+            <div class="staff-photo">
+              {% if member.photo_url %}
+              <img src="{{ member.photo_url }}" alt="{{ member.name }}" loading="lazy"
+                  onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+              <div class="staff-photo-ph" style="display:none;">{{ member.name[0] }}</div>
+              {% else %}
+              <div class="staff-photo-ph">{{ member.name[0] }}</div>
+              {% endif %}
+            </div>
+            <div class="staff-body">
+              <p class="staff-name">{{ member.name }}</p>
+              {% if member.role %}<p class="staff-role">{{ member.role }}</p>{% endif %}
+              {% if member.bio %}<p class="staff-bio">{{ member.bio }}</p>{% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% elif not head %}
+        <p style="text-align:center;color:var(--gray-400);padding:40px 0;">No staff members found.</p>
+        {% endif %}
       </div>
+    </section>
+
+  <!-- OJT INTERNS — grouped by batch_label via Python defaultdict -->
+  {% if ojt_batches %}
+  <section class="section bg-gray" aria-labelledby="ojt-heading">
+    <div class="wrap">
+      <div class="sec-header center reveal">
+        <span class="eyebrow">Student Interns</span>
+        <h2 class="sec-h2" id="ojt-heading">OJT / Interns</h2>
+      </div>
+
+      {% for batch_label, members in ojt_batches|dictsort(reverse=true) %}
+      <div style="margin-bottom:56px;" class="reveal">
+        <h3 style="font-family:var(--font-d);font-size:1.1rem;font-weight:700;color:var(--navy);
+                  margin-bottom:24px;padding-bottom:10px;border-bottom:2px solid var(--gray-200);">
+          {{ batch_label }}
+          <span style="font-size:.78rem;font-weight:500;color:var(--gray-400);margin-left:8px;">
+            ({{ members|length }} intern{{ 's' if members|length != 1 else '' }})
+          </span>
+        </h3>
+        <div class="faculty-grid" data-stagger>
+          {% for intern in members %}
+          <div class="f-card reveal">
+            <div class="f-avatar-wrap">
+              {% if intern.photo_url %}
+                <img src="{{ intern.photo_url }}"
+                    alt="{{ intern.name }}"
+                    class="f-avatar"
+                    loading="lazy"
+                    draggable="false"
+                    onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+                <div class="f-avatar-ph" style="display:none;background:linear-gradient(135deg,var(--navy-dark),var(--cyan));">
+                  {{ intern.name[0] }}{{ intern.name.split()[-1][0] if intern.name.split()|length > 1 else '' }}
+                </div>
+              {% else %}
+                <div class="f-avatar-ph" style="background:linear-gradient(135deg,var(--navy-dark),var(--cyan));">
+                  {{ intern.name[0] }}{{ intern.name.split()[-1][0] if intern.name.split()|length > 1 else '' }}
+                </div>
+              {% endif %}
+            </div>
+            <p class="f-name">{{ intern.name }}</p>
+            {% if intern.course %}<p class="f-pos">{{ intern.course }}</p>{% endif %}
+            {% if intern.email %}<p class="f-interests" style="font-size:.76rem;">{{ intern.email }}</p>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+
     </div>
-    {% endfor %}
-
-  </div>
-</section>
-{% endif %}
-
+  </section>
+  {% endif %}
+</div>
 {% endblock %}
