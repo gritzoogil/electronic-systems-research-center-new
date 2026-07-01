@@ -615,17 +615,20 @@ input,textarea,select { font-family: inherit; }
   font-size: .69rem; font-weight: 700; color: var(--navy);
 }
 
-/* ── PARTNERS ──────────────────────────────────────────────────── */
 .partners-mask {
   overflow: hidden;
+  padding: 8px 0;
   cursor: grab;
   mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
   -webkit-mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
 }
 .partners-mask.dragging { cursor: grabbing; }
 .partners-track {
-  display: flex; gap: 20px; width: max-content;
-  animation: scroll-track 30s linear infinite;
+    display: flex;
+    gap: 20px;
+    width: max-content;
+    will-change: transform;
+    user-select: none;
 }
 .partners-track:hover { animation-play-state: paused; }
 @keyframes scroll-track {
@@ -640,6 +643,7 @@ input,textarea,select { font-family: inherit; }
   font-family: var(--font-d); font-size: .82rem; font-weight: 700;
   color: var(--gray-400); white-space: nowrap;
   transition: all var(--dur) var(--ease);
+  box-sizing: border-box;
 }
 .partner-tile:hover { border-color: var(--navy); color: var(--navy); box-shadow: var(--sh-sm); }
 
