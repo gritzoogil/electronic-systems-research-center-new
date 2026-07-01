@@ -721,7 +721,7 @@ textarea.form-input { resize: vertical; min-height: 118px; }
 .footer-links a:hover { color: var(--cyan); }
 .footer-bottom {
   padding: 20px 0;
-  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px;
 }
 .footer-copy { font-size: .78rem; color: rgba(255,255,255,.3); }
 .footer-btm-links { display: flex; gap: 20px; }
