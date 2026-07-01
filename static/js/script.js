@@ -69,7 +69,7 @@
     pubItems.forEach(function (item) {
       var type = (item.dataset.type || '').toLowerCase();
       var text = item.textContent.toLowerCase();
-      var matchFilter = activeFilter === 'all' || type === activeFilter;
+      var matchFilter = activeFilter === 'all' || type.includes(activeFilter);
       var matchSearch = !q || text.includes(q);
       item.style.display = matchFilter && matchSearch ? '' : 'none';
     });

@@ -35,7 +35,7 @@
         <button class="f-btn active" data-filter="all">All</button>
         <button class="f-btn" data-filter="journal">Journal</button>
         <button class="f-btn" data-filter="conference">Conference</button>
-        <button class="f-btn" data-filter="report">Technical Report</button>
+        <button class="f-btn" data-filter="technicalreport">Technical Report</button>
       </div>
     </div>
 
@@ -44,15 +44,15 @@
       {% for pub in publications %}
 
       {# Wrap in <a> if there's a link, otherwise plain <div> #}
-      {% if pub.link %}
-      <a href="{{ pub.link }}" target="_blank" rel="noopener"
-         class="pub-item reveal"
-         data-type="{{ pub.type | lower if pub.type else 'other' }}"
-         style="grid-template-columns:1fr auto;gap:16px;align-items:center;">
-      {% else %}
-      <div class="pub-item reveal"
-           data-type="{{ pub.type | lower if pub.type else 'other' }}">
-      {% endif %}
+    {% if pub.link %}
+    <a href="{{ pub.link }}" target="_blank" rel="noopener"
+      class="pub-item reveal"
+      data-type="{{ (pub.type | lower | replace(' ', '')) if pub.type else 'other' }}"
+      style="grid-template-columns:1fr auto;gap:16px;align-items:center;">
+    {% else %}
+    <div class="pub-item reveal"
+        data-type="{{ (pub.type | lower | replace(' ', '')) if pub.type else 'other' }}">
+    {% endif %}
 
         <div>
           {% if pub.type %}

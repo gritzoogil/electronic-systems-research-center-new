@@ -346,24 +346,24 @@
         </div>
         <input type="search" id="pubSearch" placeholder="Search by title, author, or keyword…" aria-label="Search publications"/>
       </div>
-      <div class="pub-filters" role="group" aria-label="Filter publications">
-        <button class="f-btn active" data-filter="all">All</button>
-        <button class="f-btn" data-filter="journal">Journal</button>
-        <button class="f-btn" data-filter="conference">Conference</button>
-        <button class="f-btn" data-filter="report">Technical Report</button>
-      </div>
     </div>
 
     <div class="pub-list" id="pubList">
       {% for pub in publications[:3] %}
-      <a href="{{ url_for('public.publication_detail', pub_id=pub.id) }}" class="pub-item reveal" data-type="{{ pub.type|lower|replace(' ', '') }}" style="text-decoration:none;color:inherit;">
+      {% if pub.link %}
+      <a href="{{ pub.link }}" target="_blank" rel="noopener"
+        class="pub-item reveal" data-type="{{ pub.type|lower|replace(' ', '') }}"
+        style="text-decoration:none;color:inherit;">
+      {% else %}
+      <div class="pub-item reveal" data-type="{{ pub.type|lower|replace(' ', '') }}">
+      {% endif %}
         <div>
           <div class="pub-type">{{ pub.type }}</div>
           <h3 class="pub-title">{{ pub.title }}</h3>
           <p class="pub-venue">{{ pub.date }}</p>
         </div>
         <div class="pub-year">{{ pub.date[-4:] if pub.date }}</div>
-      </a>
+      {% if pub.link %}</a>{% else %}</div>{% endif %}
       {% endfor %}
     </div>
     <div style="text-align:center;margin-top:24px;">
@@ -441,24 +441,24 @@
     </div>
   </div>
 
-  <div class="partners-mask">
+      <div class="partners-mask">
     <div class="partners-track" aria-label="Partner logos carousel">
       {# First set — based on real institutions/orgs that engaged with ESRC per Center Highlights data #}
-      <div class="partner-tile">BatStateU</div>
-      <div class="partner-tile">TESDA</div>
-      <div class="partner-tile">AboitizPower</div>
-      <div class="partner-tile">Don Bosco Technical College</div>
-      <div class="partner-tile">MSU General Santos</div>
-      <div class="partner-tile">Mindoro State University</div>
-      <div class="partner-tile">SPAMAST</div>
-      <div class="partner-tile">Rizal Technological University</div>
-      <div class="partner-tile">Tarlac State University</div>
-      <div class="partner-tile">National University Laguna</div>
-      <div class="partner-tile">OmniFab Inc.</div>
-      <div class="partner-tile">Collins Aerospace</div>
-      <div class="partner-tile">Phil Railways Institute - DOTr</div>
-      <div class="partner-tile">Thai Nguyen University of Technology</div>
-      <div class="partner-tile">Indian Maritime University</div>
+          <div class="partner-tile">BatStateU</div>
+          <div class="partner-tile">TESDA</div>
+          <div class="partner-tile">AboitizPower</div>
+          <div class="partner-tile">Don Bosco Technical College</div>
+          <div class="partner-tile">MSU General Santos</div>
+          <div class="partner-tile">Mindoro State University</div>
+          <div class="partner-tile">SPAMAST</div>
+          <div class="partner-tile">Rizal Technological University</div>
+          <div class="partner-tile">Tarlac State University</div>
+          <div class="partner-tile">National University Laguna</div>
+          <div class="partner-tile">OmniFab Inc.</div>
+          <div class="partner-tile">Collins Aerospace</div>
+          <div class="partner-tile">Phil Railways Institute - DOTr</div>
+          <div class="partner-tile">Thai Nguyen University of Technology</div>
+          <div class="partner-tile">Indian Maritime University</div>
       {# Duplicate for seamless loop #}
       <div class="partner-tile" aria-hidden="true">BatStateU</div>
       <div class="partner-tile" aria-hidden="true">TESDA</div>
