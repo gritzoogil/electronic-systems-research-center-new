@@ -899,4 +899,6 @@ def upload_pdf():
     db.session.commit()
     return jsonify({"ok": True})
 
-
+@admin_bp.route("/")
+def dashboard():
+    return render_template("admin.html")

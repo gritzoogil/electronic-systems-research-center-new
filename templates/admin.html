@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ESRC Admin — Electronic Systems Research Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet"/>
+<style>
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R4 V5
+ * genre: technical-editorial · theme: custom (brand-anchored)
+ * palette: #0F4C81 navy / #00B8D9 cyan
+ * display: Manrope · body: Inter
+ * macrostructure: persistent sidebar + content area + slide-in detail panel
+ */
+
+/* ── TOKENS ─────────────────────────────────────────────── */
+:root {
+  --navy:       #0F4C81;
+  --navy-d:     #0A3560;
+  --navy-xd:    #06213D;
+  --navy-l:     #1A6DB5;
+  --navy-t:     #EBF3FB;
+  --cyan:       #00B8D9;
+  --cyan-d:     #0093AE;
+  --cyan-t:     #E0F7FC;
+  --white:      #FFFFFF;
+  --g50:        #F8FAFC;
+  --g100:       #F1F5F9;
+  --g200:       #E2E8F0;
+  --g300:       #CBD5E1;
+  --g400:       #94A3B8;
+  --g500:       #64748B;
+  --g600:       #475569;
+  --g700:       #334155;
+  --g800:       #1E293B;
+  --g900:       #0F172A;
+  --green:      #22C55E;
+  --green-t:    #DCFCE7;
+  --green-d:    #15803D;
+  --amber:      #F59E0B;
+  --amber-t:    #FEF3C7;
+  --red:        #EF4444;
+  --red-t:      #FEE2E2;
+  --red-d:      #B91C1C;
+
+  --font-d: 'Manrope', system-ui, sans-serif;
+  --font-b: 'Inter', system-ui, sans-serif;
+
+  --r-xs:   4px;
+  --r-sm:   6px;
+  --r-md:   10px;
+  --r-lg:   14px;
+  --r-xl:   20px;
+  --r-full: 9999px;
+
+  --sh-xs: 0 1px 3px rgba(15,76,129,.06);
+  --sh-sm: 0 2px 8px rgba(15,76,129,.08);
+  --sh-md: 0 4px 16px rgba(15,76,129,.11);
+  --sh-lg: 0 8px 32px rgba(15,76,129,.15);
+
+  --ease: cubic-bezier(.4,0,.2,1);
+  --dur:  .22s;
+
+  --sidebar-w: 240px;
+  --topbar-h:  56px;
+}
+
+/* ── RESET ──────────────────────────────────────────────── */
+*,::before,::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; overflow-x: clip; }
+body { font-family: var(--font-b); background: var(--g50); color: var(--g800); line-height: 1.6; overflow-x: clip; }
+img  { display: block; max-width: 100%; }
+a    { color: inherit; text-decoration: none; }
+button { cursor: pointer; font-family: inherit; border: none; }
+ul,ol  { list-style: none; }
+input,textarea,select { font-family: inherit; }
+
+/* ── LAYOUT ─────────────────────────────────────────────── */
+.app { display: flex; height: 100svh; overflow: hidden; }
+
+/* Sidebar */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--navy-xd);
+  display: flex; flex-direction: column;
+  flex-shrink: 0; overflow-y: auto; overflow-x: hidden;
+  z-index: 100;
+  transition: width var(--dur) var(--ease);
+}
+.sidebar-top {
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  flex-shrink: 0;
+}
+.sidebar-brand {
+  display: flex; align-items: center; gap: 10px;
+}
+.sidebar-brand-ico {
+  width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--cyan-d), var(--navy-l));
+  display: flex; align-items: center; justify-content: center;
+}
+.sidebar-brand-ico svg { width: 18px; height: 18px; color: var(--white); }
+.sidebar-brand-text {
+  font-family: var(--font-d); font-size: .88rem; font-weight: 800;
+  color: var(--white); line-height: 1.15;
+}
+.sidebar-brand-text small {
+  display: block; font-size: .6rem; font-weight: 500;
+  color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: .07em;
+}
+
+.sidebar-section { padding: 10px 8px 4px; }
+.sidebar-label {
+  font-size: .62rem; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: rgba(255,255,255,.28);
+  padding: 0 8px; margin-bottom: 4px; display: block;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 10px; border-radius: var(--r-sm);
+  font-size: .84rem; font-weight: 500;
+  color: rgba(255,255,255,.55);
+  cursor: pointer; transition: all var(--dur) var(--ease);
+  position: relative; white-space: nowrap;
+}
+.nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+.nav-item:hover { color: var(--white); background: rgba(255,255,255,.07); }
+.nav-item.active {
+  color: var(--cyan);
+  background: rgba(0,184,217,.1);
+}
+.nav-item.active::before {
+  content: ''; position: absolute; left: 0; top: 20%; bottom: 20%;
+  width: 2.5px; border-radius: 2px; background: var(--cyan);
+}
+.nav-badge {
+  margin-left: auto; font-size: .64rem; font-weight: 700;
+  padding: 2px 7px; border-radius: var(--r-full);
+  background: var(--cyan); color: var(--navy-xd);
+}
+
+.sidebar-bottom {
+  margin-top: auto; padding: 10px 8px;
+  border-top: 1px solid rgba(255,255,255,.06);
+  flex-shrink: 0;
+}
+.user-pill {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 10px; border-radius: var(--r-sm);
+}
+.user-avatar {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--cyan-d), var(--navy-l));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-d); font-size: .7rem; font-weight: 800; color: var(--white);
+}
+.user-name { font-size: .78rem; font-weight: 600; color: rgba(255,255,255,.65); }
+.user-role { font-size: .64rem; color: rgba(255,255,255,.3); }
+
+/* Main area */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+/* Topbar */
+.topbar {
+  height: var(--topbar-h); flex-shrink: 0;
+  background: var(--white); border-bottom: 1px solid var(--g200);
+  display: flex; align-items: center; gap: 16px;
+  padding: 0 24px; box-shadow: var(--sh-xs);
+}
+.topbar-title { font-family: var(--font-d); font-size: 1rem; font-weight: 800; color: var(--g800); }
+.topbar-sub   { font-size: .78rem; color: var(--g400); margin-top: 1px; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.topbar-btn {
+  padding: 7px 16px; border-radius: var(--r-md);
+  font-size: .8rem; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: all var(--dur) var(--ease);
+}
+.topbar-btn svg { width: 14px; height: 14px; }
+.btn-primary {
+  background: linear-gradient(135deg, var(--navy), var(--navy-l));
+  color: var(--white); box-shadow: 0 3px 10px rgba(15,76,129,.3);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(15,76,129,.38); }
+.btn-ghost {
+  background: var(--g100); color: var(--g600); border: 1px solid var(--g200);
+}
+.btn-ghost:hover { background: var(--g200); color: var(--g800); }
+.btn-danger { background: var(--red-t); color: var(--red-d); border: 1px solid #FECACA; }
+.btn-danger:hover { background: var(--red); color: var(--white); }
+.btn-success { background: var(--green-t); color: var(--green-d); border: 1px solid #A7F3D0; }
+.btn-success:hover { background: var(--green); color: var(--white); }
+
+/* Content area */
+.content {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  padding: 24px;
+  display: flex; flex-direction: column; gap: 20px;
+}
+
+/* ── STATS ROW ──────────────────────────────────────────── */
+.stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+.stat-card {
+  background: var(--white); border: 1px solid var(--g200);
+  border-radius: var(--r-lg); padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 6px;
+  box-shadow: var(--sh-xs); transition: box-shadow var(--dur) var(--ease);
+}
+.stat-card:hover { box-shadow: var(--sh-sm); }
+.stat-label { font-size: .74rem; font-weight: 600; color: var(--g400); text-transform: uppercase; letter-spacing: .06em; }
+.stat-val { font-family: var(--font-d); font-size: 1.85rem; font-weight: 800; color: var(--g800); line-height: 1; }
+.stat-sub { font-size: .74rem; color: var(--g400); }
+.stat-icon {
+  width: 36px; height: 36px; border-radius: var(--r-md); margin-bottom: 4px;
+  display: flex; align-items: center; justify-content: center;
+}
+.stat-icon svg { width: 18px; height: 18px; }
+.ico-blue   { background: var(--navy-t); color: var(--navy); }
+.ico-cyan   { background: var(--cyan-t); color: var(--cyan-d); }
+.ico-green  { background: var(--green-t); color: var(--green-d); }
+.ico-amber  { background: var(--amber-t); color: var(--amber); }
+
+/* ── TABLE SECTION ──────────────────────────────────────── */
+.table-card {
+  background: var(--white); border: 1px solid var(--g200);
+  border-radius: var(--r-lg); overflow: hidden;
+  box-shadow: var(--sh-xs);
+}
+.table-header {
+  padding: 16px 20px;
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid var(--g100);
+}
+.table-title { font-family: var(--font-d); font-size: .92rem; font-weight: 700; color: var(--g800); }
+.table-count {
+  font-size: .72rem; font-weight: 700; padding: 2px 8px;
+  border-radius: var(--r-full); background: var(--navy-t); color: var(--navy);
+}
+.search-box {
+  margin-left: auto; position: relative;
+}
+.search-box input {
+  padding: 7px 12px 7px 34px; border-radius: var(--r-md);
+  border: 1.5px solid var(--g200); font-size: .8rem; color: var(--g700);
+  background: var(--g50); outline: none; width: 200px;
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+.search-box input:focus { border-color: var(--cyan); background: var(--white); box-shadow: 0 0 0 3px rgba(0,184,217,.1); }
+.search-ico {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  color: var(--g400); pointer-events: none;
+}
+.search-ico svg { width: 14px; height: 14px; }
+
+table { width: 100%; border-collapse: collapse; }
+th {
+  text-align: left; font-size: .72rem; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--g400);
+  padding: 10px 20px; background: var(--g50);
+  border-bottom: 1px solid var(--g200);
+}
+td {
+  padding: 13px 20px; border-bottom: 1px solid var(--g100);
+  font-size: .84rem; color: var(--g700); vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--g50); }
+
+.cell-name { font-weight: 600; color: var(--g800); }
+.cell-sub  { font-size: .74rem; color: var(--g400); margin-top: 2px; }
+.cell-img  {
+  width: 36px; height: 36px; border-radius: var(--r-sm); object-fit: cover;
+  background: var(--g200); flex-shrink: 0;
+}
+.cell-with-img { display: flex; align-items: center; gap: 10px; }
+.cell-avatar {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--navy), var(--cyan));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-d); font-size: .65rem; font-weight: 800; color: var(--white);
+}
+
+/* Badges */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: var(--r-full);
+  font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+}
+.badge-green  { background: var(--green-t); color: var(--green-d); }
+.badge-blue   { background: var(--navy-t);  color: var(--navy); }
+.badge-cyan   { background: var(--cyan-t);  color: var(--cyan-d); }
+.badge-gray   { background: var(--g100);    color: var(--g500); }
+.badge-amber  { background: var(--amber-t); color: #92400E; }
+.badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+/* Row actions */
+.row-actions { display: flex; align-items: center; gap: 6px; }
+.act-btn {
+  width: 28px; height: 28px; border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--dur) var(--ease); background: none; border: none;
+}
+.act-btn svg { width: 14px; height: 14px; }
+.act-edit  { color: var(--g400); }
+.act-edit:hover  { background: var(--navy-t); color: var(--navy); }
+.act-del   { color: var(--g400); }
+.act-del:hover   { background: var(--red-t); color: var(--red); }
+.act-view  { color: var(--g400); }
+.act-view:hover  { background: var(--cyan-t); color: var(--cyan-d); }
+.act-toggle { color: var(--g400); }
+.act-toggle:hover { background: var(--green-t); color: var(--green-d); }
+
+/* ── SLIDE-IN PANEL ─────────────────────────────────────── */
+.panel-overlay {
+  position: fixed; inset: 0; background: rgba(6,33,61,.45);
+  z-index: 200; opacity: 0; pointer-events: none;
+  transition: opacity var(--dur) var(--ease);
+}
+.panel-overlay.open { opacity: 1; pointer-events: all; }
+
+.panel {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: 480px; max-width: 100%;
+  background: var(--white); z-index: 300;
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform .32s var(--ease);
+  box-shadow: var(--sh-lg);
+}
+.panel.open { transform: translateX(0); }
+
+.panel-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--g200);
+  display: flex; align-items: center; gap: 12px;
+  flex-shrink: 0;
+}
+.panel-title { font-family: var(--font-d); font-size: 1rem; font-weight: 800; color: var(--g800); }
+.panel-close {
+  margin-left: auto; width: 28px; height: 28px; border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--g400); background: none; border: none;
+  transition: all var(--dur) var(--ease);
+}
+.panel-close:hover { background: var(--g100); color: var(--g700); }
+.panel-close svg { width: 16px; height: 16px; }
+
+.panel-body {
+  flex: 1; overflow-y: auto;
+  padding: 24px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.panel-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--g200);
+  display: flex; gap: 10px; align-items: center;
+  flex-shrink: 0;
+}
+
+/* ── FORM ELEMENTS ──────────────────────────────────────── */
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-row   { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-label {
+  font-size: .78rem; font-weight: 600; color: var(--g700);
+  display: flex; align-items: center; gap: 5px;
+}
+.form-label .required { color: var(--red); font-size: .7rem; }
+.form-input {
+  padding: 9px 12px; border: 1.5px solid var(--g200); border-radius: var(--r-md);
+  font-size: .84rem; color: var(--g800); background: var(--white); outline: none;
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.form-input:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(0,184,217,.1); }
+.form-input::placeholder { color: var(--g300); }
+.form-input:disabled { background: var(--g50); color: var(--g400); cursor: not-allowed; }
+textarea.form-input { resize: vertical; min-height: 90px; }
+select.form-input { cursor: pointer; }
+.form-hint { font-size: .72rem; color: var(--g400); }
+.form-section {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--g100);
+}
+.form-section-label {
+  font-size: .72rem; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--g400);
+  margin-bottom: 12px; display: block;
+}
+
+/* Toggle switch */
+.toggle-wrap { display: flex; align-items: center; gap: 10px; }
+.toggle {
+  width: 38px; height: 22px; border-radius: 11px;
+  background: var(--g200); cursor: pointer; position: relative;
+  transition: background .2s; flex-shrink: 0; border: none;
+}
+.toggle::after {
+  content: ''; position: absolute;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--white); top: 3px; left: 3px;
+  transition: transform .2s; box-shadow: var(--sh-xs);
+}
+.toggle.on { background: var(--cyan); }
+.toggle.on::after { transform: translateX(16px); }
+.toggle-label { font-size: .82rem; font-weight: 500; color: var(--g600); }
+
+/* Image upload zone */
+.upload-zone {
+  border: 2px dashed var(--g200); border-radius: var(--r-lg);
+  padding: 20px; text-align: center; cursor: pointer;
+  transition: all var(--dur) var(--ease);
+  background: var(--g50);
+}
+.upload-zone:hover { border-color: var(--cyan); background: var(--cyan-t); }
+.upload-zone svg { width: 24px; height: 24px; color: var(--g300); margin: 0 auto 8px; }
+.upload-text { font-size: .8rem; color: var(--g400); }
+.upload-text strong { color: var(--navy); }
+
+/* ── SECTION PAGES (hidden by default) ─────────────────── */
+.page { display: none; flex-direction: column; gap: 20px; }
+.page.active { display: flex; }
+
+/* ── DASHBOARD WIDGETS ──────────────────────────────────── */
+.widget-row  { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.widget-card {
+  background: var(--white); border: 1px solid var(--g200);
+  border-radius: var(--r-lg); padding: 18px 20px;
+  box-shadow: var(--sh-xs);
+}
+.widget-title {
+  font-family: var(--font-d); font-size: .84rem; font-weight: 700;
+  color: var(--g700); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 6px;
+}
+.widget-title svg { width: 15px; height: 15px; color: var(--cyan-d); }
+
+.activity-item {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 8px 0; border-bottom: 1px solid var(--g100);
+}
+.activity-item:last-child { border-bottom: none; }
+.activity-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  margin-top: 5px;
+}
+.activity-text { font-size: .8rem; color: var(--g600); line-height: 1.4; }
+.activity-time { font-size: .7rem; color: var(--g400); margin-top: 2px; }
+
+.quick-stat-row { display: flex; flex-direction: column; gap: 8px; }
+.quick-stat { display: flex; align-items: center; justify-content: space-between; }
+.quick-stat-label { font-size: .8rem; color: var(--g500); }
+.quick-stat-val   { font-family: var(--font-d); font-size: .9rem; font-weight: 700; color: var(--g800); }
+.progress-bar {
+  height: 4px; background: var(--g100); border-radius: 2px; margin-top: 4px;
+}
+.progress-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--navy), var(--cyan)); }
+
+/* Message card (for contact messages) */
+.msg-card {
+  background: var(--white); border: 1px solid var(--g200);
+  border-radius: var(--r-lg); padding: 16px 18px;
+  box-shadow: var(--sh-xs); display: flex; flex-direction: column; gap: 8px;
+  transition: box-shadow var(--dur) var(--ease);
+}
+.msg-card:hover { box-shadow: var(--sh-sm); }
+.msg-card.unread { border-left: 3px solid var(--cyan); }
+.msg-from { font-family: var(--font-d); font-size: .87rem; font-weight: 700; color: var(--g800); }
+.msg-sub  { font-size: .8rem; color: var(--g500); }
+.msg-body { font-size: .82rem; color: var(--g600); line-height: 1.55; }
+.msg-meta { display: flex; align-items: center; gap: 10px; }
+.msg-time { font-size: .72rem; color: var(--g400); }
+.msg-grid { display: flex; flex-direction: column; gap: 12px; }
+
+/* Alert bar */
+.alert {
+  padding: 11px 16px; border-radius: var(--r-md);
+  font-size: .82rem; display: flex; align-items: center; gap: 10px;
+}
+.alert-info    { background: var(--navy-t); color: var(--navy); border: 1px solid rgba(15,76,129,.15); }
+.alert svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+/* ── CONFIRM MODAL ──────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(6,33,61,.55);
+  z-index: 400; display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity var(--dur) var(--ease);
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--white); border-radius: var(--r-xl);
+  padding: 28px; width: 360px; max-width: 94%;
+  box-shadow: var(--sh-lg);
+  transform: scale(.95); transition: transform var(--dur) var(--ease);
+}
+.modal-overlay.open .modal { transform: scale(1); }
+.modal-title { font-family: var(--font-d); font-size: 1rem; font-weight: 800; color: var(--g800); margin-bottom: 8px; }
+.modal-body  { font-size: .85rem; color: var(--g500); margin-bottom: 20px; line-height: 1.55; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+/* ── TOAST ──────────────────────────────────────────────── */
+.toast-stack {
+  position: fixed; bottom: 20px; right: 20px; z-index: 500;
+  display: flex; flex-direction: column; gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  padding: 12px 16px; border-radius: var(--r-md);
+  font-size: .83rem; font-weight: 500;
+  display: flex; align-items: center; gap: 9px;
+  box-shadow: var(--sh-lg); pointer-events: all;
+  animation: toast-in .28s var(--ease);
+  min-width: 240px; max-width: 320px;
+}
+@keyframes toast-in { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+.toast-success { background: var(--white); border: 1px solid #A7F3D0; color: var(--green-d); }
+.toast-error   { background: var(--white); border: 1px solid #FECACA; color: var(--red-d); }
+.toast-info    { background: var(--white); border: 1px solid rgba(15,76,129,.25); color: var(--navy); }
+.toast svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+/* ── RESPONSIVE ─────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .sidebar    { width: 56px; }
+  .sidebar-brand-text,
+  .nav-item span,
+  .sidebar-label,
+  .user-name, .user-role,
+  .nav-badge { display: none; }
+  .nav-item   { justify-content: center; padding: 10px; }
+  .nav-item.active::before { display: none; }
+  .stats-row  { grid-template-columns: 1fr 1fr; }
+  .widget-row { grid-template-columns: 1fr; }
+  .panel      { width: 100%; }
+  .form-row   { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .stats-row { grid-template-columns: 1fr; }
+  .content   { padding: 14px; }
+  .topbar    { padding: 0 14px; }
+}
+
+/* Focus */
+:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ── SIDEBAR ───────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><circle cx="17.5" cy="17.5" r="3.5"/></svg>
+        </div>
+        <div class="sidebar-brand-text">
+          ESRC Admin
+          <small>BatStateU · The NEU</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <span class="sidebar-label">Overview</span>
+      <div class="nav-item active" data-page="dashboard" onclick="nav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span>Dashboard</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <span class="sidebar-label">Website Content</span>
+      <div class="nav-item" data-page="staff" onclick="nav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Staff</span>
+      </div>
+      <div class="nav-item" data-page="ojt" onclick="nav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        <span>OJT / Interns</span>
+      </div>
+      <div class="nav-item" data-page="projects" onclick="nav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        <span>Projects</span>
+      </div>
+      <div class="nav-item" data-page="publications" onclick="nav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span>Publications</span>
+      </div>
+      <div class="nav-item" data-page="highlights" onclick="nav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Center Highlights</span>
+      </div>
+      <div class="nav-item" data-page="accomplishments" onclick="nav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.56 2.9A7 7 0 0 1 19 9v1l1 1-1 2-2.07.62A5 5 0 0 1 13 17H7a5 5 0 0 1-5-5v-2l1-1V9a7 7 0 0 1 .44-2.5"/></svg>
+        <span>Accomplishments</span>
+      </div>
+      <div class="nav-item" data-page="resources" onclick="nav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span>Resources</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <span class="sidebar-label">Inbox</span>
+      <div class="nav-item" data-page="messages" onclick="nav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <span>Contact Messages</span>
+        <span class="nav-badge">3</span>
+      </div>
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="user-pill">
+        <div class="user-avatar">CJ</div>
+        <div>
+          <div class="user-name">Engr. Carlos Jhay</div>
+          <div class="user-role">Admin</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ──────────────────────────────────────────── -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="pageTitle">Dashboard</div>
+        <div class="topbar-sub" id="pageSub">Welcome back, Engr. Carlos Jhay</div>
+      </div>
+      <div class="topbar-right">
+        <a href="/" target="_blank" class="topbar-btn btn-ghost">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          View Site
+        </a>
+        <button class="topbar-btn btn-primary" id="addBtn" onclick="openPanel('new')" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add New
+        </button>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- ─── DASHBOARD ────────────────────────────────── -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-icon ico-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/></svg></div>
+            <div class="stat-label">Research Projects</div>
+            <div class="stat-val">12</div>
+            <div class="stat-sub">9 active · 3 completed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon ico-cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div>
+            <div class="stat-label">Publications</div>
+            <div class="stat-val">38</div>
+            <div class="stat-sub">24 journal · 14 conference</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon ico-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+            <div class="stat-label">OJT Interns</div>
+            <div class="stat-val">53</div>
+            <div class="stat-sub">6 batches total</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon ico-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/></svg></div>
+            <div class="stat-label">Unread Messages</div>
+            <div class="stat-val">3</div>
+            <div class="stat-sub">Last received 2h ago</div>
+          </div>
+        </div>
+
+        <div class="widget-row">
+          <div class="widget-card">
+            <div class="widget-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Recent Activity</div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:var(--cyan)"></div>
+              <div><div class="activity-text">New project added: <strong>Smart Agriculture Monitoring</strong></div><div class="activity-time">2 hours ago</div></div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:var(--green)"></div>
+              <div><div class="activity-text">Center highlight published: <strong>Bridging Excellence across Institutions</strong></div><div class="activity-time">1 day ago</div></div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:var(--amber)"></div>
+              <div><div class="activity-text">New contact message from <strong>Maria Santos</strong></div><div class="activity-time">2 days ago</div></div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:var(--navy)"></div>
+              <div><div class="activity-text">Publication updated: <strong>Adaptive Impedance Matching Network…</strong></div><div class="activity-time">3 days ago</div></div>
+            </div>
+          </div>
+          <div class="widget-card">
+            <div class="widget-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg> Content Overview</div>
+            <div class="quick-stat-row">
+              <div class="quick-stat"><span class="quick-stat-label">Staff published</span><span class="quick-stat-val">3 / 3</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+              <div class="quick-stat"><span class="quick-stat-label">Projects published</span><span class="quick-stat-val">12 / 14</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:85%"></div></div>
+              <div class="quick-stat"><span class="quick-stat-label">Publications live</span><span class="quick-stat-val">38 / 40</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:95%"></div></div>
+              <div class="quick-stat"><span class="quick-stat-label">Highlights published</span><span class="quick-stat-val">18 / 20</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div>
+              <div class="quick-stat"><span class="quick-stat-label">Resources available</span><span class="quick-stat-val">6 / 6</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-info">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Admin panel is in <strong>read-only preview mode</strong>. Changes here will be reflected on the live ESRC website once backend is wired.
+        </div>
+      </div>
+
+      <!-- ─── STAFF ─────────────────────────────────────── -->
+      <div class="page" id="page-staff">
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">Staff Members</div>
+            <div class="table-count">3 total</div>
+            <div class="search-box">
+              <div class="search-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+              <input type="search" placeholder="Search staff…"/>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>Name &amp; Role</th><th>Bio Preview</th><th>Order</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><div class="cell-with-img"><div class="cell-avatar">RS</div><div><div class="cell-name">Dr. Ralph Gerard B. Sangalang</div><div class="cell-sub">Center Head, ESRC</div></div></div></td>
+                <td><div style="max-width:280px;font-size:.78rem;color:var(--g500);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Associate Professor V at the Department of Electronics Engineering…</div></td>
+                <td><span style="font-family:var(--font-d);font-weight:700">1</span></td>
+                <td><span class="badge badge-green"><span class="badge-dot"></span>Published</span></td>
+                <td class="row-actions"><button class="act-btn act-edit" onclick="openPanel('edit-staff','Dr. Ralph Gerard B. Sangalang')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="act-btn act-toggle" title="Toggle visibility"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button><button class="act-btn act-del" onclick="confirmDelete('Dr. Ralph Gerard B. Sangalang')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td>
+              </tr>
+              <tr>
+                <td><div class="cell-with-img"><div class="cell-avatar">CA</div><div><div class="cell-name">Engr. Carlos Jhay A. Arroyo</div><div class="cell-sub">University Research Associate, ESRC</div></div></div></td>
+                <td><div style="max-width:280px;font-size:.78rem;color:var(--g500);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Dedicated Instrumentation and Control Engineer from Balayan, Batangas…</div></td>
+                <td><span style="font-family:var(--font-d);font-weight:700">2</span></td>
+                <td><span class="badge badge-green"><span class="badge-dot"></span>Published</span></td>
+                <td class="row-actions"><button class="act-btn act-edit" onclick="openPanel('edit-staff','Engr. Carlos Jhay A. Arroyo')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="act-btn act-toggle" title="Toggle visibility"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button><button class="act-btn act-del" onclick="confirmDelete('Engr. Carlos Jhay A. Arroyo')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td>
+              </tr>
+              <tr>
+                <td><div class="cell-with-img"><div class="cell-avatar">AR</div><div><div class="cell-name">Engr. Ariel M. Rosales</div><div class="cell-sub">UNIRA, Project EIS</div></div></div></td>
+                <td><div style="max-width:280px;font-size:.78rem;color:var(--g500);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Bachelor of Science in Mechatronics Engineering from BatStateU…</div></td>
+                <td><span style="font-family:var(--font-d);font-weight:700">3</span></td>
+                <td><span class="badge badge-green"><span class="badge-dot"></span>Published</span></td>
+                <td class="row-actions"><button class="act-btn act-edit" onclick="openPanel('edit-staff','Engr. Ariel M. Rosales')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="act-btn act-toggle" title="Toggle visibility"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button><button class="act-btn act-del" onclick="confirmDelete('Engr. Ariel M. Rosales')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ─── OJT ───────────────────────────────────────── -->
+      <div class="page" id="page-ojt">
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">OJT / Interns</div>
+            <div class="table-count">53 total · 6 batches</div>
+            <div class="search-box">
+              <div class="search-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+              <input type="search" placeholder="Search interns…"/>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>Name</th><th>Email</th><th>Course</th><th>Batch</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr><td><div class="cell-name">Panganiban, Lenard Andrei V.</div></td><td><span style="font-size:.78rem">23-02989@g.batstate-u.edu.ph</span></td><td>BS in Computer Science</td><td><span class="badge badge-cyan">2025-2026 Midterm</span></td><td><span class="badge badge-green"><span class="badge-dot"></span>Published</span></td><td class="row-actions"><button class="act-btn act-edit" onclick="openPanel('edit-ojt','Panganiban, Lenard Andrei V.')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="act-btn act-del" onclick="confirmDelete('Panganiban, Lenard Andrei V.')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td></tr>
+              <tr><td><div class="cell-name">Carranza, John Timothy S.</div></td><td><span style="font-size:.78rem">23-05494@g.batstate-u.edu.ph</span></td><td>BS in Computer Science</td><td><span class="badge badge-cyan">2025-2026 Midterm</span></td><td><span class="badge badge-green"><span class="badge-dot"></span>Published</span></td><td class="row-actions"><button class="act-btn act-edit" onclick="openPanel('edit-ojt','Carranza, John Timothy S.')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="act-btn act-del" onclick="confirmDelete('Carranza, John Timothy S.')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td></tr>
+              <tr><td><div class="cell-name">Carandang, Dave Andrei S.</div></td><td><span style="font-size:.78rem">22-03603@g.batstate-u.edu.ph</span></td><td>BS in Instrumentation and Control Engineering</td><td><span class="badge badge-blue">2025-2026 2nd Sem</span></td><td><span class="badge badge-green"><span class="badge-dot"></span>Published</span></td><td class="row-actions"><button class="act-btn act-edit" onclick="openPanel('edit-ojt','Carandang, Dave Andrei S.')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="act-btn act-del" onclick="confirmDelete('Carandang, Dave Andrei S.')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td></tr>
+              <tr><td><div class="cell-name">Marasigan, Xyzon Ezekiel R.</div></td><td><span style="font-size:.78rem">22-00074@g.batstate-u.edu.ph</span></td><td>BS in Computer Science</td><td><span class="badge badge-gray">2024-2025 Midterm</span></td><td><span class="badge badge-green"><span class="badge-dot"></span>Published</span></td><td class="row-actions"><button class="act-btn act-edit" onclick="openPanel('edit-ojt','Marasigan, Xyzon Ezekiel R.')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="act-btn act-del" onclick="confirmDelete('Marasigan, Xyzon Ezekiel R.')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td></tr>
+              <tr><td colspan="6" style="text-align:center;padding:12px;font-size:.78rem;color:var(--g400);">+ 49 more interns across 5 additional batches</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ─── PROJECTS ──────────────────────────────────── -->
+      <div class="page" id="page-projects">
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">Research Projects</div>
+            <div class="table-count">12 published</div>
+            <div class="search-box">
+              <div class="search-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+              <input type="search" placeholder="Search projects…"/>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>Title</th><th>Year</th><th>Has Image</th><th>Order</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr><td><div class="cell-name">Smart Agriculture Monitoring System</div><div class="cell-sub">IoT-based soil moisture and nutrient tracking</div></td><td>2024</td><td><span class="badge badge-green">Yes</span></td><td>1</td><td><span class="badge badge-green"><span class="badge-dot"></span>Published</span></td><td class="row-actions"><button class="act-btn act-edit" onclick="openPanel('edit-project','Smart Agriculture Monitoring System')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="act-btn act-toggle" title="Toggle visibility"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button><button class="act-btn act-del" onclick="confirmDelete('Smart Agriculture Monitoring System')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td></tr>
+              <tr><td><div class="cell-name">PCB Design Automation using AI</div><div class="cell-sub">Deep learning for PCB layout optimization</div></td><td>2023</td><td><span class="badge badge-green">Yes</span></td><td>2</td><td><span class="badge badge-green"><span class="badge-dot"></span>Published</span></td><td class="row-actions"><button class="act-btn act-edit" onclick="openPanel('edit-project','PCB Design Automation using AI')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="act-btn act-toggle" title="Toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button><button class="act-btn act-del" onclick="confirmDelete('PCB Design Automation using AI')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td></tr>
+              <tr><td><div class="cell-name">Solar-Powered Environmental Sensor Network</div><div class="cell-sub">24-node mesh for air quality monitoring</div></td><td>2022</td><td><span class="badge badge-green">Yes</span></td><td>3</td><td><span class="badge badge-gray"><span class="badge-dot"></span>Draft</span></td><td class="row-actions"><button class="act-btn act-edit" onclick="openPanel('edit-project','Solar-Powered Environmental Sensor Network')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="act-btn act-toggle" title="Toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button><button class="act-btn act-del" onclick="confirmDelete('Solar-Powered Environmental Sensor Network')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ─── PUBLICATIONS ──────────────────────────────── -->
+      <div class="page" id="page-publications">
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">Publications</div>
+            <div class="table-count">38 total</div>
+            <div class="search-box">
+              <div class="search-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+              <input type="search" placeholder="Search publications…"/>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>Title</th><th>Type</th><th>Date</th><th>Has Link</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr><td><div class="cell-name" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Adaptive Impedance Matching Network for IoT Energy Harvesting at 915 MHz</div></td><td><span class="badge badge-blue">Journal</span></td><td>2024</td><td><span class="badge badge-green">Yes</span></td><td><span class="badge badge-green"><span class="badge-dot"></span>Live</span></td><td class="row-actions"><button class="act-btn act-edit" onclick="openPanel('edit-pub','Adaptive Impedance Matching…')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="act-btn act-del" onclick="confirmDelete('Adaptive Impedance Matching…')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td></tr>
+              <tr><td><div class="cell-name" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Deep Learning-Based PCB Defect Detection using Transfer Learning on Limited Datasets</div></td><td><span class="badge badge-cyan">Conference</span></td><td>2024</td><td><span class="badge badge-green">Yes</span></td><td><span class="badge badge-green"><span class="badge-dot"></span>Live</span></td><td class="row-actions"><button class="act-btn act-edit" onclick="openPanel('edit-pub','Deep Learning-Based PCB…')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="act-btn act-del" onclick="confirmDelete('Deep Learning-Based PCB…')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td></tr>
+              <tr><td><div class="cell-name" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Low-Power Wireless Sensor Node for Agricultural Microclimate Monitoring in Tropical Environments</div></td><td><span class="badge badge-blue">Journal</span></td><td>2023</td><td><span class="badge badge-green">Yes</span></td><td><span class="badge badge-green"><span class="badge-dot"></span>Live</span></td><td class="row-actions"><button class="act-btn act-edit" onclick="openPanel('edit-pub','Low-Power Wireless Sensor…')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="act-btn act-del" onclick="confirmDelete('Low-Power Wireless Sensor…')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td></tr>
+              <tr><td colspan="6" style="text-align:center;padding:12px;font-size:.78rem;color:var(--g400);">+ 35 more publications</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ─── CENTER HIGHLIGHTS ─────────────────────────── -->
+      <div class="page" id="page-highlights">
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">Center Highlights</div>
+            <div class="table-count">20 total</div>
+            <div class="search-box">
+              <div class="search-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+              <input type="search" placeholder="Search highlights…"/>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>Title</th><th>Date</th><th>Images</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr><td><div class="cell-name">Bridging Excellence across Institutions</div><div class="cell-sub">Visit from Rizal Technological University</div></td><td>Feb 24, 2026</td><td><span class="badge badge-cyan">4 photos</span></td><td><span class="badge badge-green"><span class="badge-dot"></span>Published</span></td><td class="row-actions"><button class="act-btn act-edit" onclick="openPanel('edit-highlight','Bridging Excellence across Institutions')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="act-btn act-toggle" title="Toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button><button class="act-btn act-del" onclick="confirmDelete('Bridging Excellence across Institutions')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td></tr>
+              <tr><td><div class="cell-name">US Embassy visits the center</div><div class="cell-sub">Delegation from US Embassy-Fulbright Philippines</div></td><td>Feb 20, 2026</td><td><span class="badge badge-cyan">2 photos</span></td><td><span class="badge badge-green"><span class="badge-dot"></span>Published</span></td><td class="row-actions"><button class="act-btn act-edit" onclick="openPanel('edit-highlight','US Embassy visits the center')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="act-btn act-toggle" title="Toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button><button class="act-btn act-del" onclick="confirmDelete('US Embassy visits the center')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td></tr>
+              <tr><td colspan="5" style="text-align:center;padding:12px;font-size:.78rem;color:var(--g400);">+ 18 more highlights</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ─── ACCOMPLISHMENTS ───────────────────────────── -->
+      <div class="page" id="page-accomplishments">
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">Accomplishment Reports</div>
+            <div class="table-count">8 reports</div>
+          </div>
+          <table>
+            <thead><tr><th>Title</th><th>Year</th><th>Quarter</th><th>Flipbook</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr><td><div class="cell-name">Q4 Accomplishment Report 2025</div></td><td>2025</td><td><span class="badge badge-cyan">Q4</span></td><td><span class="badge badge-green">Linked</span></td><td><span class="badge badge-green"><span class="badge-dot"></span>Published</span></td><td class="row-actions"><button class="act-btn act-edit" onclick="openPanel('edit-accomplishment','Q4 2025')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="act-btn act-del" onclick="confirmDelete('Q4 Accomplishment Report 2025')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td></tr>
+              <tr><td><div class="cell-name">Q3 Accomplishment Report 2025</div></td><td>2025</td><td><span class="badge badge-blue">Q3</span></td><td><span class="badge badge-green">Linked</span></td><td><span class="badge badge-green"><span class="badge-dot"></span>Published</span></td><td class="row-actions"><button class="act-btn act-edit" onclick="openPanel('edit-accomplishment','Q3 2025')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="act-btn act-del" onclick="confirmDelete('Q3 Accomplishment Report 2025')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td></tr>
+              <tr><td><div class="cell-name">Q2 Accomplishment Report 2025</div></td><td>2025</td><td><span class="badge badge-gray">Q2</span></td><td><span class="badge badge-green">Linked</span></td><td><span class="badge badge-green"><span class="badge-dot"></span>Published</span></td><td class="row-actions"><button class="act-btn act-edit" onclick="openPanel('edit-accomplishment','Q2 2025')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="act-btn act-del" onclick="confirmDelete('Q2 Accomplishment Report 2025')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td></tr>
+              <tr><td><div class="cell-name">Q4 Accomplishment Report 2024</div></td><td>2024</td><td><span class="badge badge-cyan">Q4</span></td><td><span class="badge badge-gray">No link</span></td><td><span class="badge badge-amber"><span class="badge-dot"></span>Draft</span></td><td class="row-actions"><button class="act-btn act-edit" onclick="openPanel('edit-accomplishment','Q4 2024')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="act-btn act-del" onclick="confirmDelete('Q4 Accomplishment Report 2024')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ─── RESOURCES ─────────────────────────────────── -->
+      <div class="page" id="page-resources">
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">Learning Resources</div>
+            <div class="table-count">6 resources</div>
+          </div>
+          <table>
+            <thead><tr><th>Title</th><th>Has Thumbnail</th><th>Link</th><th>Order</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr><td><div class="cell-name">Digital Logic and Circuit Design</div><div class="cell-sub">Reference textbook for electronics engineering</div></td><td><span class="badge badge-green">Yes</span></td><td><span class="badge badge-green">Linked</span></td><td>1</td><td><span class="badge badge-green"><span class="badge-dot"></span>Published</span></td><td class="row-actions"><button class="act-btn act-edit" onclick="openPanel('edit-resource','Digital Logic and Circuit Design')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="act-btn act-del" onclick="confirmDelete('Digital Logic and Circuit Design')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td></tr>
+              <tr><td><div class="cell-name">Engineering Research Methodology</div><div class="cell-sub">Course guide for research students</div></td><td><span class="badge badge-gray">No</span></td><td><span class="badge badge-green">Linked</span></td><td>2</td><td><span class="badge badge-green"><span class="badge-dot"></span>Published</span></td><td class="row-actions"><button class="act-btn act-edit" onclick="openPanel('edit-resource','Engineering Research Methodology')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="act-btn act-del" onclick="confirmDelete('Engineering Research Methodology')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ─── MESSAGES ──────────────────────────────────── -->
+      <div class="page" id="page-messages">
+        <div class="msg-grid">
+          <div class="msg-card unread">
+            <div class="msg-meta"><div class="msg-from">Maria Santos</div><span class="badge badge-cyan">New</span><div class="msg-time" style="margin-left:auto">2h ago</div></div>
+            <div class="msg-sub">Research Collaboration Inquiry</div>
+            <div class="msg-body">Good day! I am a faculty member from Mapúa University interested in a research collaboration on IoT-based environmental monitoring systems. We would like to explore possible partnership…</div>
+            <div style="display:flex;gap:8px;margin-top:4px"><button class="topbar-btn btn-primary" style="font-size:.76rem;padding:6px 12px" onclick="toast('Reply sent to Maria Santos','success')">Reply</button><button class="topbar-btn btn-ghost" style="font-size:.76rem;padding:6px 12px" onclick="toast('Marked as read','info')">Mark Read</button><button class="topbar-btn btn-danger" style="font-size:.76rem;padding:6px 12px" onclick="confirmDelete('message from Maria Santos')">Delete</button></div>
+          </div>
+          <div class="msg-card unread">
+            <div class="msg-meta"><div class="msg-from">Juan dela Cruz</div><span class="badge badge-cyan">New</span><div class="msg-time" style="margin-left:auto">1d ago</div></div>
+            <div class="msg-sub">Equipment Loan Request</div>
+            <div class="msg-body">We are a group of 4th year BS Electronics Engineering students requesting access to the ESRC's PCB fabrication equipment for our capstone project on smart home automation…</div>
+            <div style="display:flex;gap:8px;margin-top:4px"><button class="topbar-btn btn-primary" style="font-size:.76rem;padding:6px 12px" onclick="toast('Reply sent to Juan dela Cruz','success')">Reply</button><button class="topbar-btn btn-ghost" style="font-size:.76rem;padding:6px 12px" onclick="toast('Marked as read','info')">Mark Read</button><button class="topbar-btn btn-danger" style="font-size:.76rem;padding:6px 12px" onclick="confirmDelete('message from Juan dela Cruz')">Delete</button></div>
+          </div>
+          <div class="msg-card unread">
+            <div class="msg-meta"><div class="msg-from">Atty. Renzo Dela Rosa</div><span class="badge badge-cyan">New</span><div class="msg-time" style="margin-left:auto">2d ago</div></div>
+            <div class="msg-sub">Partnership — Industry Research</div>
+            <div class="msg-body">OmniFab Inc. is looking to partner with ESRC for our upcoming semiconductor R&D project. We are interested in discussing potential industry-academia collaboration arrangements…</div>
+            <div style="display:flex;gap:8px;margin-top:4px"><button class="topbar-btn btn-primary" style="font-size:.76rem;padding:6px 12px" onclick="toast('Reply sent','success')">Reply</button><button class="topbar-btn btn-ghost" style="font-size:.76rem;padding:6px 12px" onclick="toast('Marked as read','info')">Mark Read</button><button class="topbar-btn btn-danger" style="font-size:.76rem;padding:6px 12px" onclick="confirmDelete('message from Atty. Renzo Dela Rosa')">Delete</button></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ── SLIDE-IN PANEL ──────────────────────────────────── -->
+<div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
+<div class="panel" id="panel">
+  <div class="panel-header">
+    <div class="panel-title" id="panelTitle">Edit Record</div>
+    <button class="panel-close" onclick="closePanel()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="panel-body" id="panelBody"></div>
+  <div class="panel-footer">
+    <button class="topbar-btn btn-primary" onclick="savePanel()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      Save Changes
+    </button>
+    <button class="topbar-btn btn-ghost" onclick="closePanel()">Cancel</button>
+    <button class="topbar-btn btn-danger" id="panelDeleteBtn" style="margin-left:auto;display:none" onclick="confirmDelete(currentRecord)">Delete</button>
+  </div>
+</div>
+
+<!-- ── CONFIRM MODAL ───────────────────────────────────── -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <div class="modal-title">Confirm Delete</div>
+    <div class="modal-body" id="confirmBody">Are you sure you want to delete this record? This action cannot be undone.</div>
+    <div class="modal-actions">
+      <button class="topbar-btn btn-ghost" onclick="closeConfirm()">Cancel</button>
+      <button class="topbar-btn btn-danger" onclick="doDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST STACK ─────────────────────────────────────── -->
+<div class="toast-stack" id="toastStack"></div>
+
+<script>
+/* ── NAV ─────────────────────────────────────────────── */
+var pageMeta = {
+  dashboard:      { title: 'Dashboard', sub: 'Welcome back, Engr. Carlos Jhay', addLabel: null },
+  staff:          { title: 'Staff Members', sub: 'Manage faculty and research staff profiles', addLabel: 'Add Staff' },
+  ojt:            { title: 'OJT / Interns', sub: 'Manage intern records by batch', addLabel: 'Add Intern' },
+  projects:       { title: 'Research Projects', sub: 'Manage research project cards on the website', addLabel: 'Add Project' },
+  publications:   { title: 'Publications', sub: 'Manage journal and conference publications', addLabel: 'Add Publication' },
+  highlights:     { title: 'Center Highlights', sub: 'News, events, and achievements', addLabel: 'Add Highlight' },
+  accomplishments:{ title: 'Accomplishment Reports', sub: 'Quarterly accomplishment flipbook reports', addLabel: 'Add Report' },
+  resources:      { title: 'Learning Resources', sub: 'Books and course materials for the resources page', addLabel: 'Add Resource' },
+  messages:       { title: 'Contact Messages', sub: 'Inquiries received via the website contact form', addLabel: null },
+};
+
+function nav(el) {
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  el.classList.add('active');
+  var page = el.dataset.page;
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('page-' + page).classList.add('active');
+  var meta = pageMeta[page];
+  document.getElementById('pageTitle').textContent = meta.title;
+  document.getElementById('pageSub').textContent = meta.sub;
+  var addBtn = document.getElementById('addBtn');
+  if (meta.addLabel) {
+    addBtn.style.display = 'inline-flex';
+    addBtn.lastChild.textContent = meta.addLabel;
+  } else {
+    addBtn.style.display = 'none';
+  }
+}
+
+/* ── PANELS ──────────────────────────────────────────── */
+var currentRecord = '';
+var panelForms = {
+  'new': function(page) {
+    var forms = {
+      staff: staffForm(),
+      ojt: ojtForm(),
+      projects: projectForm(),
+      publications: pubForm(),
+      highlights: highlightForm(),
+      accomplishments: accomplishmentForm(),
+      resources: resourceForm(),
+    };
+    var active = document.querySelector('.nav-item.active');
+    var pg = active ? active.dataset.page : 'staff';
+    document.getElementById('panelTitle').textContent = 'Add New — ' + pageMeta[pg].addLabel;
+    document.getElementById('panelDeleteBtn').style.display = 'none';
+    return forms[pg] || staffForm();
+  },
+  'edit-staff':          function(n){ document.getElementById('panelTitle').textContent = 'Edit Staff — ' + n; document.getElementById('panelDeleteBtn').style.display='inline-flex'; return staffForm(n); },
+  'edit-ojt':            function(n){ document.getElementById('panelTitle').textContent = 'Edit Intern — ' + n; document.getElementById('panelDeleteBtn').style.display='inline-flex'; return ojtForm(n); },
+  'edit-project':        function(n){ document.getElementById('panelTitle').textContent = 'Edit Project — ' + n; document.getElementById('panelDeleteBtn').style.display='inline-flex'; return projectForm(n); },
+  'edit-pub':            function(n){ document.getElementById('panelTitle').textContent = 'Edit Publication'; document.getElementById('panelDeleteBtn').style.display='inline-flex'; return pubForm(n); },
+  'edit-highlight':      function(n){ document.getElementById('panelTitle').textContent = 'Edit Highlight — ' + n; document.getElementById('panelDeleteBtn').style.display='inline-flex'; return highlightForm(n); },
+  'edit-accomplishment': function(n){ document.getElementById('panelTitle').textContent = 'Edit Report — ' + n; document.getElementById('panelDeleteBtn').style.display='inline-flex'; return accomplishmentForm(n); },
+  'edit-resource':       function(n){ document.getElementById('panelTitle').textContent = 'Edit Resource — ' + n; document.getElementById('panelDeleteBtn').style.display='inline-flex'; return resourceForm(n); },
+};
+
+function openPanel(type, name) {
+  currentRecord = name || '';
+  var body = panelForms[type] ? panelForms[type](name) : '<p>Form not found.</p>';
+  document.getElementById('panelBody').innerHTML = body;
+  document.getElementById('panel').classList.add('open');
+  document.getElementById('panelOverlay').classList.add('open');
+  // wire toggles
+  document.querySelectorAll('.toggle').forEach(function(t){
+    t.addEventListener('click', function(){ t.classList.toggle('on'); });
+  });
+}
+function closePanel() {
+  document.getElementById('panel').classList.remove('open');
+  document.getElementById('panelOverlay').classList.remove('open');
+}
+function savePanel() {
+  closePanel();
+  toast('Changes saved successfully', 'success');
+}
+
+/* ── FORM TEMPLATES ──────────────────────────────────── */
+function staffForm(name) {
+  var isFilled = !!name;
+  return '<div class="form-section"><span class="form-section-label">Basic Info</span>'+
+    '<div class="form-group"><label class="form-label">Full Name <span class="required">*</span></label><input class="form-input" value="'+(isFilled?name:'')+'" placeholder="Dr. Juan dela Cruz"/></div>'+
+    '<div class="form-group" style="margin-top:12px"><label class="form-label">Role / Position <span class="required">*</span></label><input class="form-input" value="'+(isFilled?'Center Head, ESRC':'')+'" placeholder="Center Head, ESRC"/></div>'+
+    '<div class="form-group" style="margin-top:12px"><label class="form-label">Bio</label><textarea class="form-input" rows="5" placeholder="Short bio about this staff member…">'+(isFilled?'Associate Professor and researcher specializing in electronic systems and IoT applications.':'')+' </textarea></div>'+
+    '</div>'+
+    '<div class="form-section"><span class="form-section-label">Photo</span>'+
+    '<div class="form-group"><label class="form-label">Photo URL (Vercel Blob)</label><input class="form-input" value="'+(isFilled?'https://5xb2ufjgpdzgmhwg.public.blob.vercel-storage.com/...':'')+'" placeholder="https://…"/></div>'+
+    '<div class="form-group" style="margin-top:12px"><label class="form-label">Image Position</label><select class="form-input"><option>center</option><option>top</option><option>bottom</option><option>left</option><option>right</option></select></div>'+
+    '</div>'+
+    '<div class="form-section"><span class="form-section-label">Settings</span>'+
+    '<div class="form-group"><label class="form-label">Display Order</label><input class="form-input" type="number" value="'+(isFilled?'1':'')+'"/></div>'+
+    '<div class="toggle-wrap" style="margin-top:12px"><button class="toggle '+(isFilled?'on':'on')+'" type="button"></button><span class="toggle-label">Published on website</span></div>'+
+    '</div>';
+}
+function ojtForm(name) {
+  var isFilled = !!name;
+  return '<div class="form-section"><span class="form-section-label">Intern Info</span>'+
+    '<div class="form-group"><label class="form-label">Full Name <span class="required">*</span></label><input class="form-input" value="'+(isFilled?name:'')+'" placeholder="Dela Cruz, Juan M."/></div>'+
+    '<div class="form-row" style="margin-top:12px">'+
+    '<div class="form-group"><label class="form-label">Course</label><input class="form-input" value="'+(isFilled?'BS in Computer Science':'')+'" placeholder="BS in Electronics Engineering"/></div>'+
+    '<div class="form-group"><label class="form-label">Email</label><input class="form-input" value="'+(isFilled?'23-02989@g.batstate-u.edu.ph':'')+'" placeholder="23-00000@g.batstate-u.edu.ph"/></div>'+
+    '</div>'+
+    '<div class="form-group" style="margin-top:12px"><label class="form-label">Batch Label <span class="required">*</span></label>'+
+    '<select class="form-input"><option>2025-2026 Midterm Interns</option><option>2025-2026 2nd Semester Interns</option><option>2025-2026 1st Semester Interns</option><option>2024-2025 Midterm Interns</option><option>2024-2025 2nd Semester Interns</option><option>2024-2025 1st Semester Interns</option><option>2023-2024 Midterm Interns</option></select></div>'+
+    '</div>'+
+    '<div class="form-section"><span class="form-section-label">Photo</span>'+
+    '<div class="form-group"><label class="form-label">Photo URL (Vercel Blob)</label><input class="form-input" value="" placeholder="https://…"/></div></div>'+
+    '<div class="form-section"><span class="form-section-label">Settings</span>'+
+    '<div class="form-group"><label class="form-label">Order within batch</label><input class="form-input" type="number" value="'+(isFilled?'1':'')+'"/></div>'+
+    '<div class="toggle-wrap" style="margin-top:12px"><button class="toggle on" type="button"></button><span class="toggle-label">Published on website</span></div>'+
+    '</div>';
+}
+function projectForm(name) {
+  var isFilled = !!name;
+  return '<div class="form-section"><span class="form-section-label">Project Info</span>'+
+    '<div class="form-group"><label class="form-label">Title <span class="required">*</span></label><input class="form-input" value="'+(isFilled?name:'')+'" placeholder="Project title…"/></div>'+
+    '<div class="form-group" style="margin-top:12px"><label class="form-label">Year</label><input class="form-input" value="'+(isFilled?'2024':'')+'"/></div>'+
+    '<div class="form-group" style="margin-top:12px"><label class="form-label">Description</label><textarea class="form-input" rows="5" placeholder="Describe the research project…">'+(isFilled?'An innovative research project addressing real-world challenges through electronic systems engineering.':'')+' </textarea></div>'+
+    '</div>'+
+    '<div class="form-section"><span class="form-section-label">Images</span>'+
+    '<div class="form-group"><label class="form-label">Card Image URL (Vercel Blob)</label><input class="form-input" value="'+(isFilled?'https://5xb2ufjgpdzgmhwg.public.blob.vercel-storage.com/...':'')+'" placeholder="https://…"/></div>'+
+    '<div class="form-group" style="margin-top:12px"><label class="form-label">Detail / More Info Image URL</label><input class="form-input" value="" placeholder="https://… (poster, schematic)"/></div>'+
+    '<div class="form-group" style="margin-top:12px"><label class="form-label">Alt Text</label><input class="form-input" value="" placeholder="Accessible description of image…"/></div>'+
+    '</div>'+
+    '<div class="form-section"><span class="form-section-label">Settings</span>'+
+    '<div class="form-group"><label class="form-label">Display Order</label><input class="form-input" type="number" value="'+(isFilled?'1':'')+'"/></div>'+
+    '<div class="toggle-wrap" style="margin-top:12px"><button class="toggle '+(isFilled?'on':'')+'"></button><span class="toggle-label">Published on website</span></div>'+
+    '</div>';
+}
+function pubForm(name) {
+  var isFilled = !!name;
+  return '<div class="form-section"><span class="form-section-label">Publication Info</span>'+
+    '<div class="form-group"><label class="form-label">Title <span class="required">*</span></label><textarea class="form-input" rows="3" placeholder="Full publication title…">'+(isFilled?'Adaptive Impedance Matching Network for IoT Energy Harvesting at 915 MHz':'')+' </textarea></div>'+
+    '<div class="form-row" style="margin-top:12px">'+
+    '<div class="form-group"><label class="form-label">Type</label><select class="form-input"><option>Journal</option><option>Conference Paper</option><option>Technical Report</option></select></div>'+
+    '<div class="form-group"><label class="form-label">Date / Year</label><input class="form-input" value="'+(isFilled?'2024':'')+'"/></div>'+
+    '</div>'+
+    '</div>'+
+    '<div class="form-section"><span class="form-section-label">Details</span>'+
+    '<div class="form-group"><label class="form-label">Authors / Summary</label><textarea class="form-input" rows="3" placeholder="Author names, journal info…">'+(isFilled?'Sangalang, R.G.B., Arroyo, C.J.A., Rosales, A.M.':'')+' </textarea></div>'+
+    '<div class="form-group" style="margin-top:12px"><label class="form-label">Venue / Details</label><input class="form-input" value="'+(isFilled?'IEEE Transactions on Industrial Electronics, Vol. 71, No. 4, 2024':'')+'" placeholder="Journal name, conference, doi…"/></div>'+
+    '</div>'+
+    '<div class="form-section"><span class="form-section-label">Keywords</span>'+
+    '<div class="form-row">'+
+    '<div class="form-group"><label class="form-label">Keyword 1</label><input class="form-input" value="'+(isFilled?'IoT':'')+'"/></div>'+
+    '<div class="form-group"><label class="form-label">Keyword 2</label><input class="form-input" value="'+(isFilled?'Energy Harvesting':'')+'"/></div>'+
+    '</div>'+
+    '<div class="form-group" style="margin-top:10px"><label class="form-label">Keyword 3</label><input class="form-input" value="'+(isFilled?'Impedance Matching':'')+'"/></div>'+
+    '</div>'+
+    '<div class="form-section"><span class="form-section-label">Link</span>'+
+    '<div class="form-group"><label class="form-label">Full Paper URL</label><input class="form-input" value="" placeholder="https://doi.org/…"/></div>'+
+    '<div class="toggle-wrap" style="margin-top:12px"><button class="toggle on"></button><span class="toggle-label">Published on website</span></div>'+
+    '</div>';
+}
+function highlightForm(name) {
+  var isFilled = !!name;
+  return '<div class="form-section"><span class="form-section-label">Highlight Info</span>'+
+    '<div class="form-group"><label class="form-label">Title <span class="required">*</span></label><input class="form-input" value="'+(isFilled?name:'')+'" placeholder="Event or achievement title…"/></div>'+
+    '<div class="form-group" style="margin-top:12px"><label class="form-label">Date</label><input class="form-input" type="date" value="'+(isFilled?'2026-02-24':'')+'"/></div>'+
+    '<div class="form-group" style="margin-top:12px"><label class="form-label">Description</label><textarea class="form-input" rows="6" placeholder="Describe what happened…">'+(isFilled?'We were honored to host our visitors from the Rizal Technological University (RTU) today.':'')+' </textarea></div>'+
+    '</div>'+
+    '<div class="form-section"><span class="form-section-label">Images <span style="font-weight:400;color:var(--g400);text-transform:none;letter-spacing:0">(Vercel Blob URLs — add one per line)</span></span>'+
+    '<div class="form-group"><label class="form-label">Image URLs</label>'+
+    '<textarea class="form-input" rows="4" placeholder="https://…&#10;https://…&#10;https://…">'+(isFilled?'https://5xb2ufjgpdzgmhwg.public.blob.vercel-storage.com/img1.webp\nhttps://5xb2ufjgpdzgmhwg.public.blob.vercel-storage.com/img2.webp':'')+' </textarea>'+
+    '<div class="form-hint">One URL per line. First image shows in carousel preview.</div></div>'+
+    '<div class="form-group" style="margin-top:12px"><label class="form-label">Alt Text (accessibility)</label><input class="form-input" value="" placeholder="Brief description of images…"/></div>'+
+    '</div>'+
+    '<div class="toggle-wrap"><button class="toggle on"></button><span class="toggle-label">Published on website</span></div>';
+}
+function accomplishmentForm(name) {
+  var isFilled = !!name;
+  return '<div class="form-section"><span class="form-section-label">Report Info</span>'+
+    '<div class="form-row">'+
+    '<div class="form-group"><label class="form-label">Year <span class="required">*</span></label><input class="form-input" type="number" value="'+(isFilled?'2025':'')+'"/></div>'+
+    '<div class="form-group"><label class="form-label">Quarter <span class="required">*</span></label><select class="form-input"><option>1</option><option>2</option><option>3</option><option selected>4</option></select></div>'+
+    '</div>'+
+    '<div class="form-group" style="margin-top:12px"><label class="form-label">Report Title</label><input class="form-input" value="'+(isFilled?'Q4 Accomplishment Report 2025':'')+'" placeholder="Optional title override…"/></div>'+
+    '<div class="form-group" style="margin-top:12px"><label class="form-label">Description</label><textarea class="form-input" rows="4" placeholder="Brief summary of quarter accomplishments…"></textarea></div>'+
+    '</div>'+
+    '<div class="form-section"><span class="form-section-label">Flipbook</span>'+
+    '<div class="form-group"><label class="form-label">Flipbook Embed URL</label><input class="form-input" value="'+(isFilled?'https://heyzine.com/flip-book/2d76101035.html':'')+'" placeholder="https://heyzine.com/…"/></div>'+
+    '<div class="form-group" style="margin-top:12px"><label class="form-label">Thumbnail URL (Vercel Blob)</label><input class="form-input" value="" placeholder="https://…"/></div>'+
+    '</div>'+
+    '<div class="toggle-wrap"><button class="toggle on"></button><span class="toggle-label">Published on website</span></div>';
+}
+function resourceForm(name) {
+  var isFilled = !!name;
+  return '<div class="form-section"><span class="form-section-label">Resource Info</span>'+
+    '<div class="form-group"><label class="form-label">Title <span class="required">*</span></label><input class="form-input" value="'+(isFilled?name:'')+'" placeholder="Book or material title…"/></div>'+
+    '<div class="form-group" style="margin-top:12px"><label class="form-label">Description</label><textarea class="form-input" rows="4" placeholder="What is this resource about?…">'+(isFilled?'A comprehensive reference textbook for electronics engineering students and researchers.':'')+' </textarea></div>'+
+    '</div>'+
+    '<div class="form-section"><span class="form-section-label">Media &amp; Link</span>'+
+    '<div class="form-group"><label class="form-label">Thumbnail URL (Vercel Blob)</label><input class="form-input" value="'+(isFilled?'https://5xb2ufjgpdzgmhwg.public.blob.vercel-storage.com/...':'')+'" placeholder="https://…"/></div>'+
+    '<div class="form-group" style="margin-top:12px"><label class="form-label">Resource Link (flipbook / PDF / external)</label><input class="form-input" value="" placeholder="https://…"/></div>'+
+    '</div>'+
+    '<div class="form-section"><span class="form-section-label">Settings</span>'+
+    '<div class="form-group"><label class="form-label">Display Order</label><input class="form-input" type="number" value="'+(isFilled?'1':'')+'"/></div>'+
+    '<div class="toggle-wrap" style="margin-top:12px"><button class="toggle on"></button><span class="toggle-label">Published on website</span></div>'+
+    '</div>';
+}
+
+/* ── CONFIRM DELETE ──────────────────────────────────── */
+var pendingDelete = '';
+function confirmDelete(name) {
+  pendingDelete = name;
+  document.getElementById('confirmBody').textContent = 'Delete "' + name + '"? This action cannot be undone.';
+  document.getElementById('confirmModal').classList.add('open');
+}
+function closeConfirm() { document.getElementById('confirmModal').classList.remove('open'); }
+function doDelete() {
+  closeConfirm();
+  closePanel();
+  toast('"' + pendingDelete + '" deleted', 'success');
+}
+
+/* ── TOAST ───────────────────────────────────────────── */
+function toast(msg, type) {
+  type = type || 'info';
+  var icons = {
+    success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>',
+    error:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+    info:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+  };
+  var t = document.createElement('div');
+  t.className = 'toast toast-' + type;
+  t.innerHTML = icons[type] + '<span>' + msg + '</span>';
+  document.getElementById('toastStack').appendChild(t);
+  setTimeout(function() {
+    t.style.transition = 'opacity .3s'; t.style.opacity = '0';
+    setTimeout(function(){ t.remove(); }, 300);
+  }, 3200);
+}
+
+/* ── KEYBOARD CLOSE ──────────────────────────────────── */
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { closePanel(); closeConfirm(); }
+});
+</script>
+</body>
+</html>
