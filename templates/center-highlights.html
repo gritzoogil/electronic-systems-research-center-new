@@ -26,18 +26,18 @@
     overflow: hidden;
     background: linear-gradient(135deg, var(--navy-xdark), var(--navy));
     flex-shrink: 0;
-    height: 240px;
+    height: 260px;
   }
   @media (min-width: 768px) {
-    .hl-img-col { width: 38%; height: auto; min-height: 260px; }
+    .hl-img-col { width: 38%; height: auto; min-height: 280px; }
   }
 
-  /* Slide track — images sit in a horizontal row, track shifts left */
+  /* Slide track */
   .hl-track {
     display: flex;
     width: 100%;
     height: 100%;
-    transition: transform .6s cubic-bezier(.4,0,.2,1);
+    transition: transform .55s cubic-bezier(.4,0,.2,1);
     will-change: transform;
   }
   .hl-slide {
@@ -47,6 +47,48 @@
     object-fit: cover;
   }
 
+  /* ── Arrow buttons ─────────────────────────────────── */
+  .hl-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    background: rgba(255,255,255,.18);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;                          /* hidden until card hovered */
+    transition: opacity .2s ease,
+                background .2s ease,
+                transform .2s ease;
+    padding: 0;
+  }
+  .hl-arrow svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .hl-arrow:hover {
+    background: rgba(255,255,255,.38);
+    transform: translateY(-50%) scale(1.1);
+  }
+  .hl-arrow:active { transform: translateY(-50%) scale(.96); }
+  .hl-arrow.prev { left: 10px; }
+  .hl-arrow.next { right: 10px; }
+
+  /* Show arrows when the whole card is hovered */
+  .hl-card:hover .hl-arrow { opacity: 1; }
+
+  /* On touch devices — always visible */
+  @media (hover: none) {
+    .hl-arrow { opacity: 1; }
+  }
+
+  /* ── Dot indicators ──────────────────────────────── */
   .hl-dots {
     position: absolute;
     bottom: 10px;
@@ -67,6 +109,7 @@
   }
   .hl-dot.active { background: var(--cyan); transform: scale(1.3); }
 
+  /* ── Body ────────────────────────────────────────── */
   .hl-body {
     padding: 28px 32px;
     display: flex;
@@ -75,44 +118,48 @@
     justify-content: center;
     flex: 1;
   }
-  @media (max-width: 767px) {
-    .hl-body { padding: 20px; }
-  }
+  @media (max-width: 767px) { .hl-body { padding: 20px; } }
 
   .hl-date {
-    font-size: .72rem;
-    font-weight: 700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color: var(--cyan);
+    font-size: .72rem; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--cyan);
   }
   .hl-title {
     font-family: var(--font-d);
     font-size: clamp(1.05rem, 2.2vw, 1.3rem);
-    font-weight: 800;
-    font-style: normal;
-    color: var(--dark);
-    line-height: 1.25;
-    overflow-wrap: anywhere;
-    min-width: 0;
+    font-weight: 800; font-style: normal;
+    color: var(--dark); line-height: 1.25;
+    overflow-wrap: anywhere; min-width: 0;
   }
   .hl-desc {
-    font-size: .9rem;
-    color: var(--gray-500);
-    line-height: 1.7;
-    overflow-wrap: anywhere;
-    min-width: 0;
+    font-size: .9rem; color: var(--gray-500);
+    line-height: 1.7; overflow-wrap: anywhere; min-width: 0;
   }
-  .hl-count {
-    font-size: .75rem;
-    color: var(--gray-400);
-    margin-top: 4px;
-  }
+  .hl-count { font-size: .75rem; color: var(--gray-400); margin-top: 4px; }
 
   .hl-empty-icon {
     width: 100%; height: 100%;
     display: flex; align-items: center; justify-content: center;
   }
+
+  /* ── Search / filter bar ─────────────────────────── */
+  .pub-pagination {
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; margin-top: 32px; flex-wrap: wrap;
+  }
+  .pg-btn, .pg-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 9px 16px; border-radius: var(--r-md);
+    border: 1.5px solid var(--gray-200); background: var(--white);
+    font-size: .83rem; font-weight: 600; color: var(--gray-500);
+    transition: all var(--dur) var(--ease);
+  }
+  .pg-num { min-width: 38px; padding: 9px 12px; }
+  .pg-btn:hover:not(.disabled), .pg-num:hover:not(.active) {
+    background: var(--navy); color: var(--white); border-color: var(--navy);
+  }
+  .pg-num.active { background: var(--navy); color: var(--white); border-color: var(--navy); pointer-events: none; }
+  .pg-btn.disabled { opacity: .4; pointer-events: none; }
 </style>
 {% endblock %}
 
@@ -149,13 +196,15 @@
   <section class="section">
     <div class="wrap">
 
+      <!-- Search + year filter -->
       <div class="pub-controls reveal" style="max-width:960px;margin:0 auto 32px;">
         <form class="pub-search" method="GET" action="{{ url_for('public.center_highlights') }}">
           <input type="hidden" name="year" value="{{ active_year }}">
           <div class="pub-search-ico" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
           </div>
-          <input type="search" name="q" value="{{ active_q }}" placeholder="Search highlights…" aria-label="Search highlights"/>
+          <input type="search" name="q" value="{{ active_q }}"
+                 placeholder="Search highlights…" aria-label="Search highlights"/>
         </form>
         <div class="pub-filters" role="group" aria-label="Filter by year">
           <a href="{{ url_for('public.center_highlights', q=active_q, year='all') }}"
@@ -179,50 +228,66 @@
 
 {% block scripts %}
 <script>
+/* ─────────────────────────────────────────────────────────────────
+   Highlight carousel — auto-slide + arrow buttons + dot navigation
+───────────────────────────────────────────────────────────────── */
 function initHighlightCarousels() {
   var carousels = {};
 
-  /* Build state for each card that has multiple slides */
   document.querySelectorAll('.hl-img-col').forEach(function (col) {
     var id      = col.id;
     var track   = document.getElementById(id + '-track');
     var slides  = track ? Array.from(track.querySelectorAll('.hl-slide')) : [];
     var dots    = Array.from(col.querySelectorAll('.hl-dot'));
     var countEl = document.getElementById(id + '-count');
+    var prevBtn = col.querySelector('.hl-arrow.prev');
+    var nextBtn = col.querySelector('.hl-arrow.next');
 
     if (!track || slides.length < 2) return;
 
     carousels[id] = {
-      track:   track,
-      slides:  slides,
-      dots:    dots,
-      countEl: countEl,
-      current: 0,
-      timer:   null,
+      track: track, slides: slides, dots: dots,
+      countEl: countEl, current: 0, timer: null,
     };
 
+    /* ── Core slide function ───────────────────────── */
     function goTo(idx) {
       var c = carousels[id];
       c.current = ((idx % c.slides.length) + c.slides.length) % c.slides.length;
       c.track.style.transform = 'translateX(-' + (c.current * 100) + '%)';
-      c.dots.forEach(function (d, i) {
-        d.classList.toggle('active', i === c.current);
-      });
+      c.dots.forEach(function (d, i) { d.classList.toggle('active', i === c.current); });
       if (c.countEl) {
         c.countEl.textContent = (c.current + 1) + ' / ' + c.slides.length + ' photos';
       }
     }
 
+    /* ── Auto-play ─────────────────────────────────── */
     function startTimer() {
       carousels[id].timer = setInterval(function () {
         goTo(carousels[id].current + 1);
       }, 3000);
     }
+    function stopTimer() { clearInterval(carousels[id].timer); }
 
-    function stopTimer() {
-      clearInterval(carousels[id].timer);
+    /* ── Arrow buttons ─────────────────────────────── */
+    if (prevBtn) {
+      prevBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        stopTimer();
+        goTo(carousels[id].current - 1);
+        startTimer();
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        stopTimer();
+        goTo(carousels[id].current + 1);
+        startTimer();
+      });
     }
 
+    /* ── Dot buttons ───────────────────────────────── */
     dots.forEach(function (dot) {
       dot.addEventListener('click', function () {
         stopTimer();
@@ -231,16 +296,104 @@ function initHighlightCarousels() {
       });
     });
 
+    /* ── Keyboard support (← →) when card focused ─── */
     var card = col.closest('.hl-card');
     if (card) {
+      card.setAttribute('tabindex', '0');
+      card.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowLeft')  { stopTimer(); goTo(carousels[id].current - 1); startTimer(); }
+        if (e.key === 'ArrowRight') { stopTimer(); goTo(carousels[id].current + 1); startTimer(); }
+      });
       card.addEventListener('mouseenter', stopTimer);
       card.addEventListener('mouseleave', startTimer);
     }
+
+    /* ── Touch swipe ───────────────────────────────── */
+    var touchStartX = null;
+    col.addEventListener('touchstart', function (e) {
+      touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+    col.addEventListener('touchend', function (e) {
+      if (touchStartX === null) return;
+      var dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 40) {
+        stopTimer();
+        goTo(carousels[id].current + (dx < 0 ? 1 : -1));
+        startTimer();
+      }
+      touchStartX = null;
+    }, { passive: true });
 
     startTimer();
   });
 }
 
-initHighlightCarousels(); // run once for the initially server-rendered cards
+initHighlightCarousels();
+
+/* ─────────────────────────────────────────────────────────────────
+   Live search + year filter + pagination (AJAX)
+───────────────────────────────────────────────────────────────── */
+(function () {
+  var searchInput = document.querySelector('#center-highlights-page .pub-search input[name="q"]');
+  var resultsEl   = document.getElementById('highlightsResults');
+  if (!searchInput || !resultsEl) return;
+
+  var yearInput       = document.querySelector('#center-highlights-page .pub-search input[name="year"]');
+  var debounceTimer   = null;
+  var currentCtrl     = null;
+
+  function fetchResults(url) {
+    if (currentCtrl) currentCtrl.abort();
+    currentCtrl = new AbortController();
+    fetch(url, {
+      headers: { 'X-Requested-With': 'fetch' },
+      signal: currentCtrl.signal
+    })
+      .then(function (r) { return r.text(); })
+      .then(function (html) {
+        resultsEl.innerHTML = html;
+        history.replaceState(null, '', url);
+        initHighlightCarousels();
+      })
+      .catch(function (err) {
+        if (err.name !== 'AbortError') console.error('Highlights fetch failed:', err);
+      });
+  }
+
+  function buildUrl() {
+    var q    = encodeURIComponent(searchInput.value.trim());
+    var year = encodeURIComponent(yearInput ? yearInput.value : 'all');
+    return '/center-highlights?q=' + q + '&year=' + year;
+  }
+
+  searchInput.addEventListener('input', function () {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(function () { fetchResults(buildUrl()); }, 350);
+  });
+
+  var form = searchInput.closest('form');
+  if (form) form.addEventListener('submit', function (e) { e.preventDefault(); fetchResults(buildUrl()); });
+
+  document.querySelectorAll('#center-highlights-page .pub-filters a').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var url = new URL(a.href);
+      if (yearInput) yearInput.value = url.searchParams.get('year') || 'all';
+      document.querySelectorAll('#center-highlights-page .pub-filters a').forEach(function (x) {
+        x.classList.toggle('active', x === a);
+      });
+      fetchResults(buildUrl());
+    });
+  });
+
+  resultsEl.addEventListener('click', function (e) {
+    var link = e.target.closest('.pub-pagination a:not(.disabled)');
+    if (!link) return;
+    e.preventDefault();
+    var u = new URL(link.href);
+    fetchResults(u.pathname + u.search);
+    resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+})();
 </script>
 {% endblock %}
