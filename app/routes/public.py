@@ -138,13 +138,49 @@ def accomplishment_detail(report_id):
 
 @public_bp.route("/center-highlights")
 def center_highlights():
-    highlights = (
-        CenterHighlight.query
-        .filter_by(is_published=True)
+    page = request.args.get("page", 1, type=int)
+    query_text = request.args.get("q", "").strip()
+    year_filter = request.args.get("year", "all")
+    per_page = 6
+
+    base_query = CenterHighlight.query.filter_by(is_published=True)
+
+    all_dates = [h.date for h in base_query.with_entities(CenterHighlight.date).all() if h.date]
+    available_years = sorted({d.year for d in all_dates}, reverse=True)
+
+    if query_text:
+        like_pattern = f"%{query_text}%"
+        base_query = base_query.filter(
+            db.or_(
+                CenterHighlight.title.ilike(like_pattern),
+                CenterHighlight.description.ilike(like_pattern),
+            )
+        )
+
+    if year_filter != "all":
+        try:
+            year_int = int(year_filter)
+            base_query = base_query.filter(db.extract("year", CenterHighlight.date) == year_int)
+        except ValueError:
+            pass
+
+    pagination = (
+        base_query
         .order_by(CenterHighlight.date.desc())
-        .all()
+        .paginate(page=page, per_page=per_page, error_out=False)
     )
-    return render_template("center-highlights.html", highlights=highlights)
+
+    context = dict(
+        highlights=pagination.items,
+        pagination=pagination,
+        active_q=query_text,
+        active_year=year_filter,
+    )
+
+    if request.headers.get("X-Requested-With") == "fetch":
+        return render_template("partials/highlights_results.html", **context)
+
+    return render_template("center-highlights.html", available_years=available_years, **context)
 
 
 @public_bp.route("/resources")
