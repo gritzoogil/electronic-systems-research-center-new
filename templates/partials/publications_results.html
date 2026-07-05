@@ -1,0 +1,94 @@
+{% if publications %}
+<div class="pub-list" id="pubList">
+  {% for pub in publications %}
+
+  {# Wrap in <a> if there's a link, otherwise plain <div> #}
+  {% if pub.link %}
+  <a href="{{ pub.link }}" target="_blank" rel="noopener"
+    class="pub-item reveal visible"
+    data-type="{{ (pub.type | lower | replace(' ', '')) if pub.type else 'other' }}"
+    style="grid-template-columns:1fr auto;gap:16px;align-items:center;">
+  {% else %}
+  <div class="pub-item reveal visible"
+      data-type="{{ (pub.type | lower | replace(' ', '')) if pub.type else 'other' }}">
+  {% endif %}
+
+    <div>
+      {% if pub.type %}
+      <div class="pub-type">
+        {{ pub.type }}{% if pub.date %} · {{ pub.date }}{% endif %}
+      </div>
+      {% endif %}
+
+      <h3 class="pub-title">{{ pub.title }}</h3>
+
+      {% if pub.summary %}
+      <p class="pub-authors">{{ pub.summary }}</p>
+      {% endif %}
+
+      {% if pub.details %}
+      <p class="pub-venue">{{ pub.details }}</p>
+      {% endif %}
+
+      {% if pub.keyword1 or pub.keyword2 or pub.keyword3 %}
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+        {% if pub.keyword1 %}<span class="badge badge-cyan">{{ pub.keyword1 }}</span>{% endif %}
+        {% if pub.keyword2 %}<span class="badge badge-cyan">{{ pub.keyword2 }}</span>{% endif %}
+        {% if pub.keyword3 %}<span class="badge badge-cyan">{{ pub.keyword3 }}</span>{% endif %}
+      </div>
+      {% endif %}
+
+      {% if pub.link %}
+      <span style="display:inline-flex;align-items:center;gap:4px;margin-top:10px;
+                   font-size:.8rem;font-weight:600;color:var(--cyan);">
+        View Publication
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+          <polyline points="15 3 21 3 21 9"/>
+          <line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+      </span>
+      {% endif %}
+    </div>
+
+    {% if pub.date %}
+    <div class="pub-year">{{ pub.date[:4] if pub.date|length >= 4 else pub.date }}</div>
+    {% endif %}
+
+  {% if pub.link %}</a>{% else %}</div>{% endif %}
+
+  {% endfor %}
+</div>
+
+{% if pagination and pagination.pages > 1 %}
+<div class="pub-pagination" role="navigation" aria-label="Publications pages">
+  <a href="{{ url_for('public.publications', page=pagination.prev_num, type=active_type, q=active_q) if pagination.has_prev else '#' }}"
+    class="pg-btn {{ 'disabled' if not pagination.has_prev }}"
+    aria-disabled="{{ 'true' if not pagination.has_prev else 'false' }}">
+    ‹ Prev
+  </a>
+
+  <div class="pg-numbers">
+    {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+      {% if p %}
+        <a href="{{ url_for('public.publications', page=p, type=active_type, q=active_q) }}"
+          class="pg-num {{ 'active' if p == pagination.page }}">{{ p }}</a>
+      {% else %}
+        <span class="pg-ellipsis">…</span>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <a href="{{ url_for('public.publications', page=pagination.next_num, type=active_type, q=active_q) if pagination.has_next else '#' }}"
+    class="pg-btn {{ 'disabled' if not pagination.has_next }}"
+    aria-disabled="{{ 'true' if not pagination.has_next else 'false' }}">
+    Next ›
+  </a>
+</div>
+{% endif %}
+
+{% else %}
+<div style="text-align:center;padding:64px 0;color:var(--gray-400);">
+  <p>No publications found.</p>
+</div>
+{% endif %}

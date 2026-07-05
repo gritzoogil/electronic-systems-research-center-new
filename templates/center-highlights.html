@@ -345,6 +345,9 @@ initHighlightCarousels();
   function fetchResults(url) {
     if (currentCtrl) currentCtrl.abort();
     currentCtrl = new AbortController();
+
+    resultsEl.style.opacity = '0.5'; // subtle loading feedback
+
     fetch(url, {
       headers: { 'X-Requested-With': 'fetch' },
       signal: currentCtrl.signal
@@ -352,10 +355,15 @@ initHighlightCarousels();
       .then(function (r) { return r.text(); })
       .then(function (html) {
         resultsEl.innerHTML = html;
+        resultsEl.style.opacity = '1';
         history.replaceState(null, '', url);
         initHighlightCarousels();
+        resultsEl.querySelectorAll('.reveal').forEach(function (el) {
+          el.classList.add('visible');
+        });
       })
       .catch(function (err) {
+        resultsEl.style.opacity = '1';
         if (err.name !== 'AbortError') console.error('Highlights fetch failed:', err);
       });
   }
@@ -368,7 +376,7 @@ initHighlightCarousels();
 
   searchInput.addEventListener('input', function () {
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(function () { fetchResults(buildUrl()); }, 350);
+    debounceTimer = setTimeout(function () { fetchResults(buildUrl()); }, 250);
   });
 
   var form = searchInput.closest('form');

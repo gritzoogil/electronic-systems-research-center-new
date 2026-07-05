@@ -59,22 +59,22 @@ def publications():
     type_filter = request.args.get("type", "all")
     query_text = request.args.get("q", "").strip()
     per_page = 5
+    is_ajax = request.headers.get("X-Requested-With") == "fetch"
 
     all_pubs = Publication.query.filter_by(is_published=True).all()
 
-    # Server-side type filter
     if type_filter != "all":
         all_pubs = [
             p for p in all_pubs
             if type_filter in (p.type or "other").lower().replace(" ", "")
         ]
 
-    # Server-side text search across title, summary, details, keywords
     if query_text:
         q_lower = query_text.lower()
         def matches(p):
             haystack = " ".join(filter(None, [
-                p.title, p.summary, p.details, p.keyword1, p.keyword2, p.keyword3
+                _strip_markup(p.title), _strip_markup(p.summary), _strip_markup(p.details),
+                p.keyword1, p.keyword2, p.keyword3
             ])).lower()
             return q_lower in haystack
         all_pubs = [p for p in all_pubs if matches(p)]
@@ -111,13 +111,17 @@ def publications():
 
     pagination = SimplePagination(page, per_page, total, page_items)
 
-    return render_template(
-        "publications.html",
+    context = dict(
         publications=pagination.items,
         pagination=pagination,
         active_type=type_filter,
         active_q=query_text,
     )
+
+    if is_ajax:
+        return render_template("partials/publications_results.html", **context)
+
+    return render_template("publications.html", **context)
 
 
 @public_bp.route("/accomplishments")
@@ -136,26 +140,28 @@ def accomplishment_detail(report_id):
     return render_template("accomplishment_detail.html", report=report)
 
 
+import re
+import unicodedata
+
+def _strip_markup(text):
+    if not text:
+        return ""
+    text = unicodedata.normalize("NFKC", text)   # 𝐂𝐚𝐫𝐥𝐨𝐬 → Carlos
+    text = re.sub(r"<[^>]+>", "", text)          # strip HTML tags, just in case
+    text = re.sub(r"[*_`]+", "", text)           # strip markdown emphasis markers
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+
 @public_bp.route("/center-highlights")
 def center_highlights():
     page = request.args.get("page", 1, type=int)
     query_text = request.args.get("q", "").strip()
     year_filter = request.args.get("year", "all")
     per_page = 6
+    is_ajax = request.headers.get("X-Requested-With") == "fetch"
 
     base_query = CenterHighlight.query.filter_by(is_published=True)
-
-    all_dates = [h.date for h in base_query.with_entities(CenterHighlight.date).all() if h.date]
-    available_years = sorted({d.year for d in all_dates}, reverse=True)
-
-    if query_text:
-        like_pattern = f"%{query_text}%"
-        base_query = base_query.filter(
-            db.or_(
-                CenterHighlight.title.ilike(like_pattern),
-                CenterHighlight.description.ilike(like_pattern),
-            )
-        )
 
     if year_filter != "all":
         try:
@@ -164,11 +170,46 @@ def center_highlights():
         except ValueError:
             pass
 
-    pagination = (
-        base_query
-        .order_by(CenterHighlight.date.desc())
-        .paginate(page=page, per_page=per_page, error_out=False)
-    )
+    all_highlights = base_query.order_by(CenterHighlight.date.desc()).all()
+
+    # Text search happens in Python against stripped (plain-text) versions
+    # of title/description, so bold/markup spans don't break substring matching.
+    if query_text:
+        q_lower = _strip_markup(query_text).lower()  # normalize the search term too, in case someone pastes fancy text into the search box itself
+        def matches(h):
+            haystack = _strip_markup(h.title) + " " + _strip_markup(h.description or "")
+            return q_lower in haystack.lower()
+        all_highlights = [h for h in all_highlights if matches(h)]
+
+    total = len(all_highlights)
+    start = (page - 1) * per_page
+    end = start + per_page
+    page_items = all_highlights[start:end]
+
+    class SimplePagination:
+        def __init__(self, page, per_page, total, items):
+            self.page = page
+            self.per_page = per_page
+            self.total = total
+            self.items = items
+            self.pages = max(1, (total + per_page - 1) // per_page)
+            self.has_prev = page > 1
+            self.has_next = page < self.pages
+            self.prev_num = page - 1
+            self.next_num = page + 1
+
+        def iter_pages(self, left_edge=1, right_edge=1, left_current=1, right_current=2):
+            last = 0
+            for num in range(1, self.pages + 1):
+                if (num <= left_edge
+                        or (num > self.page - left_current - 1 and num < self.page + right_current)
+                        or num > self.pages - right_edge):
+                    if last + 1 != num:
+                        yield None
+                    yield num
+                    last = num
+
+    pagination = SimplePagination(page, per_page, total, page_items)
 
     context = dict(
         highlights=pagination.items,
@@ -177,8 +218,15 @@ def center_highlights():
         active_year=year_filter,
     )
 
-    if request.headers.get("X-Requested-With") == "fetch":
+    if is_ajax:
         return render_template("partials/highlights_results.html", **context)
+
+    all_dates = [
+        h.date for h in
+        CenterHighlight.query.filter_by(is_published=True).with_entities(CenterHighlight.date).all()
+        if h.date
+    ]
+    available_years = sorted({d.year for d in all_dates}, reverse=True)
 
     return render_template("center-highlights.html", available_years=available_years, **context)
 
