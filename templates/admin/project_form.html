@@ -40,7 +40,7 @@
 
     <div class="form-group">
       <label for="more_info_img">More Info Image URL (optional)</label>
-      <input type="url" id="more_info_img" name="more_info_img" value="{{ project.more_info_img if project else '' }}">
+      <input type="url" id="more_info_img" name="more_info_img" value="{{ project.more_info_img if project and project.more_info_img else '' }}">
     </div>
 
     <div class="form-row">

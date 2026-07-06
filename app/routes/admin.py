@@ -8,6 +8,27 @@ from app.models import (
 from app import db
 import os
 
+import requests as http_requests
+import os
+
+def upload_to_blob(file, filename, folder="projects"):
+    """Upload a file to Vercel Blob and return the public URL."""
+    token = os.environ.get("BLOB_READ_WRITE_TOKEN")
+    if not token:
+        return None
+    blob_path = f"{folder}/{filename}"
+    resp = http_requests.put(
+        f"https://blob.vercel-storage.com/{blob_path}",
+        data=file.read(),
+        headers={
+            "authorization": f"Bearer {token}",
+            "x-content-type": file.content_type or "application/octet-stream",
+        }
+    )
+    if resp.status_code == 200:
+        return resp.json().get("url")
+    return None
+
 admin_bp = Blueprint("admin", __name__)
 
 FIREBASE_CONFIG = {
@@ -97,17 +118,10 @@ from app.uploads import upload_image_to_blob, UploadError
 @admin_required
 def project_new():
     if request.method == "POST":
-        wants_featured = bool(request.form.get("is_featured"))
-        if wants_featured and not _featured_count_ok(Project, limit=MAX_FEATURED_PROJECTS):
-            flash(f"Only {MAX_FEATURED_PROJECTS} projects can be featured at once. "
-                  f"Un-feature another project first.", "error")
-            return render_template("admin/project_form.html", project=None)
-
-        try:
-            img_path = upload_image_to_blob(request.files.get("image_file"), folder="projects")
-        except UploadError as e:
-            flash(str(e), "error")
-            return render_template("admin/project_form.html", project=None)
+        img_path = None
+        file = request.files.get("image_file")
+        if file and file.filename:
+            img_path = upload_to_blob(file, file.filename, folder="projects")
 
         project = Project(
             title=request.form.get("title", "").strip(),
@@ -116,7 +130,7 @@ def project_new():
             img_path=img_path,
             more_info_img=request.form.get("more_info_img", "").strip() or None,
             order=int(request.form.get("order", 0)),
-            is_featured=wants_featured,
+            is_featured=bool(request.form.get("is_featured")),
             is_published=bool(request.form.get("is_published")),
         )
         db.session.add(project)
@@ -125,33 +139,24 @@ def project_new():
         return redirect(url_for("admin.projects_list"))
     return render_template("admin/project_form.html", project=None)
 
-
 @admin_bp.route("/projects/<int:project_id>/edit", methods=["GET", "POST"])
 @admin_required
 def project_edit(project_id):
     project = Project.query.get_or_404(project_id)
     if request.method == "POST":
-        wants_featured = bool(request.form.get("is_featured"))
-        if wants_featured and not _featured_count_ok(Project, exclude_id=project.id, limit=MAX_FEATURED_PROJECTS):
-            flash(f"Only {MAX_FEATURED_PROJECTS} projects can be featured at once. "
-                  f"Un-feature another project first.", "error")
-            return render_template("admin/project_form.html", project=project)
-
-        uploaded_file = request.files.get("image_file")
-        if uploaded_file and uploaded_file.filename:
-            try:
-                project.img_path = upload_image_to_blob(uploaded_file, folder="projects")
-            except UploadError as e:
-                flash(str(e), "error")
-                return render_template("admin/project_form.html", project=project)
-        # if no new file chosen, keep the existing project.img_path untouched
+        file = request.files.get("image_file")
+        if file and file.filename:
+            new_url = upload_to_blob(file, file.filename, folder="projects")
+            if new_url:
+                project.img_path = new_url
+        # If no new file uploaded, keep existing img_path unchanged
 
         project.title = request.form.get("title", "").strip()
         project.year = request.form.get("year", "").strip() or None
         project.description = request.form.get("description", "").strip()
         project.more_info_img = request.form.get("more_info_img", "").strip() or None
         project.order = int(request.form.get("order", 0))
-        project.is_featured = wants_featured
+        project.is_featured = bool(request.form.get("is_featured"))
         project.is_published = bool(request.form.get("is_published"))
         db.session.commit()
         flash("Project updated.", "success")
