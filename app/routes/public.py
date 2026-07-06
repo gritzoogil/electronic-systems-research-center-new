@@ -27,9 +27,21 @@ def _parse_pub_date(date_str):
 
 @public_bp.route("/")
 def home():
-    projects = Project.query.filter_by(is_published=True).order_by(Project.order).all()
+    projects = (
+        Project.query
+        .filter_by(is_published=True, is_featured=True)
+        .order_by(Project.order)
+        .limit(6)
+        .all()
+    )
     staff = Staff.query.filter_by(is_published=True).order_by(Staff.order).all()
-    publications = Publication.query.filter_by(is_published=True).order_by(Publication.date.desc()).all()
+    publications = (
+        Publication.query
+        .filter_by(is_published=True, is_featured=True)
+        .order_by(Publication.date.desc())
+        .limit(3)
+        .all()
+    )
     partners = Partner.query.filter_by(is_published=True).order_by(Partner.order).all()
     settings = SiteSettings.query.get(1)
     stats = {

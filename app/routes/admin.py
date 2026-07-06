@@ -81,18 +81,42 @@ def projects_list():
     return render_template("admin/projects.html", projects=projects)
 
 
+MAX_FEATURED_PROJECTS = 6
+MAX_FEATURED_PUBLICATIONS = 3
+
+def _featured_count_ok(model, exclude_id=None, limit=None):
+    """Check whether adding one more featured item would exceed the cap."""
+    q = model.query.filter_by(is_featured=True)
+    if exclude_id is not None:
+        q = q.filter(model.id != exclude_id)
+    return q.count() < limit
+
+from app.uploads import upload_image_to_blob, UploadError
+
 @admin_bp.route("/projects/new", methods=["GET", "POST"])
 @admin_required
 def project_new():
     if request.method == "POST":
+        wants_featured = bool(request.form.get("is_featured"))
+        if wants_featured and not _featured_count_ok(Project, limit=MAX_FEATURED_PROJECTS):
+            flash(f"Only {MAX_FEATURED_PROJECTS} projects can be featured at once. "
+                  f"Un-feature another project first.", "error")
+            return render_template("admin/project_form.html", project=None)
+
+        try:
+            img_path = upload_image_to_blob(request.files.get("image_file"), folder="projects")
+        except UploadError as e:
+            flash(str(e), "error")
+            return render_template("admin/project_form.html", project=None)
+
         project = Project(
             title=request.form.get("title", "").strip(),
             year=request.form.get("year", "").strip() or None,
             description=request.form.get("description", "").strip(),
-            img_path=request.form.get("img_path", "").strip() or None,
+            img_path=img_path,
             more_info_img=request.form.get("more_info_img", "").strip() or None,
             order=int(request.form.get("order", 0)),
-            is_featured=bool(request.form.get("is_featured")),
+            is_featured=wants_featured,
             is_published=bool(request.form.get("is_published")),
         )
         db.session.add(project)
@@ -107,19 +131,32 @@ def project_new():
 def project_edit(project_id):
     project = Project.query.get_or_404(project_id)
     if request.method == "POST":
+        wants_featured = bool(request.form.get("is_featured"))
+        if wants_featured and not _featured_count_ok(Project, exclude_id=project.id, limit=MAX_FEATURED_PROJECTS):
+            flash(f"Only {MAX_FEATURED_PROJECTS} projects can be featured at once. "
+                  f"Un-feature another project first.", "error")
+            return render_template("admin/project_form.html", project=project)
+
+        uploaded_file = request.files.get("image_file")
+        if uploaded_file and uploaded_file.filename:
+            try:
+                project.img_path = upload_image_to_blob(uploaded_file, folder="projects")
+            except UploadError as e:
+                flash(str(e), "error")
+                return render_template("admin/project_form.html", project=project)
+        # if no new file chosen, keep the existing project.img_path untouched
+
         project.title = request.form.get("title", "").strip()
         project.year = request.form.get("year", "").strip() or None
         project.description = request.form.get("description", "").strip()
-        project.img_path = request.form.get("img_path", "").strip() or None
         project.more_info_img = request.form.get("more_info_img", "").strip() or None
         project.order = int(request.form.get("order", 0))
-        project.is_featured = bool(request.form.get("is_featured"))
+        project.is_featured = wants_featured
         project.is_published = bool(request.form.get("is_published"))
         db.session.commit()
         flash("Project updated.", "success")
         return redirect(url_for("admin.projects_list"))
     return render_template("admin/project_form.html", project=project)
-
 
 @admin_bp.route("/projects/<int:project_id>/delete", methods=["POST"])
 @admin_required
@@ -141,6 +178,12 @@ def publications_list():
 @admin_required
 def publication_new():
     if request.method == "POST":
+        wants_featured = bool(request.form.get("is_featured"))
+        if wants_featured and not _featured_count_ok(Publication, limit=MAX_FEATURED_PUBLICATIONS):
+            flash(f"Only {MAX_FEATURED_PUBLICATIONS} publications can be featured at once. "
+                  f"Un-feature another publication first.", "error")
+            return render_template("admin/publication_form.html", pub=None)
+
         pub = Publication(
             title=request.form.get("title", "").strip(),
             date=request.form.get("date", "").strip() or None,
@@ -151,7 +194,7 @@ def publication_new():
             keyword2=request.form.get("keyword2", "").strip() or None,
             keyword3=request.form.get("keyword3", "").strip() or None,
             link=request.form.get("link", "").strip() or None,
-            is_featured=bool(request.form.get("is_featured")),
+            is_featured=wants_featured,
             is_published=bool(request.form.get("is_published")),
         )
         db.session.add(pub)
@@ -166,6 +209,12 @@ def publication_new():
 def publication_edit(pub_id):
     pub = Publication.query.get_or_404(pub_id)
     if request.method == "POST":
+        wants_featured = bool(request.form.get("is_featured"))
+        if wants_featured and not _featured_count_ok(Publication, exclude_id=pub.id, limit=MAX_FEATURED_PUBLICATIONS):
+            flash(f"Only {MAX_FEATURED_PUBLICATIONS} publications can be featured at once. "
+                  f"Un-feature another publication first.", "error")
+            return render_template("admin/publication_form.html", pub=pub)
+
         pub.title = request.form.get("title", "").strip()
         pub.date = request.form.get("date", "").strip() or None
         pub.type = request.form.get("type", "").strip()
@@ -175,13 +224,12 @@ def publication_edit(pub_id):
         pub.keyword2 = request.form.get("keyword2", "").strip() or None
         pub.keyword3 = request.form.get("keyword3", "").strip() or None
         pub.link = request.form.get("link", "").strip() or None
-        pub.is_featured = bool(request.form.get("is_featured"))
+        pub.is_featured = wants_featured
         pub.is_published = bool(request.form.get("is_published"))
         db.session.commit()
         flash("Publication updated.", "success")
         return redirect(url_for("admin.publications_list"))
     return render_template("admin/publication_form.html", pub=pub)
-
 
 @admin_bp.route("/publications/<int:pub_id>/delete", methods=["POST"])
 @admin_required

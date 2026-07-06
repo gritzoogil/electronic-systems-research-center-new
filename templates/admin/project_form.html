@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="form-wrap">
-  <form method="POST">
+  <form method="POST" enctype="multipart/form-data">
 
     <div class="form-group">
       <label for="title">Title *</label>
@@ -29,11 +29,12 @@
     </div>
 
     <div class="form-group">
-      <label for="img_path">Image URL</label>
-      <input type="url" id="img_path" name="img_path" value="{{ project.img_path if project else '' }}" placeholder="https://...vercel-storage.com/...">
-      <p class="hint">Paste the Vercel Blob URL of the uploaded image</p>
+      <label for="image_file">Project Image</label>
+      <input type="file" id="image_file" name="image_file" accept="image/png,image/jpeg,image/webp,image/gif">
+      <p class="hint">Upload a PNG, JPG, WEBP, or GIF file directly — no need for an external link.</p>
       {% if project and project.img_path %}
-      <img src="{{ project.img_path }}" style="margin-top:8px;max-width:200px;border-radius:6px;">
+      <p class="hint" style="margin-top:8px;">Current image:</p>
+      <img src="{{ project.img_path }}" style="margin-top:4px;max-width:200px;border-radius:6px;">
       {% endif %}
     </div>
 
@@ -46,7 +47,7 @@
       <div class="form-group">
         <div class="checkbox-group">
           <input type="checkbox" id="is_featured" name="is_featured" value="1" {{ 'checked' if project and project.is_featured }}>
-          <label for="is_featured">Featured on homepage</label>
+          <label for="is_featured">Featured on homepage (max 6)</label>
         </div>
       </div>
       <div class="form-group">
