@@ -1,0 +1,56 @@
+{% extends 'admin/base.html' %}
+{% block title %}Center Highlights{% endblock %}
+{% block page_title %}Center Highlights{% endblock %}
+
+{% block content %}
+<div class="page-actions">
+  <p style="color:#666;font-size:13px;">{{ highlights|length }} highlight(s) total</p>
+  <a href="{{ url_for('admin.highlight_new') }}" class="btn btn-primary">+ New Highlight</a>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Images</th>
+      <th>Title</th>
+      <th>Date</th>
+      <th>Published</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for highlight in highlights %}
+    <tr>
+      <td>
+        {% if highlight.images %}
+        <div style="display:flex;gap:4px;">
+          {% for img in highlight.images[:3] %}
+          <img src="{{ img.image_url }}" class="thumb" alt="Highlight image">
+          {% endfor %}
+          {% if highlight.images|length > 3 %}
+          <div style="width:48px;height:48px;border-radius:4px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;">
+            +{{ highlight.images|length - 3 }}
+          </div>
+          {% endif %}
+        </div>
+        {% else %}
+        <span style="color:#ccc;">No images</span>
+        {% endif %}
+      </td>
+      <td>{{ highlight.title }}</td>
+      <td>{{ highlight.date.strftime('%Y-%m-%d') if highlight.date else '—' }}</td>
+      <td><span class="badge {{ 'badge-yes' if highlight.is_published else 'badge-no' }}">{{ 'Yes' if highlight.is_published else 'No' }}</span></td>
+      <td style="display:flex;gap:6px;">
+        <a href="{{ url_for('admin.highlight_edit', highlight_id=highlight.id) }}" class="btn btn-secondary btn-sm">Edit</a>
+        <form method="POST" action="{{ url_for('admin.highlight_delete', highlight_id=highlight.id) }}"
+              onsubmit="return confirm('Delete this highlight?')">
+          <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" style="text-align:center;color:#999;">No highlights yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

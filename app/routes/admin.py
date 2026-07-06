@@ -243,12 +243,108 @@ def publication_delete(pub_id):
 @admin_bp.route("/highlights")
 @admin_required
 def highlights_list():
-    return "Highlights list — coming soon"
+    highlights = CenterHighlight.query.order_by(CenterHighlight.date.desc()).all()
+    return render_template("admin/highlights.html", highlights=highlights)
 
-@admin_bp.route("/highlights/new")
+
+@admin_bp.route("/highlights/new", methods=["GET", "POST"])
 @admin_required
 def highlight_new():
-    return "New highlight — coming soon"
+    if request.method == "POST":
+        highlight = CenterHighlight(
+            title=request.form.get("title", "").strip(),
+            description=request.form.get("description", "").strip(),
+            date=request.form.get("date", "").strip() or None,
+            alt_text=request.form.get("alt_text", "").strip() or None,
+            is_published=bool(request.form.get("is_published")),
+        )
+        db.session.add(highlight)
+        db.session.flush()  # flush to get the ID before adding images
+
+        # Handle image uploads
+        image_files = request.files.getlist("image_files")
+        order = 0
+        for image_file in image_files:
+            if image_file and image_file.filename:
+                try:
+                    image_url = upload_image_to_blob(image_file, folder="highlights")
+                    highlight_image = CenterHighlightImage(
+                        highlight_id=highlight.id,
+                        image_url=image_url,
+                        order=order
+                    )
+                    db.session.add(highlight_image)
+                    order += 1
+                except UploadError as e:
+                    db.session.rollback()
+                    flash(str(e), "error")
+                    return render_template("admin/highlight_form.html", highlight=None)
+
+        db.session.commit()
+        flash("Highlight created.", "success")
+        return redirect(url_for("admin.highlights_list"))
+    return render_template("admin/highlight_form.html", highlight=None)
+
+
+@admin_bp.route("/highlights/<int:highlight_id>/edit", methods=["GET", "POST"])
+@admin_required
+def highlight_edit(highlight_id):
+    highlight = CenterHighlight.query.get_or_404(highlight_id)
+    
+    if request.method == "POST":
+        highlight.title = request.form.get("title", "").strip()
+        highlight.description = request.form.get("description", "").strip()
+        highlight.date = request.form.get("date", "").strip() or None
+        highlight.alt_text = request.form.get("alt_text", "").strip() or None
+        highlight.is_published = bool(request.form.get("is_published"))
+
+        # Handle new image uploads
+        image_files = request.files.getlist("image_files")
+        if image_files and image_files[0].filename:
+            order = highlight.images[-1].order + 1 if highlight.images else 0
+            for image_file in image_files:
+                if image_file and image_file.filename:
+                    try:
+                        image_url = upload_image_to_blob(image_file, folder="highlights")
+                        highlight_image = CenterHighlightImage(
+                            highlight_id=highlight.id,
+                            image_url=image_url,
+                            order=order
+                        )
+                        db.session.add(highlight_image)
+                        order += 1
+                    except UploadError as e:
+                        db.session.rollback()
+                        flash(str(e), "error")
+                        return render_template("admin/highlight_form.html", highlight=highlight)
+
+        # Handle image deletion (if passed image IDs to delete)
+        images_to_delete = request.form.get("images_to_delete", "").split(",")
+        for img_id_str in images_to_delete:
+            if img_id_str.strip():
+                try:
+                    img_id = int(img_id_str.strip())
+                    img = CenterHighlightImage.query.get(img_id)
+                    if img and img.highlight_id == highlight.id:
+                        db.session.delete(img)
+                except (ValueError, TypeError):
+                    pass
+
+        db.session.commit()
+        flash("Highlight updated.", "success")
+        return redirect(url_for("admin.highlights_list"))
+    
+    return render_template("admin/highlight_form.html", highlight=highlight)
+
+
+@admin_bp.route("/highlights/<int:highlight_id>/delete", methods=["POST"])
+@admin_required
+def highlight_delete(highlight_id):
+    highlight = CenterHighlight.query.get_or_404(highlight_id)
+    db.session.delete(highlight)
+    db.session.commit()
+    flash("Highlight deleted.", "success")
+    return redirect(url_for("admin.highlights_list"))
 
 @admin_bp.route("/accomplishments")
 @admin_required
