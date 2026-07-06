@@ -1,0 +1,43 @@
+{% extends 'admin/base.html' %}
+{% block title %}Publications{% endblock %}
+{% block page_title %}Publications{% endblock %}
+
+{% block content %}
+<div class="page-actions">
+  <p style="color:#666;font-size:13px;">{{ publications|length }} publication(s) total</p>
+  <a href="{{ url_for('admin.publication_new') }}" class="btn btn-primary">+ New Publication</a>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Type</th>
+      <th>Date</th>
+      <th>Featured</th>
+      <th>Published</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for pub in publications %}
+    <tr>
+      <td>{{ pub.title[:60] }}{% if pub.title|length > 60 %}…{% endif %}</td>
+      <td>{{ pub.type or '—' }}</td>
+      <td>{{ pub.date or '—' }}</td>
+      <td><span class="badge {{ 'badge-yes' if pub.is_featured else 'badge-no' }}">{{ 'Yes' if pub.is_featured else 'No' }}</span></td>
+      <td><span class="badge {{ 'badge-yes' if pub.is_published else 'badge-no' }}">{{ 'Yes' if pub.is_published else 'No' }}</span></td>
+      <td style="display:flex;gap:6px;">
+        <a href="{{ url_for('admin.publication_edit', pub_id=pub.id) }}" class="btn btn-secondary btn-sm">Edit</a>
+        <form method="POST" action="{{ url_for('admin.publication_delete', pub_id=pub.id) }}"
+              onsubmit="return confirm('Delete this publication?')">
+          <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" style="text-align:center;color:#999;">No publications yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

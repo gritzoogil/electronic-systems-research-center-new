@@ -1,0 +1,67 @@
+{% extends 'admin/base.html' %}
+{% block title %}{{ 'Edit' if project else 'New' }} Project{% endblock %}
+{% block page_title %}{{ 'Edit' if project else 'New' }} Project{% endblock %}
+
+{% block content %}
+<div class="form-wrap">
+  <form method="POST">
+
+    <div class="form-group">
+      <label for="title">Title *</label>
+      <input type="text" id="title" name="title" value="{{ project.title if project else '' }}" required>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="year">Year</label>
+        <input type="text" id="year" name="year" value="{{ project.year if project else '' }}" placeholder="e.g. 2025">
+      </div>
+      <div class="form-group">
+        <label for="order">Display Order</label>
+        <input type="number" id="order" name="order" value="{{ project.order if project else 0 }}">
+        <p class="hint">Lower number = appears first</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" name="description">{{ project.description if project else '' }}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="img_path">Image URL</label>
+      <input type="url" id="img_path" name="img_path" value="{{ project.img_path if project else '' }}" placeholder="https://...vercel-storage.com/...">
+      <p class="hint">Paste the Vercel Blob URL of the uploaded image</p>
+      {% if project and project.img_path %}
+      <img src="{{ project.img_path }}" style="margin-top:8px;max-width:200px;border-radius:6px;">
+      {% endif %}
+    </div>
+
+    <div class="form-group">
+      <label for="more_info_img">More Info Image URL (optional)</label>
+      <input type="url" id="more_info_img" name="more_info_img" value="{{ project.more_info_img if project else '' }}">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="is_featured" name="is_featured" value="1" {{ 'checked' if project and project.is_featured }}>
+          <label for="is_featured">Featured on homepage</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="is_published" name="is_published" value="1" {{ 'checked' if not project or project.is_published }}>
+          <label for="is_published">Published (visible on site)</label>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:24px;display:flex;gap:10px;">
+      <button type="submit" class="btn btn-primary">{{ 'Save Changes' if project else 'Create Project' }}</button>
+      <a href="{{ url_for('admin.projects_list') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

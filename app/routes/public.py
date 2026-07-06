@@ -5,7 +5,8 @@ from datetime import datetime
 from collections import defaultdict
 from app.models import (
     Staff, OJT, Project, Publication,
-    AccomplishmentReport, ResourcePage, CenterHighlight, LearningResource, db
+    AccomplishmentReport, CenterHighlight, LearningResource,
+    SiteSettings, Partner
 )
 
 public_bp = Blueprint("public", __name__)
@@ -28,15 +29,17 @@ def _parse_pub_date(date_str):
 def home():
     projects = Project.query.filter_by(is_published=True).order_by(Project.order).all()
     staff = Staff.query.filter_by(is_published=True).order_by(Staff.order).all()
-    publications = Publication.query.filter_by(is_published=True).all()
-    publications.sort(key=lambda p: _parse_pub_date(p.date), reverse=True)
-
+    publications = Publication.query.filter_by(is_published=True).order_by(Publication.date.desc()).all()
+    partners = Partner.query.filter_by(is_published=True).order_by(Partner.order).all()
+    settings = SiteSettings.query.get(1)
     stats = {
         "projects": Project.query.filter_by(is_published=True).count(),
         "publications": Publication.query.filter_by(is_published=True).count(),
         "staff": Staff.query.filter_by(is_published=True).count(),
     }
-    return render_template("index.html", projects=projects, staff=staff, publications=publications, stats=stats)
+    return render_template("index.html", projects=projects, staff=staff,
+                           publications=publications, partners=partners,
+                           settings=settings, stats=stats)
 
 
 @public_bp.route("/team")

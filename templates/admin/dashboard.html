@@ -1,0 +1,52 @@
+{% extends 'admin/base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="stat-cards">
+  <div class="stat-card">
+    <div class="num">{{ counts.projects }}</div>
+    <div class="lbl">Projects</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ counts.publications }}</div>
+    <div class="lbl">Publications</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ counts.staff }}</div>
+    <div class="lbl">Staff</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ counts.ojt }}</div>
+    <div class="lbl">OJT Interns</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ counts.highlights }}</div>
+    <div class="lbl">Highlights</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ counts.accomplishments }}</div>
+    <div class="lbl">Accomplishments</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ counts.resources }}</div>
+    <div class="lbl">Resources</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ counts.partners }}</div>
+    <div class="lbl">Partners</div>
+  </div>
+</div>
+
+<h2 style="font-size:15px;font-weight:bold;margin-bottom:12px;">Quick Links</h2>
+<div style="display:flex;gap:10px;flex-wrap:wrap;">
+  <a href="{{ url_for('admin.project_new') }}" class="btn btn-primary">+ New Project</a>
+  <a href="{{ url_for('admin.publication_new') }}" class="btn btn-primary">+ New Publication</a>
+  <a href="{{ url_for('admin.highlight_new') }}" class="btn btn-primary">+ New Highlight</a>
+  <a href="{{ url_for('admin.accomplishment_new') }}" class="btn btn-primary">+ New Accomplishment</a>
+  <a href="{{ url_for('admin.ojt_new') }}" class="btn btn-primary">+ New OJT Intern</a>
+  <a href="{{ url_for('admin.settings') }}" class="btn btn-secondary">Edit Site Settings</a>
+</div>
+
+{% endblock %}

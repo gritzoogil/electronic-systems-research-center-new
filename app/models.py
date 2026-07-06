@@ -47,6 +47,7 @@ class Project(db.Model):
     order = db.Column(db.Integer, default=0)
     is_published = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_featured = db.Column(db.Boolean, default=False)
 
 
 class Publication(db.Model):
@@ -64,6 +65,7 @@ class Publication(db.Model):
     link = db.Column(db.Text)  # changed from String(255) — URLs can be very long
     is_published = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_featured = db.Column(db.Boolean, default=False)
 
 
 class AccomplishmentReport(db.Model):
@@ -118,6 +120,9 @@ class LearningResource(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     pages = db.relationship("ResourcePage", backref="resource", cascade="all, delete-orphan", order_by="ResourcePage.order")
+    chapters = db.relationship("ResourceChapter", backref="resource",
+                           cascade="all, delete-orphan",
+                           order_by="ResourceChapter.order")
 
 
 class ResourcePage(db.Model):
@@ -140,3 +145,53 @@ class ContactMessage(db.Model):
     organization = db.Column(db.String(255))
     message = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class SiteSettings(db.Model):
+    """Single-row table for sitewide config. Always use id=1."""
+    __tablename__ = "site_settings"
+
+    id = db.Column(db.Integer, primary_key=True)
+    avp_video_url = db.Column(db.String(255), default="https://www.youtube.com/embed/Wa1IqM9Hn3c")
+    contact_email = db.Column(db.String(150), default="esrc@g.batstate-u.edu.ph")
+    contact_phone = db.Column(db.String(50), default="(043) 980-0385 local 2405")
+    contact_address = db.Column(db.Text, default="2nd Flr. STEER Hub Building, Batangas State University Alangilan Campus, Batangas City 4200, Philippines")
+    contact_office_hours = db.Column(db.String(150), default="Monday – Thursday, 7:00 AM – 8:00 PM")
+    maps_embed_url = db.Column(db.Text)
+    facebook_url = db.Column(db.String(255), default="https://www.facebook.com/ESRC.BatStateU")
+    youtube_url = db.Column(db.String(255))
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class Partner(db.Model):
+    __tablename__ = "partner"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(150), nullable=False)
+    logo_url = db.Column(db.String(255))
+    order = db.Column(db.Integer, default=0)
+    is_published = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class ResourceChapter(db.Model):
+    __tablename__ = "resource_chapter"
+
+    id = db.Column(db.Integer, primary_key=True)
+    resource_id = db.Column(db.Integer, db.ForeignKey("learning_resource.id"), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    flipbook_url = db.Column(db.Text)
+    order = db.Column(db.Integer, default=0)
+
+
+class OJTAttendance(db.Model):
+    __tablename__ = "ojt_attendance"
+
+    id = db.Column(db.Integer, primary_key=True)
+    ojt_id = db.Column(db.Integer, db.ForeignKey("ojt.id"), nullable=False)
+    sr_code = db.Column(db.String(50))
+    date = db.Column(db.Date, nullable=False)
+    time_in = db.Column(db.Time)
+    time_out = db.Column(db.Time)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    ojt = db.relationship("OJT", backref="attendances")

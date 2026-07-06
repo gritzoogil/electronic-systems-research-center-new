@@ -230,7 +230,7 @@
         <div style="position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.12);">
           <iframe
             style="width:100%;height:100%;border:0;"
-            src="https://www.youtube.com/embed/Wa1IqM9Hn3c?si=azTQLVApmpeWe909"
+            src="{{ settings.avp_video_url if settings and settings.avp_video_url else 'https://www.youtube.com/embed/Wa1IqM9Hn3c' }}"
             title="ESRC Video"
             allowfullscreen
             loading="lazy">
@@ -406,9 +406,6 @@
         </div>
         <p class="f-name">{{ member.name }}</p>
         <p class="f-pos">{{ member.role }}</p>
-        {% if member.bio %}
-        <p class="f-interests">{{ member.bio[:120] }}{% if member.bio|length > 120 %}…{% endif %}</p>
-        {% endif %}
       </div>
       {% endfor %}
     </div>
@@ -443,38 +440,12 @@
 
       <div class="partners-mask">
     <div class="partners-track" aria-label="Partner logos carousel">
-      {# First set — based on real institutions/orgs that engaged with ESRC per Center Highlights data #}
-          <div class="partner-tile">BatStateU</div>
-          <div class="partner-tile">TESDA</div>
-          <div class="partner-tile">AboitizPower</div>
-          <div class="partner-tile">Don Bosco Technical College</div>
-          <div class="partner-tile">MSU General Santos</div>
-          <div class="partner-tile">Mindoro State University</div>
-          <div class="partner-tile">SPAMAST</div>
-          <div class="partner-tile">Rizal Technological University</div>
-          <div class="partner-tile">Tarlac State University</div>
-          <div class="partner-tile">National University Laguna</div>
-          <div class="partner-tile">OmniFab Inc.</div>
-          <div class="partner-tile">Collins Aerospace</div>
-          <div class="partner-tile">Phil Railways Institute - DOTr</div>
-          <div class="partner-tile">Thai Nguyen University of Technology</div>
-          <div class="partner-tile">Indian Maritime University</div>
-      {# Duplicate for seamless loop #}
-      <div class="partner-tile" aria-hidden="true">BatStateU</div>
-      <div class="partner-tile" aria-hidden="true">TESDA</div>
-      <div class="partner-tile" aria-hidden="true">AboitizPower</div>
-      <div class="partner-tile" aria-hidden="true">Don Bosco Technical College</div>
-      <div class="partner-tile" aria-hidden="true">MSU General Santos</div>
-      <div class="partner-tile" aria-hidden="true">Mindoro State University</div>
-      <div class="partner-tile" aria-hidden="true">SPAMAST</div>
-      <div class="partner-tile" aria-hidden="true">Rizal Technological University</div>
-      <div class="partner-tile" aria-hidden="true">Tarlac State University</div>
-      <div class="partner-tile" aria-hidden="true">National University Laguna</div>
-      <div class="partner-tile" aria-hidden="true">OmniFab Inc.</div>
-      <div class="partner-tile" aria-hidden="true">Collins Aerospace</div>
-      <div class="partner-tile" aria-hidden="true">Phil Railways Institute - DOTr</div>
-      <div class="partner-tile" aria-hidden="true">Thai Nguyen University of Technology</div>
-      <div class="partner-tile" aria-hidden="true">Indian Maritime University</div>
+      {% for partner in partners %}
+      <div class="partner-tile">{{ partner.name }}</div>
+      {% endfor %}
+      {% for partner in partners %}
+      <div class="partner-tile" aria-hidden="true">{{ partner.name }}</div>
+      {% endfor %}
     </div>
   </div>
 </section>
@@ -510,7 +481,7 @@
           </div>
           <div>
             <p class="c-lbl">Email</p>
-            <p class="c-val"><a href="mailto:esrc@g.batstate-u.edu.ph">esrc@g.batstate-u.edu.ph</a></p>
+            <p class="c-val"><a href="mailto:{{ settings.contact_email if settings else 'esrc@g.batstate-u.edu.ph' }}">{{ settings.contact_email if settings else 'esrc@g.batstate-u.edu.ph' }}</a></p>
           </div>
         </div>
 
@@ -520,7 +491,7 @@
           </div>
           <div>
             <p class="c-lbl">Phone</p>
-            <p class="c-val"><a href="tel:+63439800385">(043) 980-0385 LOC. 2405</a></p>
+            <p class="c-val"><a href="tel:+63439800385">{{ settings.contact_phone if settings else '(043) 980-0385 LOC. 2405' }}</a></p>
           </div>
         </div>
 
@@ -540,17 +511,17 @@
           </div>
           <div>
             <p class="c-lbl">Office Hours</p>
-            <p class="c-val">Monday – Friday, 8:00 AM – 5:00 PM</p>
+            <p class="c-val">{{ settings.contact_office_hours if settings else 'Monday – Friday, 8:00 AM – 5:00 PM' }}</p>
           </div>
         </div>
 
         <div>
           <p class="c-lbl" style="margin-bottom:10px;">Follow Us</p>
           <div class="c-socials">
-            <a href="https://www.facebook.com/share/1Cvdcot6a3/" class="c-soc" aria-label="Facebook">
+            <a href="{{ settings.facebook_url if settings and settings.facebook_url else 'https://www.facebook.com/share/1Cvdcot6a3/' }}" class="c-soc" aria-label="Facebook">
               <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
             </a>
-            <a href="https://l.messenger.com/l.php?u=https%3A%2F%2Fwww.youtube.com%2F%40ESRC_BatStateUTheNEU&h=AUAFPlW_BNfGvkoyLk8-GCd9bCfCbLwpstHKrEegOyTkxTXMSTDfLB9m-OZbbEzOk_HOtuIC4n_ltuhWDb0wlgzW0_Zrd3JNmawQ73KvtyLqhiSm6k7Nb57cxifoAcc" class="c-soc" aria-label="YouTube">
+            <a href="{{ settings.youtube_url if settings and settings.youtube_url else 'https://l.messenger.com/l.php?u=https%3A%2F%2Fwww.youtube.com%2F%40ESRC_BatStateUTheNEU&h=AUAFPlW_BNfGvkoyLk8-GCd9bCfCbLwpstHKrEegOyTkxTXMSTDfLB9m-OZbbEzOk_HOtuIC4n_ltuhWDb0wlgzW0_Zrd3JNmawQ73KvtyLqhiSm6k7Nb57cxifoAcc' }}" class="c-soc" aria-label="YouTube">
               <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 00-1.95 1.96A29 29 0 001 12a29 29 0 00.46 5.58A2.78 2.78 0 003.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 001.95-1.95A29 29 0 0023 12a29 29 0 00-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="var(--gray-900)"/></svg>
             </a>
           </div>
@@ -559,7 +530,7 @@
         <!-- Map placeholder -->
         <div class="map-box" style="padding:0;overflow:hidden;">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3874.904454032709!2d121.0711339756138!3d13.784632996531561!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x33bd0f3a2014be09%3A0x19a47167a4f63785!2sBatStateU%20Science%2C%20Technology%2C%20Engineering%20and%20Environment%20Research%20-%20STEER%20Hub!5e0!3m2!1sen!2sph!4v1782795245985!5m2!1sen!2sph"
+            src="{{ settings.maps_embed_url if settings and settings.maps_embed_url else 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3874.904454032709!2d121.0711339756138!3d13.784632996531561!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x33bd0f3a2014be09%3A0x19a47167a4f63785!2sBatStateU%20Science%2C%20Technology%2C%20Engineering%20and%20Environment%20Research%20-%20STEER%20Hub!5e0!3m2!1sen!2sph!4v1782795245985!5m2!1sen!2sph' }}"
             width="100%" height="100%" style="border:0;" loading="lazy"
             referrerpolicy="no-referrer-when-downgrade">
           </iframe>

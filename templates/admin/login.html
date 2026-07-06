@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login — ESRC</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; background: #f5f5f5; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .login-box { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 40px; width: 360px; }
+    h1 { font-size: 20px; margin-bottom: 6px; }
+    p { font-size: 13px; color: #666; margin-bottom: 24px; }
+    .btn { width: 100%; padding: 10px; background: #0f4c81; color: #fff; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; }
+    .btn:hover { background: #0a3560; }
+    .error { color: #dc2626; font-size: 13px; margin-bottom: 12px; }
+    #firebaseui-auth-container { margin-top: 16px; }
+  </style>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+</head>
+<body>
+<div class="login-box">
+  <h1>ESRC Admin</h1>
+  <p>Sign in to access the admin dashboard.</p>
+
+  <div id="error-msg" class="error" style="display:none;"></div>
+
+  <input type="email" id="email" placeholder="Email" style="width:100%;padding:8px 10px;margin-bottom:10px;border:1px solid #ccc;border-radius:4px;font-size:13px;">
+  <input type="password" id="password" placeholder="Password" style="width:100%;padding:8px 10px;margin-bottom:16px;border:1px solid #ccc;border-radius:4px;font-size:13px;">
+  <button class="btn" onclick="signIn()">Sign In</button>
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "{{ firebase_api_key }}",
+    authDomain: "{{ firebase_auth_domain }}",
+    projectId: "{{ firebase_project_id }}"
+  };
+  firebase.initializeApp(firebaseConfig);
+
+  async function signIn() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const errorDiv = document.getElementById('error-msg');
+    errorDiv.style.display = 'none';
+    try {
+      const result = await firebase.auth().signInWithEmailAndPassword(email, password);
+      const token = await result.user.getIdToken();
+      // Store token in cookie so Flask backend can read it on every request
+      document.cookie = `admin_token=${token}; path=/; SameSite=Strict`;
+      window.location.href = '/admin/';
+    } catch (err) {
+      errorDiv.textContent = err.message;
+      errorDiv.style.display = 'block';
+    }
+  }
+</script>
+</body>
+</html>

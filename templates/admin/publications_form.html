@@ -1,0 +1,83 @@
+{% extends 'admin/base.html' %}
+{% block title %}{{ 'Edit' if pub else 'New' }} Publication{% endblock %}
+{% block page_title %}{{ 'Edit' if pub else 'New' }} Publication{% endblock %}
+
+{% block content %}
+<div class="form-wrap">
+  <form method="POST">
+
+    <div class="form-group">
+      <label for="title">Title *</label>
+      <input type="text" id="title" name="title" value="{{ pub.title if pub else '' }}" required>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="type">Type</label>
+        <select id="type" name="type">
+          <option value="">— Select —</option>
+          {% for t in ['Conference Paper', 'Journal', 'Technical Report'] %}
+          <option value="{{ t }}" {{ 'selected' if pub and pub.type == t }}>{{ t }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="date">Date</label>
+        <input type="text" id="date" name="date" value="{{ pub.date if pub else '' }}" placeholder="e.g. September 25, 2023">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="summary">Summary</label>
+      <textarea id="summary" name="summary">{{ pub.summary if pub else '' }}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="details">Details / Citation</label>
+      <textarea id="details" name="details">{{ pub.details if pub else '' }}</textarea>
+      <p class="hint">e.g. IEEE Transactions on Industrial Electronics, Vol. 71, No. 4, 2024</p>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="keyword1">Keyword 1</label>
+        <input type="text" id="keyword1" name="keyword1" value="{{ pub.keyword1 if pub else '' }}">
+      </div>
+      <div class="form-group">
+        <label for="keyword2">Keyword 2</label>
+        <input type="text" id="keyword2" name="keyword2" value="{{ pub.keyword2 if pub else '' }}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="keyword3">Keyword 3</label>
+      <input type="text" id="keyword3" name="keyword3" value="{{ pub.keyword3 if pub else '' }}">
+    </div>
+
+    <div class="form-group">
+      <label for="link">Link (URL to paper)</label>
+      <input type="url" id="link" name="link" value="{{ pub.link if pub else '' }}">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="is_featured" name="is_featured" value="1" {{ 'checked' if pub and pub.is_featured }}>
+          <label for="is_featured">Featured on homepage</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="is_published" name="is_published" value="1" {{ 'checked' if not pub or pub.is_published }}>
+          <label for="is_published">Published (visible on site)</label>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:24px;display:flex;gap:10px;">
+      <button type="submit" class="btn btn-primary">{{ 'Save Changes' if pub else 'Create Publication' }}</button>
+      <a href="{{ url_for('admin.publications_list') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+
+  </form>
+</div>
+{% endblock %}
