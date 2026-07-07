@@ -374,6 +374,16 @@ with app.app_context():
             "Research Center Highlights/IMU/2.webp",
             "Research Center Highlights/IMU/3.webp",
         ],
+        "𝐁𝐫𝐢𝐝𝐠𝐢𝐧𝐠 𝐄𝐱𝐜𝐞𝐥𝐥𝐞𝐧𝐜𝐞": [
+            "Research Center Highlights/RTU/2.webp",
+            "Research Center Highlights/RTU/3.webp",
+            "Research Center Highlights/RTU/4.webp",
+            "Research Center Highlights/RTU/5.webp",
+        ],
+        "𝐈𝐧𝐝𝐢𝐚𝐧 𝐌𝐚𝐫𝐢𝐭𝐢𝐦𝐞": [
+            "Research Center Highlights/IMU/2.webp",
+            "Research Center Highlights/IMU/3.webp",
+        ],
     }
 
     # Load all highlights from DB
