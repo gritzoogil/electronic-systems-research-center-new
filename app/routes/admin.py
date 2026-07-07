@@ -5,6 +5,8 @@ from app.models import (
     CenterHighlight, CenterHighlightImage, AccomplishmentReport,
     LearningResource, ResourceChapter, Partner, SiteSettings
 )
+from app.uploads import upload_image_to_blob, UploadError
+from app.attendance import get_sheets_service, get_available_dates, get_attendance_for_date
 from app import db
 import os
 
@@ -348,30 +350,176 @@ def accomplishment_new():
 def resources_list():
     return "Resources list — coming soon"
 
+# ── STAFF ──────────────────────────────────────────────────────────────────
+
 @admin_bp.route("/staff")
 @admin_required
 def staff_list():
-    return "Staff list — coming soon"
+    staff = Staff.query.order_by(Staff.order).all()
+    return render_template("admin/staff.html", staff=staff)
+
+
+@admin_bp.route("/staff/new", methods=["GET", "POST"])
+@admin_required
+def staff_new():
+    if request.method == "POST":
+        try:
+            photo_url = upload_image_to_blob(request.files.get("photo_file"), folder="staff")
+        except UploadError as e:
+            flash(str(e), "error")
+            return render_template("admin/staff_form.html", member=None)
+
+        member = Staff(
+            name=request.form.get("name", "").strip(),
+            role=request.form.get("role", "").strip() or None,
+            bio=request.form.get("bio", "").strip() or None,
+            photo_url=photo_url,
+            order=int(request.form.get("order", 0)),
+            image_position=request.form.get("image_position", "center").strip(),
+            is_core_staff=bool(request.form.get("is_core_staff")),
+            is_published=bool(request.form.get("is_published")),
+        )
+        db.session.add(member)
+        db.session.commit()
+        flash("Staff member created.", "success")
+        return redirect(url_for("admin.staff_list"))
+    return render_template("admin/staff_form.html", member=None)
+
+
+@admin_bp.route("/staff/<int:staff_id>/edit", methods=["GET", "POST"])
+@admin_required
+def staff_edit(staff_id):
+    member = Staff.query.get_or_404(staff_id)
+    if request.method == "POST":
+        try:
+            new_photo = upload_image_to_blob(request.files.get("photo_file"), folder="staff")
+            if new_photo:
+                member.photo_url = new_photo
+        except UploadError as e:
+            flash(str(e), "error")
+            return render_template("admin/staff_form.html", member=member)
+
+        member.name = request.form.get("name", "").strip()
+        member.role = request.form.get("role", "").strip() or None
+        member.bio = request.form.get("bio", "").strip() or None
+        member.order = int(request.form.get("order", 0))
+        member.image_position = request.form.get("image_position", "center").strip()
+        member.is_core_staff = bool(request.form.get("is_core_staff"))
+        member.is_published = bool(request.form.get("is_published"))
+        db.session.commit()
+        flash("Staff member updated.", "success")
+        return redirect(url_for("admin.staff_list"))
+    return render_template("admin/staff_form.html", member=member)
+
+
+@admin_bp.route("/staff/<int:staff_id>/delete", methods=["POST"])
+@admin_required
+def staff_delete(staff_id):
+    member = Staff.query.get_or_404(staff_id)
+    db.session.delete(member)
+    db.session.commit()
+    flash("Staff member deleted.", "success")
+    return redirect(url_for("admin.staff_list"))
+
+
+# ── OJT INTERNS ────────────────────────────────────────────────────────────
 
 @admin_bp.route("/ojt")
 @admin_required
 def ojt_list():
-    return "OJT list — coming soon"
+    interns = OJT.query.order_by(OJT.batch_label, OJT.order).all()
+    return render_template("admin/ojt.html", interns=interns)
 
-@admin_bp.route("/ojt/new")
+
+@admin_bp.route("/ojt/new", methods=["GET", "POST"])
 @admin_required
 def ojt_new():
-    return "New OJT — coming soon"
+    if request.method == "POST":
+        try:
+            photo_url = upload_image_to_blob(request.files.get("photo_file"), folder="ojt")
+        except UploadError as e:
+            flash(str(e), "error")
+            return render_template("admin/ojt_form.html", intern=None)
 
-@admin_bp.route("/ojt/<int:ojt_id>/edit")
+        intern = OJT(
+            name=request.form.get("name", "").strip(),
+            email=request.form.get("email", "").strip() or None,
+            course=request.form.get("course", "").strip() or None,
+            batch_label=request.form.get("batch_label", "").strip() or None,
+            photo_url=photo_url,
+            order=int(request.form.get("order", 0)),
+            is_published=bool(request.form.get("is_published")),
+        )
+        db.session.add(intern)
+        db.session.commit()
+        flash("Intern added.", "success")
+        return redirect(url_for("admin.ojt_list"))
+    return render_template("admin/ojt_form.html", intern=None)
+
+
+@admin_bp.route("/ojt/<int:ojt_id>/edit", methods=["GET", "POST"])
 @admin_required
 def ojt_edit(ojt_id):
-    return f"Edit OJT {ojt_id} — coming soon"
+    intern = OJT.query.get_or_404(ojt_id)
+    if request.method == "POST":
+        try:
+            new_photo = upload_image_to_blob(request.files.get("photo_file"), folder="ojt")
+            if new_photo:
+                intern.photo_url = new_photo
+        except UploadError as e:
+            flash(str(e), "error")
+            return render_template("admin/ojt_form.html", intern=intern)
+
+        intern.name = request.form.get("name", "").strip()
+        intern.email = request.form.get("email", "").strip() or None
+        intern.course = request.form.get("course", "").strip() or None
+        intern.batch_label = request.form.get("batch_label", "").strip() or None
+        intern.order = int(request.form.get("order", 0))
+        intern.is_published = bool(request.form.get("is_published"))
+        db.session.commit()
+        flash("Intern updated.", "success")
+        return redirect(url_for("admin.ojt_list"))
+    return render_template("admin/ojt_form.html", intern=intern)
+
+
+@admin_bp.route("/ojt/<int:ojt_id>/delete", methods=["POST"])
+@admin_required
+def ojt_delete(ojt_id):
+    intern = OJT.query.get_or_404(ojt_id)
+    db.session.delete(intern)
+    db.session.commit()
+    flash("Intern deleted.", "success")
+    return redirect(url_for("admin.ojt_list"))
+
+
+# ── OJT ATTENDANCE (view-only) ──────────────────────────────────────────────
 
 @admin_bp.route("/ojt/attendance")
 @admin_required
 def ojt_attendance():
-    return "OJT attendance — coming soon"
+    error = None
+    records = []
+    dates = []
+    selected_date = request.args.get("date", "")
+
+    try:
+        service = get_sheets_service()
+        dates = get_available_dates(service)
+
+        if not selected_date and dates:
+            selected_date = dates[0]  # default to most recent
+
+        if selected_date:
+            records, error = get_attendance_for_date(service, selected_date)
+
+    except Exception as e:
+        error = str(e)
+
+    return render_template("admin/ojt_attendance.html",
+                           records=records,
+                           dates=dates,
+                           selected_date=selected_date,
+                           error=error)
 
 @admin_bp.route("/partners")
 @admin_required

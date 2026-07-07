@@ -41,15 +41,23 @@ flask-sqlalchemy==3.1.1
 google-api-core==2.31.0
     # via
     #   firebase-admin
+    #   google-api-python-client
     #   google-cloud-core
     #   google-cloud-firestore
     #   google-cloud-storage
+google-api-python-client==2.198.0
+    # via electronic-systems-research-center-new
 google-auth==2.55.1
     # via
+    #   electronic-systems-research-center-new
     #   google-api-core
+    #   google-api-python-client
+    #   google-auth-httplib2
     #   google-cloud-core
     #   google-cloud-firestore
     #   google-cloud-storage
+google-auth-httplib2==0.4.0
+    # via google-api-python-client
 google-cloud-core==2.6.0
     # via
     #   google-cloud-firestore
@@ -87,6 +95,10 @@ hpack==4.2.0
     # via h2
 httpcore==1.0.9
     # via httpx
+httplib2==0.32.0
+    # via
+    #   google-api-python-client
+    #   google-auth-httplib2
 httpx==0.28.1
     # via firebase-admin
 hyperframe==6.1.0
@@ -133,6 +145,8 @@ pycparser==3.0 ; implementation_name != 'PyPy' and platform_python_implementatio
     # via cffi
 pyjwt==2.13.0
     # via firebase-admin
+pyparsing==3.3.2
+    # via httplib2
 python-dotenv==1.2.2
     # via electronic-systems-research-center-new
 requests==2.34.2
@@ -153,6 +167,8 @@ typing-extensions==4.15.0
     #   grpcio
     #   resend
     #   sqlalchemy
+uritemplate==4.2.0
+    # via google-api-python-client
 urllib3==2.7.0
     # via requests
 werkzeug==3.1.8

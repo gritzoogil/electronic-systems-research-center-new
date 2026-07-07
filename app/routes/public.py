@@ -56,7 +56,7 @@ def home():
 
 @public_bp.route("/team")
 def team():
-    staff = Staff.query.filter_by(is_published=True).order_by(Staff.order).all()
+    staff = Staff.query.filter_by(is_published=True, is_core_staff=True).order_by(Staff.order).all()
     ojt_list = OJT.query.filter_by(is_published=True).order_by(OJT.batch_label, OJT.order).all()
 
     # Group OJT by batch_label in Python — Jinja2 groupby only groups consecutive items

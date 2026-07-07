@@ -15,6 +15,7 @@ class Staff(db.Model):
     image_scale = db.Column(db.Float, default=1.0)  
     order = db.Column(db.Integer, default=0)
     is_published = db.Column(db.Boolean, default=True)
+    is_core_staff = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 

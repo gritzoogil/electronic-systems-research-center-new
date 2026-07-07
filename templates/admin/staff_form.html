@@ -1,0 +1,69 @@
+{% extends 'admin/base.html' %}
+{% block title %}{{ 'Edit' if member else 'New' }} Staff{% endblock %}
+{% block page_title %}{{ 'Edit' if member else 'New' }} Staff{% endblock %}
+
+{% block content %}
+<div class="form-wrap">
+  <form method="POST" enctype="multipart/form-data">
+
+    <div class="form-group">
+      <label for="name">Name *</label>
+      <input type="text" id="name" name="name" value="{{ member.name if member else '' }}" required>
+    </div>
+
+    <div class="form-group">
+      <label for="role">Role / Position</label>
+      <input type="text" id="role" name="role" value="{{ member.role if member else '' }}" placeholder="e.g. Center Head, ESRC">
+    </div>
+
+    <div class="form-group">
+      <label for="bio">Bio</label>
+      <textarea id="bio" name="bio">{{ member.bio if member else '' }}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="photo_file">Photo</label>
+      <input type="file" id="photo_file" name="photo_file" accept="image/png,image/jpeg,image/webp,image/gif">
+      {% if member and member.photo_url %}
+      <p class="hint" style="margin-top:8px;">Current photo:</p>
+      <img src="{{ member.photo_url }}" style="margin-top:4px;max-width:150px;border-radius:50%;">
+      {% endif %}
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="order">Display Order</label>
+        <input type="number" id="order" name="order" value="{{ member.order if member else 0 }}">
+        <p class="hint">Lower number = appears first</p>
+      </div>
+      <div class="form-group">
+        <label for="image_position">Image Position (CSS)</label>
+        <input type="text" id="image_position" name="image_position" value="{{ member.image_position if member else 'center' }}" placeholder="e.g. center 25%">
+        <p class="hint">Adjusts photo crop focus</p>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="is_core_staff" name="is_core_staff" value="1" {{ 'checked' if not member or member.is_core_staff }}>
+          <label for="is_core_staff">Core Staff (shows on Team page)</label>
+        </div>
+        <p class="hint">Uncheck for directors/affiliates who only appear on homepage</p>
+      </div>
+      <div class="form-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="is_published" name="is_published" value="1" {{ 'checked' if not member or member.is_published }}>
+          <label for="is_published">Published (visible on site)</label>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:24px;display:flex;gap:10px;">
+      <button type="submit" class="btn btn-primary">{{ 'Save Changes' if member else 'Create Staff Member' }}</button>
+      <a href="{{ url_for('admin.staff_list') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

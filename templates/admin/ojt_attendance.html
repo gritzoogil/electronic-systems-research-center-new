@@ -1,0 +1,69 @@
+{% extends 'admin/base.html' %}
+{% block title %}OJT Attendance{% endblock %}
+{% block page_title %}OJT Attendance{% endblock %}
+
+{% block content %}
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="page-actions" style="flex-wrap:wrap;gap:12px;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <label style="font-size:13px;font-weight:bold;">Date:</label>
+    <select id="dateSelect" onchange="window.location='?date='+this.value"
+            style="padding:6px 10px;border:1px solid #ccc;border-radius:4px;font-size:13px;">
+      {% for date in dates %}
+      <option value="{{ date }}" {{ 'selected' if date == selected_date }}>{{ date }}</option>
+      {% endfor %}
+    </select>
+    <span style="font-size:12px;color:#888;">{{ records|length }} intern(s) present</span>
+  </div>
+  <input type="text" id="searchInput" placeholder="Search name or course..."
+         style="padding:6px 10px;border:1px solid #ccc;border-radius:4px;font-size:13px;width:220px;">
+</div>
+
+{% if records %}
+<table id="attendanceTable" style="margin-top:16px;">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Course / Program</th>
+      <th>Time In</th>
+      <th>Task for the Day</th>
+      <th>Accomplishment</th>
+      <th>Time Out</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in records %}
+    <tr>
+      <td>{{ r.id or '—' }}</td>
+      <td>{{ r.name }}</td>
+      <td>{{ r.course or '—' }}</td>
+      <td style="{{ 'color:#dc2626;font-weight:bold;' if r.time_in and r.time_in > '08:00' else '' }}">
+        {{ r.time_in or '—' }}
+      </td>
+      <td>{{ r.task or '—' }}</td>
+      <td>{{ r.accomplishment or '—' }}</td>
+      <td style="{{ 'color:#dc2626;font-weight:bold;' if r.time_out else '' }}">
+        {{ r.time_out or '—' }}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% elif selected_date %}
+<p style="text-align:center;color:#999;padding:40px 0;">No records found for {{ selected_date }}.</p>
+{% endif %}
+
+<script>
+document.getElementById('searchInput').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('#attendanceTable tbody tr').forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+</script>
+{% endblock %}

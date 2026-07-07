@@ -1,0 +1,47 @@
+{% extends 'admin/base.html' %}
+{% block title %}OJT Interns{% endblock %}
+{% block page_title %}OJT Interns{% endblock %}
+
+{% block content %}
+<div class="page-actions">
+  <p style="color:#666;font-size:13px;">{{ interns|length }} intern(s) total</p>
+  <a href="{{ url_for('admin.ojt_new') }}" class="btn btn-primary">+ New Intern</a>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Photo</th>
+      <th>Name</th>
+      <th>Course</th>
+      <th>Batch</th>
+      <th>Published</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for intern in interns %}
+    <tr>
+      <td>
+        {% if intern.photo_url %}
+        <img src="{{ intern.photo_url }}" class="thumb" alt="">
+        {% else %}—{% endif %}
+      </td>
+      <td>{{ intern.name }}</td>
+      <td>{{ intern.course or '—' }}</td>
+      <td>{{ intern.batch_label or '—' }}</td>
+      <td><span class="badge {{ 'badge-yes' if intern.is_published else 'badge-no' }}">{{ 'Yes' if intern.is_published else 'No' }}</span></td>
+      <td style="display:flex;gap:6px;">
+        <a href="{{ url_for('admin.ojt_edit', ojt_id=intern.id) }}" class="btn btn-secondary btn-sm">Edit</a>
+        <form method="POST" action="{{ url_for('admin.ojt_delete', ojt_id=intern.id) }}"
+              onsubmit="return confirm('Delete this intern?')">
+          <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" style="text-align:center;color:#999;">No interns yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -548,7 +548,12 @@ input,textarea,select { font-family: inherit; }
 .pg-ellipsis { padding: 0 4px; color: var(--gray-400); }
 
 /* ── FACULTY ───────────────────────────────────────────────────── */
-.faculty-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 22px; }
+.faculty-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 260px));
+  justify-content: center;
+  gap: 24px;
+}
 .f-card {
   background: var(--white); border: 1px solid var(--gray-200);
   border-radius: var(--r-lg); padding: 28px 18px 20px;
