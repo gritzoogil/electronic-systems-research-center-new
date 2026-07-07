@@ -19,7 +19,7 @@
       <div class="form-group">
         <label for="order">Display Order</label>
         <input type="number" id="order" name="order" value="{{ project.order if project else 0 }}">
-        <p class="hint">Lower number = appears first</p>
+        <p class="hint">Lower number = appears first. If this number matches or exceeds an existing project's position, others will shift automatically.</p>
       </div>
     </div>
 

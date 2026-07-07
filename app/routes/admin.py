@@ -8,6 +8,7 @@ from app.models import (
 from app.uploads import upload_image_to_blob, UploadError
 from app.attendance import get_sheets_service, get_available_dates, get_attendance_for_date
 from app import db
+from app.ordering import reorder_on_create, reorder_on_update, reorder_on_delete
 import os
 
 admin_bp = Blueprint("admin", __name__)
@@ -93,12 +94,43 @@ def _featured_count_ok(model, exclude_id=None, limit=None):
         q = q.filter(model.id != exclude_id)
     return q.count() < limit
 
-from app.uploads import upload_image_to_blob, UploadError
+def _resolve_project_order(requested_order, exclude_id=None):
+    """Clamp the requested order into a valid position, then shift any
+    projects at or after that position down by one to make room."""
+    existing = Project.query
+    if exclude_id is not None:
+        existing = existing.filter(Project.id != exclude_id)
+    count = existing.count()
+
+    # If requested order is beyond the current list, just append as next
+    order = max(0, min(requested_order, count))
+
+    # Shift everything at/after this position down by one
+    to_shift = existing.filter(Project.order >= order).order_by(Project.order)
+    for p in to_shift:
+        p.order += 1
+
+    return order
+
+
+def _resequence_projects():
+    """After a delete, compact order values so there are no gaps (0..n-1)."""
+    projects = Project.query.order_by(Project.order, Project.id).all()
+    for i, p in enumerate(projects):
+        p.order = i
+
+from app.ordering import reorder_on_create, reorder_on_update, reorder_on_delete
 
 @admin_bp.route("/projects/new", methods=["GET", "POST"])
 @admin_required
 def project_new():
     if request.method == "POST":
+        wants_featured = bool(request.form.get("is_featured"))
+        if wants_featured and not _featured_count_ok(Project, limit=MAX_FEATURED_PROJECTS):
+            flash(f"Only {MAX_FEATURED_PROJECTS} projects can be featured at once. "
+                  f"Un-feature another project first.", "error")
+            return render_template("admin/project_form.html", project=None)
+
         img_path = None
         try:
             img_path = upload_image_to_blob(request.files.get("image_file"), folder="projects")
@@ -106,14 +138,17 @@ def project_new():
             flash(str(e), "error")
             return render_template("admin/project_form.html", project=None)
 
+        requested_order = int(request.form.get("order", 0))
+        safe_order = reorder_on_create(Project, requested_order)
+
         project = Project(
             title=request.form.get("title", "").strip(),
             year=request.form.get("year", "").strip() or None,
             description=request.form.get("description", "").strip(),
             img_path=img_path,
             more_info_img=request.form.get("more_info_img", "").strip() or None,
-            order=int(request.form.get("order", 0)),
-            is_featured=bool(request.form.get("is_featured")),
+            order=safe_order,
+            is_featured=wants_featured,
             is_published=bool(request.form.get("is_published")),
         )
         db.session.add(project)
@@ -122,11 +157,18 @@ def project_new():
         return redirect(url_for("admin.projects_list"))
     return render_template("admin/project_form.html", project=None)
 
+
 @admin_bp.route("/projects/<int:project_id>/edit", methods=["GET", "POST"])
 @admin_required
 def project_edit(project_id):
     project = Project.query.get_or_404(project_id)
     if request.method == "POST":
+        wants_featured = bool(request.form.get("is_featured"))
+        if wants_featured and not _featured_count_ok(Project, exclude_id=project.id, limit=MAX_FEATURED_PROJECTS):
+            flash(f"Only {MAX_FEATURED_PROJECTS} projects can be featured at once. "
+                  f"Un-feature another project first.", "error")
+            return render_template("admin/project_form.html", project=project)
+
         try:
             new_url = upload_image_to_blob(request.files.get("image_file"), folder="projects")
             if new_url:
@@ -135,23 +177,31 @@ def project_edit(project_id):
             flash(str(e), "error")
             return render_template("admin/project_form.html", project=project)
 
+        old_order = project.order
+        requested_order = int(request.form.get("order", 0))
+        safe_order = reorder_on_update(Project, project.id, old_order, requested_order)
+
         project.title = request.form.get("title", "").strip()
         project.year = request.form.get("year", "").strip() or None
         project.description = request.form.get("description", "").strip()
         project.more_info_img = request.form.get("more_info_img", "").strip() or None
-        project.order = int(request.form.get("order", 0))
-        project.is_featured = bool(request.form.get("is_featured"))
+        project.order = safe_order
+        project.is_featured = wants_featured
         project.is_published = bool(request.form.get("is_published"))
         db.session.commit()
         flash("Project updated.", "success")
         return redirect(url_for("admin.projects_list"))
     return render_template("admin/project_form.html", project=project)
 
+
 @admin_bp.route("/projects/<int:project_id>/delete", methods=["POST"])
 @admin_required
 def project_delete(project_id):
     project = Project.query.get_or_404(project_id)
+    deleted_order = project.order
     db.session.delete(project)
+    db.session.commit()
+    reorder_on_delete(Project, deleted_order)
     db.session.commit()
     flash("Project deleted.", "success")
     return redirect(url_for("admin.projects_list"))
@@ -427,11 +477,14 @@ def resource_new():
             flash(str(e), "error")
             return render_template("admin/resource_form.html", resource=None)
 
+        requested_order = int(request.form.get("order", 0))
+        safe_order = reorder_on_create(LearningResource, requested_order)
+
         resource = LearningResource(
             title=request.form.get("title", "").strip(),
             description=request.form.get("description", "").strip(),
             thumbnail_url=thumbnail_url,
-            order=int(request.form.get("order", 0)),
+            order=safe_order,
             is_published=bool(request.form.get("is_published")),
         )
         db.session.add(resource)
@@ -467,9 +520,13 @@ def resource_edit(resource_id):
             flash(str(e), "error")
             return render_template("admin/resource_form.html", resource=resource)
 
+        old_order = resource.order
+        requested_order = int(request.form.get("order", 0))
+        safe_order = reorder_on_update(LearningResource, resource.id, old_order, requested_order)
+
         resource.title = request.form.get("title", "").strip()
         resource.description = request.form.get("description", "").strip()
-        resource.order = int(request.form.get("order", 0))
+        resource.order = safe_order
         resource.is_published = bool(request.form.get("is_published"))
 
         # Replace all chapters
@@ -481,7 +538,7 @@ def resource_edit(resource_id):
                 db.session.add(ResourcePage(
                     resource_id=resource.id,
                     title=title.strip(),
-                    flipbook_url=url.strip() or None,
+                    embed_url=url.strip() or None,  # fixed: was 'flipbook_url', which doesn't exist on the model
                     order=i,
                 ))
 
@@ -495,7 +552,10 @@ def resource_edit(resource_id):
 @admin_required
 def resource_delete(resource_id):
     resource = LearningResource.query.get_or_404(resource_id)
+    deleted_order = resource.order
     db.session.delete(resource)
+    db.session.commit()
+    reorder_on_delete(LearningResource, deleted_order)
     db.session.commit()
     flash("Resource deleted.", "success")
     return redirect(url_for("admin.resources_list"))
@@ -519,12 +579,15 @@ def staff_new():
             flash(str(e), "error")
             return render_template("admin/staff_form.html", member=None)
 
+        requested_order = int(request.form.get("order", 0))
+        safe_order = reorder_on_create(Staff, requested_order)
+
         member = Staff(
             name=request.form.get("name", "").strip(),
             role=request.form.get("role", "").strip() or None,
             bio=request.form.get("bio", "").strip() or None,
             photo_url=photo_url,
-            order=int(request.form.get("order", 0)),
+            order=safe_order,
             image_position=request.form.get("image_position", "center").strip(),
             is_core_staff=bool(request.form.get("is_core_staff")),
             is_published=bool(request.form.get("is_published")),
@@ -549,10 +612,14 @@ def staff_edit(staff_id):
             flash(str(e), "error")
             return render_template("admin/staff_form.html", member=member)
 
+        old_order = member.order
+        requested_order = int(request.form.get("order", 0))
+        safe_order = reorder_on_update(Staff, member.id, old_order, requested_order)
+
         member.name = request.form.get("name", "").strip()
         member.role = request.form.get("role", "").strip() or None
         member.bio = request.form.get("bio", "").strip() or None
-        member.order = int(request.form.get("order", 0))
+        member.order = safe_order
         member.image_position = request.form.get("image_position", "center").strip()
         member.is_core_staff = bool(request.form.get("is_core_staff"))
         member.is_published = bool(request.form.get("is_published"))
@@ -566,7 +633,10 @@ def staff_edit(staff_id):
 @admin_required
 def staff_delete(staff_id):
     member = Staff.query.get_or_404(staff_id)
+    deleted_order = member.order
     db.session.delete(member)
+    db.session.commit()
+    reorder_on_delete(Staff, deleted_order)
     db.session.commit()
     flash("Staff member deleted.", "success")
     return redirect(url_for("admin.staff_list"))
@@ -591,13 +661,17 @@ def ojt_new():
             flash(str(e), "error")
             return render_template("admin/ojt_form.html", intern=None)
 
+        batch_label = request.form.get("batch_label", "").strip() or None
+        requested_order = int(request.form.get("order", 0))
+        safe_order = reorder_on_create(OJT, requested_order, filters={"batch_label": batch_label})
+
         intern = OJT(
             name=request.form.get("name", "").strip(),
             email=request.form.get("email", "").strip() or None,
             course=request.form.get("course", "").strip() or None,
-            batch_label=request.form.get("batch_label", "").strip() or None,
+            batch_label=batch_label,
             photo_url=photo_url,
-            order=int(request.form.get("order", 0)),
+            order=safe_order,
             is_published=bool(request.form.get("is_published")),
         )
         db.session.add(intern)
@@ -620,11 +694,24 @@ def ojt_edit(ojt_id):
             flash(str(e), "error")
             return render_template("admin/ojt_form.html", intern=intern)
 
+        new_batch_label = request.form.get("batch_label", "").strip() or None
+        old_order = intern.order
+        requested_order = int(request.form.get("order", 0))
+
+        if new_batch_label != intern.batch_label:
+            # Moved to a different batch entirely — close the gap in the OLD batch,
+            # then find a safe slot in the NEW batch (don't try to "move" within one list).
+            reorder_on_delete(OJT, old_order, filters={"batch_label": intern.batch_label})
+            safe_order = reorder_on_create(OJT, requested_order, filters={"batch_label": new_batch_label})
+        else:
+            safe_order = reorder_on_update(OJT, intern.id, old_order, requested_order,
+                                            filters={"batch_label": intern.batch_label})
+
         intern.name = request.form.get("name", "").strip()
         intern.email = request.form.get("email", "").strip() or None
         intern.course = request.form.get("course", "").strip() or None
-        intern.batch_label = request.form.get("batch_label", "").strip() or None
-        intern.order = int(request.form.get("order", 0))
+        intern.batch_label = new_batch_label
+        intern.order = safe_order
         intern.is_published = bool(request.form.get("is_published"))
         db.session.commit()
         flash("Intern updated.", "success")
@@ -636,7 +723,11 @@ def ojt_edit(ojt_id):
 @admin_required
 def ojt_delete(ojt_id):
     intern = OJT.query.get_or_404(ojt_id)
+    deleted_order = intern.order
+    batch_label = intern.batch_label
     db.session.delete(intern)
+    db.session.commit()
+    reorder_on_delete(OJT, deleted_order, filters={"batch_label": batch_label})
     db.session.commit()
     flash("Intern deleted.", "success")
     return redirect(url_for("admin.ojt_list"))

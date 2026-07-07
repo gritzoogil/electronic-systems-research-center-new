@@ -491,7 +491,7 @@
           </div>
           <div>
             <p class="c-lbl">Phone</p>
-            <p class="c-val"><a href="tel:+63439800385">{{ settings.contact_phone if settings else '(043) 980-0385 LOC. 2405' }}</a></p>
+            <p class="c-val"><a href="tel:{{ (settings.contact_phone if settings and settings.contact_phone else '+63439800385') | replace(' ', '') | replace('(', '') | replace(')', '') | replace('-', '') }}">{{ settings.contact_phone if settings and settings.contact_phone else '(043) 980-0385 LOC. 2405' }}</a></p>
           </div>
         </div>
 
@@ -501,7 +501,7 @@
           </div>
           <div>
             <p class="c-lbl">Address</p>
-            <p class="c-val">2nd Flr. STEER Hub Building, Batangas State University<br>Alangilan Campus<br>Batangas City 4200, Philippines</p>
+            <p class="c-val">{{ settings.contact_address if settings and settings.contact_address else '2nd Flr. STEER Hub Building, Batangas State University<br>Alangilan Campus<br>Batangas City 4200, Philippines' | safe }}</p>
           </div>
         </div>
 

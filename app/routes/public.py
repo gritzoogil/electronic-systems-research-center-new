@@ -74,6 +74,7 @@ def publications():
     page = request.args.get("page", 1, type=int)
     type_filter = request.args.get("type", "all")
     query_text = request.args.get("q", "").strip()
+    sort_by = request.args.get("sort", "date_desc")
     per_page = 5
     is_ajax = request.headers.get("X-Requested-With") == "fetch"
 
@@ -86,7 +87,7 @@ def publications():
         ]
 
     if query_text:
-        q_lower = query_text.lower()
+        q_lower = _strip_markup(query_text).lower()
         def matches(p):
             haystack = " ".join(filter(None, [
                 _strip_markup(p.title), _strip_markup(p.summary), _strip_markup(p.details),
@@ -95,7 +96,14 @@ def publications():
             return q_lower in haystack
         all_pubs = [p for p in all_pubs if matches(p)]
 
-    all_pubs.sort(key=lambda p: _parse_pub_date(p.date), reverse=True)
+    if sort_by == "name_asc":
+        all_pubs.sort(key=lambda p: (p.title or "").lower())
+    elif sort_by == "name_desc":
+        all_pubs.sort(key=lambda p: (p.title or "").lower(), reverse=True)
+    elif sort_by == "date_asc":
+        all_pubs.sort(key=lambda p: _parse_pub_date(p.date))
+    else:  # date_desc (default)
+        all_pubs.sort(key=lambda p: _parse_pub_date(p.date), reverse=True)
 
     total = len(all_pubs)
     start = (page - 1) * per_page
@@ -132,6 +140,7 @@ def publications():
         pagination=pagination,
         active_type=type_filter,
         active_q=query_text,
+        active_sort=sort_by,
     )
 
     if is_ajax:
@@ -269,8 +278,19 @@ def resource_page(resource_id, page_id):
 
 @public_bp.route("/projects")
 def projects():
-    all_projects = Project.query.filter_by(is_published=True).order_by(Project.order).all()
-    return render_template("projects.html", projects=all_projects)
+    sort_by = request.args.get("sort", "order")  # order | date | name
+
+    query = Project.query.filter_by(is_published=True)
+
+    if sort_by == "date":
+        all_projects = query.all()
+        all_projects.sort(key=lambda p: p.year or "", reverse=True)
+    elif sort_by == "name":
+        all_projects = query.order_by(Project.title.asc()).all()
+    else:
+        all_projects = query.order_by(Project.order).all()
+
+    return render_template("projects.html", projects=all_projects, active_sort=sort_by)
 
 
 @public_bp.route("/projects/<int:project_id>")

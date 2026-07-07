@@ -33,6 +33,12 @@
       </div>
       <input type="search" name="q" value="{{ active_q }}" placeholder="Search by title, author, keyword…" aria-label="Search publications"/>
     </form>
+    <select id="pubSort" class="f-btn" style="cursor:pointer;">
+      <option value="date_desc" {{ 'selected' if active_sort == 'date_desc' }}>Newest First</option>
+      <option value="date_asc" {{ 'selected' if active_sort == 'date_asc' }}>Oldest First</option>
+      <option value="name_asc" {{ 'selected' if active_sort == 'name_asc' }}>Name (A–Z)</option>
+      <option value="name_desc" {{ 'selected' if active_sort == 'name_desc' }}>Name (Z–A)</option>
+    </select>
     <div class="pub-filters" role="group" aria-label="Filter by type">
       <a href="{{ url_for('public.publications', q=active_q, type='all') }}"
         class="f-btn {{ 'active' if active_type == 'all' }}">All</a>
@@ -92,15 +98,24 @@
   }
 
   function buildUrl() {
-    var q    = encodeURIComponent(searchInput.value.trim());
-    var type = encodeURIComponent(typeInput ? typeInput.value : 'all');
-    return '/publications?q=' + q + '&type=' + type;
-  }
+  var q    = encodeURIComponent(searchInput.value.trim());
+  var type = encodeURIComponent(typeInput ? typeInput.value : 'all');
+  var sortEl = document.getElementById('pubSort');
+  var sort = encodeURIComponent(sortEl ? sortEl.value : 'date_desc');
+  return '/publications?q=' + q + '&type=' + type + '&sort=' + sort;
+}
 
   searchInput.addEventListener('input', function () {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(function () { fetchResults(buildUrl()); }, 250);
   });
+
+  var sortSelect = document.getElementById('pubSort');
+if (sortSelect) {
+  sortSelect.addEventListener('change', function () {
+    fetchResults(buildUrl());
+  });
+}
 
   var form = searchInput.closest('form');
   if (form) form.addEventListener('submit', function (e) { e.preventDefault(); fetchResults(buildUrl()); });
