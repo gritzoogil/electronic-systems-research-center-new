@@ -8,27 +8,6 @@ from app.models import (
 from app import db
 import os
 
-import requests as http_requests
-import os
-
-def upload_to_blob(file, filename, folder="projects"):
-    """Upload a file to Vercel Blob and return the public URL."""
-    token = os.environ.get("BLOB_READ_WRITE_TOKEN")
-    if not token:
-        return None
-    blob_path = f"{folder}/{filename}"
-    resp = http_requests.put(
-        f"https://blob.vercel-storage.com/{blob_path}",
-        data=file.read(),
-        headers={
-            "authorization": f"Bearer {token}",
-            "x-content-type": file.content_type or "application/octet-stream",
-        }
-    )
-    if resp.status_code == 200:
-        return resp.json().get("url")
-    return None
-
 admin_bp = Blueprint("admin", __name__)
 
 FIREBASE_CONFIG = {
@@ -119,9 +98,11 @@ from app.uploads import upload_image_to_blob, UploadError
 def project_new():
     if request.method == "POST":
         img_path = None
-        file = request.files.get("image_file")
-        if file and file.filename:
-            img_path = upload_to_blob(file, file.filename, folder="projects")
+        try:
+            img_path = upload_image_to_blob(request.files.get("image_file"), folder="projects")
+        except UploadError as e:
+            flash(str(e), "error")
+            return render_template("admin/project_form.html", project=None)
 
         project = Project(
             title=request.form.get("title", "").strip(),
@@ -144,12 +125,13 @@ def project_new():
 def project_edit(project_id):
     project = Project.query.get_or_404(project_id)
     if request.method == "POST":
-        file = request.files.get("image_file")
-        if file and file.filename:
-            new_url = upload_to_blob(file, file.filename, folder="projects")
+        try:
+            new_url = upload_image_to_blob(request.files.get("image_file"), folder="projects")
             if new_url:
                 project.img_path = new_url
-        # If no new file uploaded, keep existing img_path unchanged
+        except UploadError as e:
+            flash(str(e), "error")
+            return render_template("admin/project_form.html", project=project)
 
         project.title = request.form.get("title", "").strip()
         project.year = request.form.get("year", "").strip() or None
