@@ -1,0 +1,45 @@
+{% extends 'admin/base.html' %}
+{% block title %}Partners{% endblock %}
+{% block page_title %}Partners{% endblock %}
+
+{% block content %}
+<div class="page-actions">
+  <p style="color:#666;font-size:13px;">{{ partners|length }} partner(s) total</p>
+  <a href="{{ url_for('admin.partner_new') }}" class="btn btn-primary">+ New Partner</a>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Logo</th>
+      <th>Name</th>
+      <th>Order</th>
+      <th>Published</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for partner in partners %}
+    <tr>
+      <td>
+        {% if partner.logo_url %}
+        <img src="{{ partner.logo_url }}" class="thumb" alt="">
+        {% else %}—{% endif %}
+      </td>
+      <td>{{ partner.name }}</td>
+      <td>{{ partner.order }}</td>
+      <td><span class="badge {{ 'badge-yes' if partner.is_published else 'badge-no' }}">{{ 'Yes' if partner.is_published else 'No' }}</span></td>
+      <td style="display:flex;gap:6px;">
+        <a href="{{ url_for('admin.partner_edit', partner_id=partner.id) }}" class="btn btn-secondary btn-sm">Edit</a>
+        <form method="POST" action="{{ url_for('admin.partner_delete', partner_id=partner.id) }}"
+              onsubmit="return confirm('Delete this partner?')">
+          <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" style="text-align:center;color:#999;">No partners yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

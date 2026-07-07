@@ -3,10 +3,11 @@ import resend
 import os
 from datetime import datetime
 from collections import defaultdict
+from app import db
 from app.models import (
     Staff, OJT, Project, Publication,
     AccomplishmentReport, CenterHighlight, LearningResource,
-    SiteSettings, Partner
+    SiteSettings, Partner, ResourcePage, ContactMessage
 )
 
 public_bp = Blueprint("public", __name__)

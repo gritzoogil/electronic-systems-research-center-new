@@ -1,0 +1,45 @@
+{% extends 'admin/base.html' %}
+{% block title %}{{ 'Edit' if partner else 'New' }} Partner{% endblock %}
+{% block page_title %}{{ 'Edit' if partner else 'New' }} Partner{% endblock %}
+
+{% block content %}
+<div class="form-wrap">
+  <form method="POST" enctype="multipart/form-data">
+
+    <div class="form-group">
+      <label for="name">Organization Name *</label>
+      <input type="text" id="name" name="name" value="{{ partner.name if partner else '' }}" required>
+    </div>
+
+    <div class="form-group">
+      <label for="logo_file">Logo (optional)</label>
+      <input type="file" id="logo_file" name="logo_file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml">
+      <p class="hint">PNG or SVG recommended for logos</p>
+      {% if partner and partner.logo_url %}
+      <p class="hint" style="margin-top:8px;">Current logo:</p>
+      <img src="{{ partner.logo_url }}" style="margin-top:4px;max-width:120px;">
+      {% endif %}
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="order">Display Order</label>
+        <input type="number" id="order" name="order" value="{{ partner.order if partner else 0 }}">
+        <p class="hint">Lower number = appears first in carousel</p>
+      </div>
+      <div class="form-group">
+        <div class="checkbox-group" style="margin-top:28px;">
+          <input type="checkbox" id="is_published" name="is_published" value="1" {{ 'checked' if not partner or partner.is_published }}>
+          <label for="is_published">Published (visible in carousel)</label>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:24px;display:flex;gap:10px;">
+      <button type="submit" class="btn btn-primary">{{ 'Save Changes' if partner else 'Add Partner' }}</button>
+      <a href="{{ url_for('admin.partners_list') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

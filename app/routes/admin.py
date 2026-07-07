@@ -3,7 +3,7 @@ from app.auth import require_firebase_user
 from app.models import (
     Project, Publication, Staff, OJT, OJTAttendance,
     CenterHighlight, CenterHighlightImage, AccomplishmentReport,
-    LearningResource, ResourceChapter, Partner, SiteSettings
+    LearningResource, ResourcePage, Partner, SiteSettings
 )
 from app.uploads import upload_image_to_blob, UploadError
 from app.attendance import get_sheets_service, get_available_dates, get_attendance_for_date
@@ -335,20 +335,170 @@ def highlight_delete(highlight_id):
     flash("Highlight deleted.", "success")
     return redirect(url_for("admin.highlights_list"))
 
+# ── ACCOMPLISHMENTS ────────────────────────────────────────────────────────
+
 @admin_bp.route("/accomplishments")
 @admin_required
 def accomplishments_list():
-    return "Accomplishments list — coming soon"
+    reports = AccomplishmentReport.query.order_by(
+        AccomplishmentReport.year.desc(),
+        AccomplishmentReport.quarter.desc()
+    ).all()
+    return render_template("admin/accomplishments.html", reports=reports)
 
-@admin_bp.route("/accomplishments/new")
+
+@admin_bp.route("/accomplishments/new", methods=["GET", "POST"])
 @admin_required
 def accomplishment_new():
-    return "New accomplishment — coming soon"
+    if request.method == "POST":
+        try:
+            thumbnail_url = upload_image_to_blob(request.files.get("thumbnail_file"), folder="accomplishments")
+        except UploadError as e:
+            flash(str(e), "error")
+            return render_template("admin/accomplishment_form.html", report=None)
+
+        report = AccomplishmentReport(
+            title=request.form.get("title", "").strip(),
+            year=int(request.form.get("year", 0)),
+            quarter=int(request.form.get("quarter", 1)),
+            description=request.form.get("description", "").strip(),
+            thumbnail_url=thumbnail_url,
+            flipbook_link=request.form.get("flipbook_link", "").strip() or None,
+            is_published=bool(request.form.get("is_published")),
+        )
+        db.session.add(report)
+        db.session.commit()
+        flash("Accomplishment report created.", "success")
+        return redirect(url_for("admin.accomplishments_list"))
+    return render_template("admin/accomplishment_form.html", report=None)
+
+
+@admin_bp.route("/accomplishments/<int:report_id>/edit", methods=["GET", "POST"])
+@admin_required
+def accomplishment_edit(report_id):
+    report = AccomplishmentReport.query.get_or_404(report_id)
+    if request.method == "POST":
+        try:
+            new_thumb = upload_image_to_blob(request.files.get("thumbnail_file"), folder="accomplishments")
+            if new_thumb:
+                report.thumbnail_url = new_thumb
+        except UploadError as e:
+            flash(str(e), "error")
+            return render_template("admin/accomplishment_form.html", report=report)
+
+        report.title = request.form.get("title", "").strip()
+        report.year = int(request.form.get("year", 0))
+        report.quarter = int(request.form.get("quarter", 1))
+        report.description = request.form.get("description", "").strip()
+        report.flipbook_link = request.form.get("flipbook_link", "").strip() or None
+        report.is_published = bool(request.form.get("is_published"))
+        db.session.commit()
+        flash("Accomplishment report updated.", "success")
+        return redirect(url_for("admin.accomplishments_list"))
+    return render_template("admin/accomplishment_form.html", report=report)
+
+
+@admin_bp.route("/accomplishments/<int:report_id>/delete", methods=["POST"])
+@admin_required
+def accomplishment_delete(report_id):
+    report = AccomplishmentReport.query.get_or_404(report_id)
+    db.session.delete(report)
+    db.session.commit()
+    flash("Accomplishment report deleted.", "success")
+    return redirect(url_for("admin.accomplishments_list"))
+
+
+# ── RESOURCES ──────────────────────────────────────────────────────────────
 
 @admin_bp.route("/resources")
 @admin_required
 def resources_list():
-    return "Resources list — coming soon"
+    resources = LearningResource.query.order_by(LearningResource.order).all()
+    return render_template("admin/resources.html", resources=resources)
+
+
+@admin_bp.route("/resources/new", methods=["GET", "POST"])
+@admin_required
+def resource_new():
+    if request.method == "POST":
+        try:
+            thumbnail_url = upload_image_to_blob(request.files.get("thumbnail_file"), folder="resources")
+        except UploadError as e:
+            flash(str(e), "error")
+            return render_template("admin/resource_form.html", resource=None)
+
+        resource = LearningResource(
+            title=request.form.get("title", "").strip(),
+            description=request.form.get("description", "").strip(),
+            thumbnail_url=thumbnail_url,
+            order=int(request.form.get("order", 0)),
+            is_published=bool(request.form.get("is_published")),
+        )
+        db.session.add(resource)
+        db.session.flush()
+
+        titles = request.form.getlist("chapter_title[]")
+        urls = request.form.getlist("chapter_url[]")
+        for i, (title, url) in enumerate(zip(titles, urls)):
+            if title.strip():
+                db.session.add(ResourcePage(
+                    resource_id=resource.id,
+                    title=title.strip(),
+                    embed_url=url.strip() or None,
+                    order=i,
+                ))
+
+        db.session.commit()
+        flash("Resource created.", "success")
+        return redirect(url_for("admin.resources_list"))
+    return render_template("admin/resource_form.html", resource=None)
+
+
+@admin_bp.route("/resources/<int:resource_id>/edit", methods=["GET", "POST"])
+@admin_required
+def resource_edit(resource_id):
+    resource = LearningResource.query.get_or_404(resource_id)
+    if request.method == "POST":
+        try:
+            new_thumb = upload_image_to_blob(request.files.get("thumbnail_file"), folder="resources")
+            if new_thumb:
+                resource.thumbnail_url = new_thumb
+        except UploadError as e:
+            flash(str(e), "error")
+            return render_template("admin/resource_form.html", resource=resource)
+
+        resource.title = request.form.get("title", "").strip()
+        resource.description = request.form.get("description", "").strip()
+        resource.order = int(request.form.get("order", 0))
+        resource.is_published = bool(request.form.get("is_published"))
+
+        # Replace all chapters
+        ResourcePage.query.filter_by(resource_id=resource.id).delete()
+        titles = request.form.getlist("chapter_title[]")
+        urls = request.form.getlist("chapter_url[]")
+        for i, (title, url) in enumerate(zip(titles, urls)):
+            if title.strip():
+                db.session.add(ResourcePage(
+                    resource_id=resource.id,
+                    title=title.strip(),
+                    flipbook_url=url.strip() or None,
+                    order=i,
+                ))
+
+        db.session.commit()
+        flash("Resource updated.", "success")
+        return redirect(url_for("admin.resources_list"))
+    return render_template("admin/resource_form.html", resource=resource)
+
+
+@admin_bp.route("/resources/<int:resource_id>/delete", methods=["POST"])
+@admin_required
+def resource_delete(resource_id):
+    resource = LearningResource.query.get_or_404(resource_id)
+    db.session.delete(resource)
+    db.session.commit()
+    flash("Resource deleted.", "success")
+    return redirect(url_for("admin.resources_list"))
 
 # ── STAFF ──────────────────────────────────────────────────────────────────
 
@@ -521,10 +671,68 @@ def ojt_attendance():
                            selected_date=selected_date,
                            error=error)
 
+# ── PARTNERS ───────────────────────────────────────────────────────────────
+
 @admin_bp.route("/partners")
 @admin_required
 def partners_list():
-    return "Partners list — coming soon"
+    partners = Partner.query.order_by(Partner.order).all()
+    return render_template("admin/partners.html", partners=partners)
+
+
+@admin_bp.route("/partners/new", methods=["GET", "POST"])
+@admin_required
+def partner_new():
+    if request.method == "POST":
+        try:
+            logo_url = upload_image_to_blob(request.files.get("logo_file"), folder="partners")
+        except UploadError as e:
+            flash(str(e), "error")
+            return render_template("admin/partner_form.html", partner=None)
+
+        partner = Partner(
+            name=request.form.get("name", "").strip(),
+            logo_url=logo_url,
+            order=int(request.form.get("order", 0)),
+            is_published=bool(request.form.get("is_published")),
+        )
+        db.session.add(partner)
+        db.session.commit()
+        flash("Partner added.", "success")
+        return redirect(url_for("admin.partners_list"))
+    return render_template("admin/partner_form.html", partner=None)
+
+
+@admin_bp.route("/partners/<int:partner_id>/edit", methods=["GET", "POST"])
+@admin_required
+def partner_edit(partner_id):
+    partner = Partner.query.get_or_404(partner_id)
+    if request.method == "POST":
+        try:
+            new_logo = upload_image_to_blob(request.files.get("logo_file"), folder="partners")
+            if new_logo:
+                partner.logo_url = new_logo
+        except UploadError as e:
+            flash(str(e), "error")
+            return render_template("admin/partner_form.html", partner=partner)
+
+        partner.name = request.form.get("name", "").strip()
+        partner.order = int(request.form.get("order", 0))
+        partner.is_published = bool(request.form.get("is_published"))
+        db.session.commit()
+        flash("Partner updated.", "success")
+        return redirect(url_for("admin.partners_list"))
+    return render_template("admin/partner_form.html", partner=partner)
+
+
+@admin_bp.route("/partners/<int:partner_id>/delete", methods=["POST"])
+@admin_required
+def partner_delete(partner_id):
+    partner = Partner.query.get_or_404(partner_id)
+    db.session.delete(partner)
+    db.session.commit()
+    flash("Partner deleted.", "success")
+    return redirect(url_for("admin.partners_list"))
 
 @admin_bp.route("/debug-env")
 def debug_env():

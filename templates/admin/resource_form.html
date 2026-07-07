@@ -1,0 +1,79 @@
+{% extends 'admin/base.html' %}
+{% block title %}{{ 'Edit' if resource else 'New' }} Resource{% endblock %}
+{% block page_title %}{{ 'Edit' if resource else 'New' }} Resource{% endblock %}
+
+{% block content %}
+<div class="form-wrap" style="max-width:860px;">
+  <form method="POST" enctype="multipart/form-data">
+
+    <div class="form-group">
+      <label for="title">Title *</label>
+      <input type="text" id="title" name="title" value="{{ resource.title if resource else '' }}" required>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" name="description">{{ resource.description if resource else '' }}</textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="thumbnail_file">Thumbnail Image</label>
+        <input type="file" id="thumbnail_file" name="thumbnail_file" accept="image/png,image/jpeg,image/webp,image/gif">
+        {% if resource and resource.thumbnail_url %}
+        <p class="hint" style="margin-top:8px;">Current:</p>
+        <img src="{{ resource.thumbnail_url }}" style="margin-top:4px;max-width:120px;border-radius:6px;">
+        {% endif %}
+      </div>
+      <div class="form-group">
+        <label for="order">Display Order</label>
+        <input type="number" id="order" name="order" value="{{ resource.order if resource else 0 }}">
+        <div class="checkbox-group" style="margin-top:16px;">
+          <input type="checkbox" id="is_published" name="is_published" value="1" {{ 'checked' if not resource or resource.is_published }}>
+          <label for="is_published">Published</label>
+        </div>
+      </div>
+    </div>
+
+    {# Chapters section #}
+    <h2 style="font-size:15px;font-weight:bold;margin:24px 0 12px;padding-bottom:8px;border-bottom:1px solid #e0e0e0;">
+      Chapters / Flipbooks
+    </h2>
+
+    <div id="chapters-container">
+      {% if resource and resource.pages %}
+        {% for chapter in resource.pages %}
+        <div class="chapter-row" style="display:grid;grid-template-columns:1fr 2fr auto;gap:10px;margin-bottom:10px;align-items:start;">
+          <input type="text" name="chapter_title[]" value="{{ chapter.title }}" placeholder="Chapter title" style="padding:8px 10px;border:1px solid #ccc;border-radius:4px;font-size:13px;">
+          <input type="url" name="chapter_url[]" value="{{ chapter.embed_url or '' }}" placeholder="HeyZine or flipbook URL" style="padding:8px 10px;border:1px solid #ccc;border-radius:4px;font-size:13px;">
+          <button type="button" onclick="this.closest('.chapter-row').remove()" class="btn btn-danger btn-sm">✕</button>
+        </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+
+    <button type="button" onclick="addChapter()" class="btn btn-secondary btn-sm" style="margin-top:4px;">+ Add Chapter</button>
+
+    <div style="margin-top:24px;display:flex;gap:10px;">
+      <button type="submit" class="btn btn-primary">{{ 'Save Changes' if resource else 'Create Resource' }}</button>
+      <a href="{{ url_for('admin.resources_list') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+
+  </form>
+</div>
+
+<script>
+function addChapter() {
+  const container = document.getElementById('chapters-container');
+  const row = document.createElement('div');
+  row.className = 'chapter-row';
+  row.style = 'display:grid;grid-template-columns:1fr 2fr auto;gap:10px;margin-bottom:10px;align-items:start;';
+  row.innerHTML = `
+    <input type="text" name="chapter_title[]" placeholder="Chapter title" style="padding:8px 10px;border:1px solid #ccc;border-radius:4px;font-size:13px;">
+    <input type="url" name="chapter_url[]" placeholder="HeyZine or flipbook URL" style="padding:8px 10px;border:1px solid #ccc;border-radius:4px;font-size:13px;">
+    <button type="button" onclick="this.closest('.chapter-row').remove()" class="btn btn-danger btn-sm">✕</button>
+  `;
+  container.appendChild(row);
+}
+</script>
+{% endblock %}

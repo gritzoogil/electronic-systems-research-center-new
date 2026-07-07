@@ -1,0 +1,53 @@
+{% extends 'admin/base.html' %}
+{% block title %}Accomplishments{% endblock %}
+{% block page_title %}Accomplishments{% endblock %}
+
+{% block content %}
+<div class="page-actions">
+  <p style="color:#666;font-size:13px;">{{ reports|length }} report(s) total</p>
+  <a href="{{ url_for('admin.accomplishment_new') }}" class="btn btn-primary">+ New Report</a>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Thumbnail</th>
+      <th>Title</th>
+      <th>Year</th>
+      <th>Quarter</th>
+      <th>Flipbook</th>
+      <th>Published</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for report in reports %}
+    <tr>
+      <td>
+        {% if report.thumbnail_url %}
+        <img src="{{ report.thumbnail_url }}" class="thumb" alt="">
+        {% else %}—{% endif %}
+      </td>
+      <td>{{ report.title }}</td>
+      <td>{{ report.year }}</td>
+      <td>Q{{ report.quarter }}</td>
+      <td>
+        {% if report.flipbook_link %}
+        <a href="{{ report.flipbook_link }}" target="_blank" style="font-size:12px;">View</a>
+        {% else %}—{% endif %}
+      </td>
+      <td><span class="badge {{ 'badge-yes' if report.is_published else 'badge-no' }}">{{ 'Yes' if report.is_published else 'No' }}</span></td>
+      <td style="display:flex;gap:6px;">
+        <a href="{{ url_for('admin.accomplishment_edit', report_id=report.id) }}" class="btn btn-secondary btn-sm">Edit</a>
+        <form method="POST" action="{{ url_for('admin.accomplishment_delete', report_id=report.id) }}"
+              onsubmit="return confirm('Delete this report?')">
+          <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7" style="text-align:center;color:#999;">No reports yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
