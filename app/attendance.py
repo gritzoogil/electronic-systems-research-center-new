@@ -31,7 +31,7 @@ def get_available_dates(service, days_back=30):
                     dates.append(date_part)
                 except ValueError:
                     pass
-        return sorted(dates, reverse=True)  # newest first
+        return sorted(dates, reverse=True)
     except Exception as e:
         return []
 
@@ -41,12 +41,11 @@ def get_attendance_for_date(service, date_str):
     try:
         result = service.spreadsheets().values().get(
             spreadsheetId=SPREADSHEET_ID,
-            range=f"'{sheet_name}'!A7:H100"  # skip rows 1-6 (title, meta, example row)
+            range=f"'{sheet_name}'!A7:H100"
         ).execute()
         rows = result.get("values", [])
         records = []
         for row in rows:
-            # Skip empty rows
             if not any(cell.strip() for cell in row if cell):
                 continue
             padded = row + [""] * (8 - len(row))
@@ -59,7 +58,16 @@ def get_attendance_for_date(service, date_str):
                 "accomplishment": padded[5],
                 "time_out": padded[6],
             }
-            # Only include rows that have at least a name
+            # Determine if late (after 8:00 AM)
+            late = False
+            if rec["time_in"].strip():
+                try:
+                    t = datetime.strptime(rec["time_in"].strip(), "%I:%M %p")
+                    late = t.hour > 8 or (t.hour == 8 and t.minute > 0)
+                except ValueError:
+                    pass
+            rec["late"] = late
+
             if rec["name"].strip():
                 records.append(rec)
         return records, None

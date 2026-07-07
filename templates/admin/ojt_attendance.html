@@ -42,14 +42,12 @@
       <td>{{ r.id or '—' }}</td>
       <td>{{ r.name }}</td>
       <td>{{ r.course or '—' }}</td>
-      <td style="{{ 'color:#dc2626;font-weight:bold;' if r.time_in and r.time_in > '08:00' else '' }}">
+      <td style="{{ 'color:#dc2626;font-weight:bold;' if r.late else 'color:#16a34a;font-weight:bold;' }}">
         {{ r.time_in or '—' }}
       </td>
       <td>{{ r.task or '—' }}</td>
       <td>{{ r.accomplishment or '—' }}</td>
-      <td style="{{ 'color:#dc2626;font-weight:bold;' if r.time_out else '' }}">
-        {{ r.time_out or '—' }}
-      </td>
+      <td>{{ r.time_out or '—' }}</td>
     </tr>
     {% endfor %}
   </tbody>
