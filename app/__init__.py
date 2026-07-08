@@ -23,11 +23,14 @@ def create_app():
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret")
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("POSTGRES_URL", "sqlite:///dev.db")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "pool_pre_ping": True,       # tests connection before using it
-        "pool_recycle": 300,         # recycles connections every 5 minutes
-        "connect_args": {"sslmode": "require"},
+    db_uri = app.config["SQLALCHEMY_DATABASE_URI"]
+    engine_options = {
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
     }
+    if db_uri.startswith("postgres"):
+        engine_options["connect_args"] = {"sslmode": "require"}
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = engine_options
 
     db.init_app(app)
     migrate.init_app(app, db)

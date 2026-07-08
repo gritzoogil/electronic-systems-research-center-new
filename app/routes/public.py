@@ -376,6 +376,31 @@ def appointments_api_slots():
     })
 
 
+
+@public_bp.route("/appointments")
+def appointments_home():
+    services = Service.query.filter_by(is_published=True).order_by(Service.order).all()
+    return render_template("appointments.html", services=services)
+
+
+@public_bp.route("/appointments/calendar")
+def appointments_calendar():
+    service = Service.query.filter_by(
+        id=request.args.get("service_id", type=int), is_published=True
+    ).first_or_404()
+
+    today = datetime.today().date()
+    year = request.args.get("year", type=int) or today.year
+    month = request.args.get("month", type=int) or today.month
+
+    availability = get_month_availability(year, month, service)
+
+    return render_template(
+        "appointment_calendar.html",
+        service=service, year=year, month=month, availability=availability
+    )
+
+
 @public_bp.route("/appointments/form")
 def appointments_form():
     service = Service.query.filter_by(
