@@ -196,3 +196,70 @@ class OJTAttendance(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     ojt = db.relationship("OJT", backref="attendances")
+
+class Service(db.Model):
+    """Bookable ESRC services shown on the public appointments page"""
+    __tablename__ = "service"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(150), nullable=False)
+    description = db.Column(db.Text)
+    duration_minutes = db.Column(db.Integer, default=60, nullable=False)
+    max_appointments_per_slot = db.Column(db.Integer, default=1, nullable=False)
+    order = db.Column(db.Integer, default=0)
+    is_published = db.Column(db.Boolean, default=True)  # availability toggle
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class Appointment(db.Model):
+    """A visitor's appointment request"""
+    __tablename__ = "appointment"
+
+    STATUSES = ["Pending", "Approved", "Rejected", "Cancelled", "Completed", "No Show"]
+
+    id = db.Column(db.Integer, primary_key=True)
+    service_id = db.Column(db.Integer, db.ForeignKey("service.id"), nullable=False)
+
+    full_name = db.Column(db.String(150), nullable=False)
+    email = db.Column(db.String(150), nullable=False)
+    contact_number = db.Column(db.String(50), nullable=False)
+    department = db.Column(db.String(200))
+    purpose = db.Column(db.Text, nullable=False)
+    notes = db.Column(db.Text)
+
+    appointment_date = db.Column(db.Date, nullable=False)
+    appointment_time = db.Column(db.Time, nullable=False)
+
+    status = db.Column(db.String(20), default="Pending", nullable=False)
+    admin_notes = db.Column(db.Text)  # internal notes on approve/reject/reschedule
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    service = db.relationship("Service", backref="appointments")
+
+
+class BlockedDate(db.Model):
+    """Admin-blocked dates/times — holidays, events, maintenance windows"""
+    __tablename__ = "blocked_date"
+
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.Date, nullable=False)
+    reason = db.Column(db.String(255))
+    is_full_day = db.Column(db.Boolean, default=True)
+    start_time = db.Column(db.Time)  # only used if not full_day
+    end_time = db.Column(db.Time)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class ScheduleConfig(db.Model):
+    """Single-row table for booking-wide schedule rules. Always use id=1."""
+    __tablename__ = "schedule_config"
+
+    id = db.Column(db.Integer, primary_key=True)
+    working_days = db.Column(db.String(50), default="Mon,Tue,Wed,Thu,Fri")  # comma-separated
+    day_start_time = db.Column(db.Time, default=lambda: datetime.strptime("09:00", "%H:%M").time())
+    day_end_time = db.Column(db.Time, default=lambda: datetime.strptime("17:00", "%H:%M").time())
+    slot_duration_minutes = db.Column(db.Integer, default=60)
+    max_appointments_per_day = db.Column(db.Integer, default=8)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

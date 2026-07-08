@@ -1,0 +1,54 @@
+{% extends 'admin/base.html' %}
+{% block title %}Services{% endblock %}
+{% block page_title %}Services{% endblock %}
+
+{% block content %}
+<div class="page-actions">
+  <span style="font-size:12px;color:#888;">{{ services|length }} service(s)</span>
+  <a href="{{ url_for('admin.service_new') }}" class="btn btn-primary">+ New Service</a>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Order</th>
+      <th>Name</th>
+      <th>Duration</th>
+      <th>Max / Slot</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for service in services %}
+    <tr>
+      <td>{{ service.order }}</td>
+      <td>
+        <strong>{{ service.name }}</strong>
+        {% if service.description %}
+        <div class="hint">{{ service.description[:80] }}{{ '…' if service.description|length > 80 }}</div>
+        {% endif %}
+      </td>
+      <td>{{ service.duration_minutes }} min</td>
+      <td>{{ service.max_appointments_per_slot }}</td>
+      <td>
+        <span class="badge {{ 'badge-yes' if service.is_published else 'badge-no' }}">
+          {{ 'Available' if service.is_published else 'Disabled' }}
+        </span>
+      </td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <a href="{{ url_for('admin.service_edit', service_id=service.id) }}" class="btn btn-secondary btn-sm">Edit</a>
+          <form method="POST" action="{{ url_for('admin.service_delete', service_id=service.id) }}"
+                onsubmit="return confirm('Delete this service? This cannot be undone.');">
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+          </form>
+        </div>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" style="text-align:center;color:#999;padding:30px 0;">No services yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

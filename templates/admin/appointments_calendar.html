@@ -1,0 +1,53 @@
+{% extends 'admin/base.html' %}
+{% block title %}Appointments — Calendar{% endblock %}
+{% block page_title %}Appointments — Calendar View{% endblock %}
+
+{% block content %}
+<div class="page-actions">
+  <span style="font-size:12px;color:#888;">{{ appointments|length }} total appointment(s)</span>
+  <a href="{{ url_for('admin.appointments_list') }}" class="btn btn-secondary">Table View</a>
+</div>
+
+{% set grouped = {} %}
+{% for appt in appointments %}
+  {% set key = appt.appointment_date.strftime('%Y-%m-%d') %}
+  {% if key not in grouped %}{% set _ = grouped.update({key: []}) %}{% endif %}
+  {% set _ = grouped[key].append(appt) %}
+{% endfor %}
+
+{% for date_key, appts in grouped.items() | sort(attribute='0', reverse=true) %}
+<div style="margin-bottom:24px;">
+  <h3 style="font-size:14px;font-weight:bold;margin-bottom:10px;color:#0f4c81;">
+    {{ appts[0].appointment_date.strftime('%B %d, %Y') }}
+    <span style="font-weight:normal;color:#888;font-size:12px;">({{ appts|length }} appointment{{ 's' if appts|length != 1 }})</span>
+  </h3>
+  <table>
+    <thead>
+      <tr><th>Time</th><th>Visitor</th><th>Service</th><th>Status</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for appt in appts | sort(attribute='appointment_time') %}
+      <tr>
+        <td>{{ appt.appointment_time.strftime('%I:%M %p') }}</td>
+        <td>{{ appt.full_name }}</td>
+        <td>{{ appt.service.name }}</td>
+        <td><span class="badge status-{{ appt.status|lower|replace(' ', '-') }}">{{ appt.status }}</span></td>
+        <td><a href="{{ url_for('admin.appointment_detail', appt_id=appt.id) }}" class="btn btn-secondary btn-sm">View</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p style="text-align:center;color:#999;padding:40px 0;">No appointments found.</p>
+{% endfor %}
+
+<style>
+.status-pending { background:#fef9c3; color:#854d0e; }
+.status-approved { background:#dcfce7; color:#166534; }
+.status-rejected { background:#fee2e2; color:#991b1b; }
+.status-cancelled { background:#f1f5f9; color:#475569; }
+.status-completed { background:#dbeafe; color:#1e40af; }
+.status-no-show { background:#fee2e2; color:#991b1b; }
+</style>
+{% endblock %}

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, jsonify
 import resend
 import os
 from datetime import datetime
@@ -328,9 +328,9 @@ def contact_submit():
 
     try:
         resend.Emails.send({
-            "from": "onboarding@resend.dev",  # swap once domain is verified
+            "from": "ESRC Contact Form <onboarding@resend.dev>",  # swap once domain is verified
             "to": ["esrc.batstateutneu@gmail.com"],
-            "subject": f"New Contact Form Submission: {subject or 'No subject'}",
+            "subject": f"[ESRC Website] New Message: {subject or 'No subject'}",
             "html": f"""
                 <p><strong>Name:</strong> {name}</p>
                 <p><strong>Email:</strong> {email}</p>
@@ -345,3 +345,156 @@ def contact_submit():
 
     flash("Message sent! We'll get back to you within 1-2 business days.", "success")
     return redirect(url_for("public.home") + "#contact")
+
+from datetime import datetime
+from app.models import Service, Appointment
+from app.scheduling import (
+    get_month_availability, get_slots_for_date, is_slot_still_available,
+    get_schedule_config, parse_time_from_input, format_time_for_display
+)
+
+@public_bp.route("/appointments/api/slots")
+def appointments_api_slots():
+    service_id = request.args.get("service_id", type=int)
+    date_str = request.args.get("date", "")
+    service = Service.query.filter_by(id=service_id, is_published=True).first_or_404()
+    try:
+        target_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+    except ValueError:
+        return jsonify({"error": "invalid_date"}), 400
+
+    slots = get_slots_for_date(target_date, service)
+    return jsonify({
+        "slots": [
+            {
+                "value": s["time"].strftime("%H:%M"),        # canonical, sent back in the booking URL
+                "label": format_time_for_display(s["time"]),  # what the visitor actually sees
+                "available": s["available"],
+            }
+            for s in slots
+        ]
+    })
+
+
+@public_bp.route("/appointments/form")
+def appointments_form():
+    service = Service.query.filter_by(
+        id=request.args.get("service_id", type=int), is_published=True
+    ).first_or_404()
+    date_str = request.args.get("date", "")
+    time_str = request.args.get("time", "")  # canonical HH:MM now
+
+    try:
+        time_display = format_time_for_display(parse_time_from_input(time_str))
+    except ValueError:
+        time_display = time_str  # fallback, shouldn't normally happen
+
+    return render_template(
+        "appointment_form.html", service=service, date_str=date_str,
+        time_str=time_str, time_display=time_display
+    )
+
+
+@public_bp.route("/appointments/review", methods=["POST"])
+def appointments_review():
+    service = Service.query.filter_by(
+        id=request.form.get("service_id", type=int), is_published=True
+    ).first_or_404()
+
+    date_str = request.form.get("appointment_date", "")
+    time_str = request.form.get("appointment_time", "")  # canonical HH:MM
+
+    try:
+        appt_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+    except ValueError:
+        flash("Invalid date. Please start over.", "error")
+        return redirect(url_for("public.appointments_calendar", service_id=service.id))
+
+    required = ["full_name", "email", "contact_number", "purpose"]
+    if any(not request.form.get(f, "").strip() for f in required):
+        flash("Please fill in all required fields.", "error")
+        return redirect(url_for("public.appointments_form", service_id=service.id,
+                                 date=date_str, time=time_str))
+
+    try:
+        appt_time = parse_time_from_input(time_str)
+    except ValueError:
+        flash("Invalid time. Please start over.", "error")
+        return redirect(url_for("public.appointments_calendar", service_id=service.id))
+
+    if not is_slot_still_available(appt_date, appt_time, service):
+        flash("Sorry, that time slot was just taken. Please choose another.", "error")
+        return redirect(url_for("public.appointments_calendar", service_id=service.id))
+
+    form_data = {
+        "service_id": service.id,
+        "full_name": request.form.get("full_name", "").strip(),
+        "email": request.form.get("email", "").strip(),
+        "contact_number": request.form.get("contact_number", "").strip(),
+        "department": request.form.get("department", "").strip(),
+        "purpose": request.form.get("purpose", "").strip(),
+        "notes": request.form.get("notes", "").strip(),
+        "appointment_date": date_str,
+        "appointment_time": time_str,  # canonical HH:MM, re-posted as-is on submit
+    }
+    return render_template(
+        "appointment_review.html",
+        service=service, form_data=form_data, appt_date=appt_date,
+        time_display=format_time_for_display(appt_time),  # for showing on the review page
+    )
+
+
+@public_bp.route("/appointments/submit", methods=["POST"])
+def appointments_submit():
+    service = Service.query.filter_by(
+        id=request.form.get("service_id", type=int), is_published=True
+    ).first_or_404()
+
+    try:
+        appt_date = datetime.strptime(request.form.get("appointment_date", ""), "%Y-%m-%d").date()
+        appt_time = parse_time_from_input(request.form.get("appointment_time", ""))
+    except ValueError:
+        flash("Invalid date or time selected. Please try again.", "error")
+        return redirect(url_for("public.appointments_calendar", service_id=service.id))
+
+    required = ["full_name", "email", "contact_number", "purpose"]
+    if any(not request.form.get(f, "").strip() for f in required):
+        flash("Please fill in all required fields.", "error")
+        return redirect(url_for("public.appointments_form", service_id=service.id,
+                                 date=appt_date.isoformat(), time=request.form.get("appointment_time")))
+
+    if not is_slot_still_available(appt_date, appt_time, service):
+        flash("Sorry, that time slot was just taken. Please choose another.", "error")
+        return redirect(url_for("public.appointments_calendar", service_id=service.id))
+
+    appt = Appointment(
+        service_id=service.id,
+        full_name=request.form.get("full_name", "").strip(),
+        email=request.form.get("email", "").strip(),
+        contact_number=request.form.get("contact_number", "").strip(),
+        department=request.form.get("department", "").strip() or None,
+        purpose=request.form.get("purpose", "").strip(),
+        notes=request.form.get("notes", "").strip() or None,
+        appointment_date=appt_date,
+        appointment_time=appt_time,
+        status="Pending",
+    )
+    db.session.add(appt)
+    db.session.commit()
+
+    try:
+        resend.Emails.send({
+            "from": "onboarding@resend.dev",
+            "to": ["esrc.batstateutneu@gmail.com"],
+            "subject": f"New Appointment Request: {service.name}",
+            "html": f"""
+                <p><strong>Service:</strong> {service.name}</p>
+                <p><strong>Requester:</strong> {appt.full_name} ({appt.email})</p>
+                <p><strong>Date/Time:</strong> {appt_date.strftime('%B %d, %Y')} at {format_time_for_display(appt.appointment_time)}</p>
+                <p><strong>Purpose:</strong> {appt.purpose}</p>
+            """,
+        })
+    except Exception as e:
+        print(f"Email send failed: {e}")
+
+    return render_template("appointment_success.html", appt=appt)

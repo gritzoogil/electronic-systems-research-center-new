@@ -1,0 +1,139 @@
+{% extends 'admin/base.html' %}
+{% block title %}Schedule Settings{% endblock %}
+{% block page_title %}Schedule Settings{% endblock %}
+
+{% block content %}
+
+<!-- WORKING HOURS CONFIG -->
+<div class="form-wrap" style="margin-bottom:32px;">
+  <h3 style="font-size:15px;font-weight:bold;margin-bottom:16px;">Working Hours &amp; Capacity</h3>
+  <form method="POST" action="{{ url_for('admin.schedule') }}">
+
+    <div class="form-group">
+      <label>Working Days</label>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;">
+        {% for day in day_abbr %}
+        <label style="display:flex;align-items:center;gap:6px;font-weight:normal;font-size:13px;">
+          <input type="checkbox" name="working_days" value="{{ day }}"
+                 {{ 'checked' if day in cfg.working_days.split(',') }}>
+          {{ day }}
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="day_start_time">Day Start Time</label>
+        <input type="time" id="day_start_time" name="day_start_time" value="{{ cfg.day_start_time.strftime('%H:%M') }}">
+      </div>
+      <div class="form-group">
+        <label for="day_end_time">Day End Time</label>
+        <input type="time" id="day_end_time" name="day_end_time" value="{{ cfg.day_end_time.strftime('%H:%M') }}">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="slot_duration_minutes">Slot Duration (minutes)</label>
+        <input type="number" id="slot_duration_minutes" name="slot_duration_minutes" min="15" step="15"
+               value="{{ cfg.slot_duration_minutes }}">
+      </div>
+      <div class="form-group">
+        <label for="max_appointments_per_day">Max Appointments per Day</label>
+        <input type="number" id="max_appointments_per_day" name="max_appointments_per_day" min="1"
+               value="{{ cfg.max_appointments_per_day }}">
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Schedule Settings</button>
+  </form>
+</div>
+
+<!-- BLOCKED DATES -->
+<div class="form-wrap" style="margin-bottom:32px;">
+  <h3 style="font-size:15px;font-weight:bold;margin-bottom:16px;">Block a Date or Time</h3>
+  <form method="POST" action="{{ url_for('admin.schedule_block_date') }}" id="blockForm">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="date">Date</label>
+        <input type="date" id="date" name="date" required>
+      </div>
+      <div class="form-group">
+        <label for="reason">Reason</label>
+        <input type="text" id="reason" name="reason" placeholder="e.g. University Holiday">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="checkbox-group">
+        <input type="checkbox" id="is_full_day" name="is_full_day" value="1" checked onchange="togglePartialTime(this)">
+        <label for="is_full_day">Block the entire day</label>
+      </div>
+    </div>
+
+    <div class="form-row" id="partialTimeFields" style="display:none;">
+      <div class="form-group">
+        <label for="start_time">Blocked From</label>
+        <input type="time" id="start_time" name="start_time">
+      </div>
+      <div class="form-group">
+        <label for="end_time">Blocked Until</label>
+        <input type="time" id="end_time" name="end_time">
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add Block</button>
+  </form>
+</div>
+
+<!-- CURRENT BLOCKS -->
+<div class="form-wrap">
+  <h3 style="font-size:15px;font-weight:bold;margin-bottom:16px;">Current Blocked Dates</h3>
+  <table>
+    <thead>
+      <tr><th>Date</th><th>Type</th><th>Reason</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for block in blocked_dates %}
+      <tr>
+        <td>{{ block.date.strftime('%b %d, %Y') }}</td>
+        <td>
+          {% if block.is_full_day %}
+          Full day
+          {% else %}
+          {{ block.start_time.strftime('%I:%M %p') }} – {{ block.end_time.strftime('%I:%M %p') }}
+          {% endif %}
+        </td>
+        <td>{{ block.reason or '—' }}</td>
+        <td>
+          <form method="POST" action="{{ url_for('admin.schedule_unblock_date', block_id=block.id) }}"
+                onsubmit="return confirm('Remove this block?');">
+            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" style="text-align:center;color:#999;padding:20px 0;">No dates blocked.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+function togglePartialTime(checkbox) {
+  var fields = document.getElementById('partialTimeFields');
+  var startTime = document.getElementById('start_time');
+  var endTime = document.getElementById('end_time');
+  if (checkbox.checked) {
+    fields.style.display = 'none';
+    startTime.required = false;
+    endTime.required = false;
+  } else {
+    fields.style.display = 'grid';
+    startTime.required = true;
+    endTime.required = true;
+  }
+}
+</script>
+{% endblock %}

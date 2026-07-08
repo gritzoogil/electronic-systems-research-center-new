@@ -1,0 +1,65 @@
+{% extends 'admin/base.html' %}
+{% block title %}Appointments{% endblock %}
+{% block page_title %}Appointments{% endblock %}
+
+{% block content %}
+<div class="page-actions" style="flex-wrap:wrap;gap:12px;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <label style="font-size:13px;font-weight:bold;">Status:</label>
+    <select onchange="window.location='?status='+this.value"
+            style="padding:6px 10px;border:1px solid #ccc;border-radius:4px;font-size:13px;">
+      <option value="all" {{ 'selected' if active_status == 'all' }}>All</option>
+      {% for s in ['Pending','Approved','Rejected','Cancelled','Completed','No Show'] %}
+      <option value="{{ s }}" {{ 'selected' if active_status == s }}>{{ s }}</option>
+      {% endfor %}
+    </select>
+    <span style="font-size:12px;color:#888;">{{ appointments|length }} appointment(s)</span>
+  </div>
+  <a href="{{ url_for('admin.appointments_list', view='calendar', status=active_status) }}" class="btn btn-secondary">
+    Calendar View
+  </a>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Visitor</th>
+      <th>Service</th>
+      <th>Date</th>
+      <th>Time</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for appt in appointments %}
+    <tr>
+      <td>
+        <strong>{{ appt.full_name }}</strong>
+        <div class="hint">{{ appt.email }}</div>
+      </td>
+      <td>{{ appt.service.name }}</td>
+      <td>{{ appt.appointment_date.strftime('%b %d, %Y') }}</td>
+      <td>{{ appt.appointment_time.strftime('%I:%M %p') }}</td>
+      <td>
+        <span class="badge status-{{ appt.status|lower|replace(' ', '-') }}">{{ appt.status }}</span>
+      </td>
+      <td>
+        <a href="{{ url_for('admin.appointment_detail', appt_id=appt.id) }}" class="btn btn-secondary btn-sm">View</a>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" style="text-align:center;color:#999;padding:30px 0;">No appointments found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<style>
+.status-pending { background:#fef9c3; color:#854d0e; }
+.status-approved { background:#dcfce7; color:#166534; }
+.status-rejected { background:#fee2e2; color:#991b1b; }
+.status-cancelled { background:#f1f5f9; color:#475569; }
+.status-completed { background:#dbeafe; color:#1e40af; }
+.status-no-show { background:#fee2e2; color:#991b1b; }
+</style>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'admin/base.html' %}
+{% block title %}Appointment Detail{% endblock %}
+{% block page_title %}Appointment #{{ appt.id }}{% endblock %}
+
+{% block content %}
+<div class="form-wrap" style="max-width:800px;">
+
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
+    <div>
+      <h3 style="font-size:16px;margin-bottom:4px;">{{ appt.full_name }}</h3>
+      <p class="hint">{{ appt.email }} · {{ appt.contact_number }}</p>
+    </div>
+    <span class="badge status-{{ appt.status|lower|replace(' ', '-') }}" style="font-size:13px;padding:6px 12px;">
+      {{ appt.status }}
+    </span>
+  </div>
+
+  <table style="margin-bottom:24px;">
+    <tbody>
+      <tr><td style="width:180px;font-weight:bold;">Service</td><td>{{ appt.service.name }}</td></tr>
+      <tr><td style="font-weight:bold;">Date</td><td>{{ appt.appointment_date.strftime('%B %d, %Y') }}</td></tr>
+      <tr><td style="font-weight:bold;">Time</td><td>{{ appt.appointment_time.strftime('%I:%M %p') }}</td></tr>
+      <tr><td style="font-weight:bold;">Department / Org</td><td>{{ appt.department or '—' }}</td></tr>
+      <tr><td style="font-weight:bold;">Purpose</td><td>{{ appt.purpose }}</td></tr>
+      <tr><td style="font-weight:bold;">Notes</td><td>{{ appt.notes or '—' }}</td></tr>
+      <tr><td style="font-weight:bold;">Submitted</td><td>{{ appt.created_at.strftime('%b %d, %Y %I:%M %p') }}</td></tr>
+    </tbody>
+  </table>
+
+  <!-- STATUS UPDATE -->
+  <h3 style="font-size:14px;font-weight:bold;margin-bottom:12px;">Update Status</h3>
+  <form method="POST" action="{{ url_for('admin.appointment_update_status', appt_id=appt.id) }}" style="margin-bottom:32px;">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select id="status" name="status">
+          {% for s in statuses %}
+          <option value="{{ s }}" {{ 'selected' if appt.status == s }}>{{ s }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="admin_notes">Admin Notes (internal)</label>
+        <input type="text" id="admin_notes" name="admin_notes" value="{{ appt.admin_notes or '' }}"
+               placeholder="Optional internal note">
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Save Status</button>
+  </form>
+
+  <!-- RESCHEDULE -->
+  <h3 style="font-size:14px;font-weight:bold;margin-bottom:12px;">Reschedule</h3>
+  <form method="POST" action="{{ url_for('admin.appointment_reschedule', appt_id=appt.id) }}" style="margin-bottom:24px;">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="appointment_date">New Date</label>
+        <input type="date" id="appointment_date" name="appointment_date" value="{{ appt.appointment_date.isoformat() }}">
+      </div>
+      <div class="form-group">
+        <label for="appointment_time">New Time</label>
+        <input type="time" id="appointment_time" name="appointment_time" value="{{ appt.appointment_time.strftime('%H:%M') }}">
+      </div>
+    </div>
+    <p class="hint" style="margin-bottom:12px;">Rescheduling automatically sets status to Approved. This does not re-check slot capacity — verify availability first on the public calendar.</p>
+    <button type="submit" class="btn btn-secondary">Reschedule Appointment</button>
+  </form>
+
+  <div style="border-top:1px solid #e0e0e0;padding-top:20px;display:flex;justify-content:space-between;">
+    <a href="{{ url_for('admin.appointments_list') }}" class="btn btn-secondary">← Back to List</a>
+    <form method="POST" action="{{ url_for('admin.appointment_delete', appt_id=appt.id) }}"
+          onsubmit="return confirm('Permanently delete this appointment?');">
+      <button type="submit" class="btn btn-danger">Delete Appointment</button>
+    </form>
+  </div>
+
+</div>
+
+<style>
+.status-pending { background:#fef9c3; color:#854d0e; }
+.status-approved { background:#dcfce7; color:#166534; }
+.status-rejected { background:#fee2e2; color:#991b1b; }
+.status-cancelled { background:#f1f5f9; color:#475569; }
+.status-completed { background:#dbeafe; color:#1e40af; }
+.status-no-show { background:#fee2e2; color:#991b1b; }
+</style>
+{% endblock %}

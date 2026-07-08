@@ -10,6 +10,53 @@ from app.attendance import get_sheets_service, get_available_dates, get_attendan
 from app import db
 from app.ordering import reorder_on_create, reorder_on_update, reorder_on_delete
 import os
+import resend
+
+import logging
+logger = logging.getLogger(__name__)
+
+
+def send_status_email(appt, new_status):
+    try:
+        resend.Emails.send({
+            "from": "onboarding@resend.dev",
+            "to": [appt.email],
+            "subject": f"Your ESRC Appointment Request was {new_status}",
+            "html": f"""
+                <p>Hi {appt.full_name},</p>
+                <p>Your appointment request for <strong>{appt.service.name}</strong> on
+                {appt.appointment_date.strftime('%B %d, %Y')} at
+                {format_time_for_display(appt.appointment_time)} has been
+                <strong>{new_status}</strong>.</p>
+                {'<p>We look forward to seeing you.</p>' if new_status == 'Approved' else '<p>If you have questions, feel free to reach out to us.</p>'}
+            """,
+        })
+        return True
+    except Exception as e:
+        logger.error(f"Status notification email to {appt.email} failed: {e}")
+        return False
+
+
+def send_reschedule_email(appt, old_date, old_time):
+    try:
+        resend.Emails.send({
+            "from": "onboarding@resend.dev",
+            "to": [appt.email],
+            "subject": "Your ESRC Appointment Has Been Rescheduled",
+            "html": f"""
+                <p>Hi {appt.full_name},</p>
+                <p>Your appointment for <strong>{appt.service.name}</strong> has been rescheduled.</p>
+                <p><strong>Previous:</strong> {old_date.strftime('%B %d, %Y')} at {format_time_for_display(old_time)}</p>
+                <p><strong>New:</strong> {appt.appointment_date.strftime('%B %d, %Y')} at {format_time_for_display(appt.appointment_time)}</p>
+                <p>Please let us know if this new time doesn't work for you.</p>
+            """,
+        })
+        return True
+    except Exception as e:
+        logger.error(f"Reschedule notification email to {appt.email} failed: {e}")
+        return False
+    
+resend.api_key = os.environ.get("RESEND_API_KEY")
 
 admin_bp = Blueprint("admin", __name__)
 
@@ -877,3 +924,208 @@ def settings():
         return redirect(url_for("admin.settings"))
 
     return render_template("admin/settings.html", s=s)
+
+from app.models import Service, Appointment, BlockedDate, ScheduleConfig
+from app.scheduling import get_schedule_config, DAY_ABBR
+from datetime import datetime
+
+# ── SERVICES ───────────────────────────────────────────────────────────────
+
+@admin_bp.route("/services")
+@admin_required
+def services_list():
+    services = Service.query.order_by(Service.order).all()
+    return render_template("admin/services.html", services=services)
+
+
+@admin_bp.route("/services/new", methods=["GET", "POST"])
+@admin_required
+def service_new():
+    if request.method == "POST":
+        requested_order = int(request.form.get("order", 0))
+        safe_order = reorder_on_create(Service, requested_order)
+        service = Service(
+            name=request.form.get("name", "").strip(),
+            description=request.form.get("description", "").strip() or None,
+            duration_minutes=int(request.form.get("duration_minutes", 60)),
+            max_appointments_per_slot=int(request.form.get("max_appointments_per_slot", 1)),
+            order=safe_order,
+            is_published=bool(request.form.get("is_published")),
+        )
+        db.session.add(service)
+        db.session.commit()
+        flash("Service created.", "success")
+        return redirect(url_for("admin.services_list"))
+    return render_template("admin/service_form.html", service=None)
+
+
+@admin_bp.route("/services/<int:service_id>/edit", methods=["GET", "POST"])
+@admin_required
+def service_edit(service_id):
+    service = Service.query.get_or_404(service_id)
+    if request.method == "POST":
+        old_order = service.order
+        requested_order = int(request.form.get("order", 0))
+        safe_order = reorder_on_update(Service, service.id, old_order, requested_order)
+
+        service.name = request.form.get("name", "").strip()
+        service.description = request.form.get("description", "").strip() or None
+        service.duration_minutes = int(request.form.get("duration_minutes", 60))
+        service.max_appointments_per_slot = int(request.form.get("max_appointments_per_slot", 1))
+        service.order = safe_order
+        service.is_published = bool(request.form.get("is_published"))
+        db.session.commit()
+        flash("Service updated.", "success")
+        return redirect(url_for("admin.services_list"))
+    return render_template("admin/service_form.html", service=service)
+
+
+@admin_bp.route("/services/<int:service_id>/delete", methods=["POST"])
+@admin_required
+def service_delete(service_id):
+    service = Service.query.get_or_404(service_id)
+    deleted_order = service.order
+    db.session.delete(service)
+    db.session.commit()
+    reorder_on_delete(Service, deleted_order)
+    db.session.commit()
+    flash("Service deleted.", "success")
+    return redirect(url_for("admin.services_list"))
+
+
+# ── APPOINTMENTS ───────────────────────────────────────────────────────────
+
+@admin_bp.route("/appointments")
+@admin_required
+def appointments_list():
+    view = request.args.get("view", "table")  # table | calendar
+    status_filter = request.args.get("status", "all")
+
+    query = Appointment.query
+    if status_filter != "all":
+        query = query.filter_by(status=status_filter)
+    appointments = query.order_by(Appointment.appointment_date.desc(),
+                                   Appointment.appointment_time.desc()).all()
+
+    if view == "calendar":
+        return render_template("admin/appointments_calendar.html", appointments=appointments)
+    return render_template("admin/appointments.html", appointments=appointments,
+                            active_status=status_filter)
+
+
+@admin_bp.route("/appointments/<int:appt_id>")
+@admin_required
+def appointment_detail(appt_id):
+    appt = Appointment.query.get_or_404(appt_id)
+    return render_template("admin/appointment_detail.html", appt=appt,
+                            statuses=Appointment.STATUSES)
+
+from app.scheduling import get_schedule_config, DAY_ABBR, parse_time_from_input, format_time_for_display
+
+@admin_bp.route("/appointments/<int:appt_id>/reschedule", methods=["POST"])
+@admin_required
+def appointment_reschedule(appt_id):
+    appt = Appointment.query.get_or_404(appt_id)
+    try:
+        old_date = appt.appointment_date
+        old_time = appt.appointment_time
+
+        appt.appointment_date = datetime.strptime(
+            request.form.get("appointment_date", ""), "%Y-%m-%d"
+        ).date()
+        appt.appointment_time = parse_time_from_input(request.form.get("appointment_time", ""))
+        appt.status = "Approved"
+        db.session.commit()
+
+        email_sent = send_reschedule_email(appt, old_date, old_time)
+        if email_sent:
+            flash("Appointment rescheduled and visitor notified by email.", "success")
+        else:
+            flash("Appointment rescheduled, but the notification email could not be sent. "
+                  "Contact the visitor directly if needed.", "error")
+    except ValueError:
+        flash("Invalid date or time.", "error")
+    return redirect(url_for("admin.appointment_detail", appt_id=appt.id))
+
+@admin_bp.route("/appointments/<int:appt_id>/delete", methods=["POST"])
+@admin_required
+def appointment_delete(appt_id):
+    appt = Appointment.query.get_or_404(appt_id)
+    db.session.delete(appt)
+    db.session.commit()
+    flash("Appointment deleted.", "success")
+    return redirect(url_for("admin.appointments_list"))
+
+
+# ── SCHEDULE MANAGEMENT ────────────────────────────────────────────────────
+
+@admin_bp.route("/schedule", methods=["GET", "POST"])
+@admin_required
+def schedule():
+    cfg = get_schedule_config()
+    if request.method == "POST":
+        selected_days = request.form.getlist("working_days")
+        cfg.working_days = ",".join(selected_days) if selected_days else cfg.working_days
+        cfg.day_start_time = datetime.strptime(request.form.get("day_start_time", "09:00"), "%H:%M").time()
+        cfg.day_end_time = datetime.strptime(request.form.get("day_end_time", "17:00"), "%H:%M").time()
+        cfg.slot_duration_minutes = int(request.form.get("slot_duration_minutes", 60))
+        cfg.max_appointments_per_day = int(request.form.get("max_appointments_per_day", 8))
+        db.session.commit()
+        flash("Schedule settings saved.", "success")
+        return redirect(url_for("admin.schedule"))
+
+    blocked_dates = BlockedDate.query.order_by(BlockedDate.date).all()
+    return render_template("admin/schedule.html", cfg=cfg, blocked_dates=blocked_dates,
+                            day_abbr=DAY_ABBR)
+
+
+@admin_bp.route("/schedule/block", methods=["POST"])
+@admin_required
+def schedule_block_date():
+    is_full_day = bool(request.form.get("is_full_day"))
+    block = BlockedDate(
+        date=datetime.strptime(request.form.get("date", ""), "%Y-%m-%d").date(),
+        reason=request.form.get("reason", "").strip() or None,
+        is_full_day=is_full_day,
+        start_time=None if is_full_day else datetime.strptime(request.form.get("start_time", "09:00"), "%H:%M").time(),
+        end_time=None if is_full_day else datetime.strptime(request.form.get("end_time", "17:00"), "%H:%M").time(),
+    )
+    db.session.add(block)
+    db.session.commit()
+    flash("Date/time blocked.", "success")
+    return redirect(url_for("admin.schedule"))
+
+
+@admin_bp.route("/schedule/block/<int:block_id>/delete", methods=["POST"])
+@admin_required
+def schedule_unblock_date(block_id):
+    block = BlockedDate.query.get_or_404(block_id)
+    db.session.delete(block)
+    db.session.commit()
+    flash("Block removed.", "success")
+    return redirect(url_for("admin.schedule"))
+
+@admin_bp.route("/appointments/<int:appt_id>/status", methods=["POST"])
+@admin_required
+def appointment_update_status(appt_id):
+    appt = Appointment.query.get_or_404(appt_id)
+    new_status = request.form.get("status")
+    if new_status not in Appointment.STATUSES:
+        flash("Invalid status.", "error")
+        return redirect(url_for("admin.appointment_detail", appt_id=appt.id))
+
+    old_status = appt.status
+    appt.status = new_status
+    appt.admin_notes = request.form.get("admin_notes", "").strip() or appt.admin_notes
+    db.session.commit()
+
+    if new_status != old_status and new_status in ("Approved", "Rejected"):
+        if send_status_email(appt, new_status):
+            flash(f"Appointment marked as {new_status} and visitor notified by email.", "success")
+        else:
+            flash(f"Appointment marked as {new_status}, but the notification email could not be sent. "
+                  f"Contact the visitor directly if needed.", "error")
+    else:
+        flash(f"Appointment marked as {new_status}.", "success")
+
+    return redirect(url_for("admin.appointment_detail", appt_id=appt.id))

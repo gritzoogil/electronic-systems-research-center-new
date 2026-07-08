@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% block title %}Select Date &amp; Time — {{ service.name }}{% endblock %}
+
+{% block content %}
+<div class="appointments-page">
+
+  <section style="padding:120px 0 60px;
+                  background:linear-gradient(135deg,var(--gray-900),var(--navy-dark),var(--navy));">
+    <div class="wrap" style="text-align:center;">
+      <span class="eyebrow" style="justify-content:center;">Step 2 of 4</span>
+      <h1 class="sec-h2 light" style="margin-bottom:.5rem;">{{ service.name }}</h1>
+      <p class="sec-lead light" style="margin:0 auto;">
+        Pick an available date, then choose a time slot.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap" style="max-width:960px;">
+
+      <a href="{{ url_for('public.appointments_home') }}" class="back-link">← Choose a different service</a>
+
+      <div class="booking-layout">
+
+        <!-- CALENDAR -->
+        <div class="calendar-panel reveal">
+          <div class="calendar-header">
+            <button type="button" id="prevMonth" class="cal-nav-btn" aria-label="Previous month">‹</button>
+            <p id="calMonthLabel" class="cal-month-label" data-year="{{ year }}" data-month="{{ month }}"></p>
+            <button type="button" id="nextMonth" class="cal-nav-btn" aria-label="Next month">›</button>
+          </div>
+
+          <div class="cal-legend">
+            <span><i class="dot dot-available"></i> Available</span>
+            <span><i class="dot dot-limited"></i> Limited</span>
+            <span><i class="dot dot-full"></i> Fully booked</span>
+            <span><i class="dot dot-unavailable"></i> Unavailable</span>
+          </div>
+
+          <div class="cal-weekdays">
+            <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+          </div>
+
+          <div class="cal-grid" id="calGrid">
+            {% set first_weekday = (year, month, 1) %}
+            {% set import_placeholder = 0 %}
+          </div>
+        </div>
+
+        <!-- TIME SLOTS -->
+        <div class="slots-panel reveal" id="slotsPanel" style="display:none;">
+          <p class="slots-heading">Available times for <span id="slotsDateLabel"></span></p>
+          <div class="slots-grid" id="slotsGrid"></div>
+          <p class="slots-empty" id="slotsEmpty" style="display:none;">
+            No time slots available for this date.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</div>
+
+<style>
+.back-link { display:inline-block; margin-bottom:24px; font-size:.875rem; color:var(--gray-400); text-decoration:none; }
+.back-link:hover { color:var(--navy); }
+
+.booking-layout { display:grid; grid-template-columns:1fr; gap:32px; }
+@media (min-width:768px) { .booking-layout { grid-template-columns:1.2fr 1fr; align-items:start; } }
+
+.calendar-panel, .slots-panel {
+  background:var(--white); border:1px solid var(--gray-200); border-radius:16px; padding:24px;
+}
+.calendar-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.cal-month-label { font-family:var(--font-d); font-weight:700; color:var(--navy); font-size:1rem; }
+.cal-nav-btn {
+  width:32px; height:32px; border-radius:8px; border:1px solid var(--gray-200);
+  background:var(--white); color:var(--navy); font-size:1.1rem; cursor:pointer;
+}
+.cal-nav-btn:hover { background:var(--gray-100, #f1f5f9); }
+
+.cal-legend { display:flex; flex-wrap:wrap; gap:14px; font-size:.72rem; color:var(--gray-400); margin-bottom:16px; }
+.cal-legend .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:4px; }
+.dot-available { background:#16a34a; }
+.dot-limited { background:#eab308; }
+.dot-full { background:#dc2626; }
+.dot-unavailable { background:#cbd5e1; }
+
+.cal-weekdays, .cal-grid { display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); gap:4px; }
+.cal-weekdays span { text-align:center; font-size:.72rem; font-weight:700; color:var(--gray-400); padding-bottom:8px; }
+
+.cal-day {
+  aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+  border-radius:10px; font-size:.85rem; font-weight:600; cursor:pointer;
+  border:2px solid transparent; background:none; color:var(--gray-900);
+  position:relative;
+}
+.cal-day.empty { cursor:default; }
+.cal-day[data-status="available"] { background:#ecfdf5; color:#166534; }
+.cal-day[data-status="limited"] { background:#fefce8; color:#854d0e; }
+.cal-day[data-status="full"], .cal-day[data-status="unavailable"] {
+  background:#f8fafc; color:#94a3b8; cursor:not-allowed;
+}
+.cal-day.selected { border-color:var(--cyan); }
+.cal-day:not(.empty):not([data-status="full"]):not([data-status="unavailable"]):hover { transform:scale(1.05); }
+
+.slots-heading { font-size:.9rem; font-weight:700; color:var(--navy); margin-bottom:16px; }
+.slots-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(110px,1fr)); gap:10px; }
+.slot-btn {
+  padding:10px 8px; border-radius:8px; border:1px solid var(--gray-200);
+  background:var(--white); font-size:.8rem; font-weight:600; cursor:pointer; color:var(--navy);
+}
+.slot-btn:hover:not(:disabled) { border-color:var(--cyan); background:#f0fdff; }
+.slot-btn:disabled { color:#cbd5e1; background:#f8fafc; cursor:not-allowed; text-decoration:line-through; }
+.slots-empty { color:var(--gray-400); font-size:.85rem; text-align:center; padding:20px 0; }
+</style>
+
+<script>
+(function () {
+  const serviceId = {{ service.id }};
+  let year = {{ year }};
+  let month = {{ month }};
+  const monthNames = ["January","February","March","April","May","June","July",
+                       "August","September","October","November","December"];
+
+  function renderMonth() {
+    document.getElementById("calMonthLabel").textContent = monthNames[month - 1] + " " + year;
+    fetch(`{{ url_for('public.appointments_calendar', service_id=service.id) }}?year=${year}&month=${month}`)
+      .then(r => r.text())
+      .then(html => {
+        // Re-fetch full page's grid via a lightweight approach: request JSON instead in production.
+      });
+  }
+
+  // Build calendar grid client-side using server-rendered availability passed via data attribute.
+  const availability = {{ availability | tojson }};
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const firstWeekday = new Date(year, month - 1, 1).getDay();
+  const grid = document.getElementById("calGrid");
+
+  function buildGrid() {
+    grid.innerHTML = "";
+    for (let i = 0; i < firstWeekday; i++) {
+      const empty = document.createElement("div");
+      empty.className = "cal-day empty";
+      grid.appendChild(empty);
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+      const status = availability[d] || "unavailable";
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "cal-day";
+      btn.textContent = d;
+      btn.setAttribute("data-status", status);
+      btn.disabled = (status === "full" || status === "unavailable");
+      btn.addEventListener("click", () => selectDate(d, btn));
+      grid.appendChild(btn);
+    }
+  }
+
+  function selectDate(day, btn) {
+    document.querySelectorAll(".cal-day.selected").forEach(el => el.classList.remove("selected"));
+    btn.classList.add("selected");
+    const pad = n => String(n).padStart(2, "0");
+    const dateStr = `${year}-${pad(month)}-${pad(day)}`;
+    document.getElementById("slotsDateLabel").textContent = monthNames[month - 1] + " " + day + ", " + year;
+    document.getElementById("slotsPanel").style.display = "block";
+
+    fetch(`{{ url_for('public.appointments_api_slots') }}?service_id=${serviceId}&date=${dateStr}`)
+      .then(r => r.json())
+      .then(data => {
+        const slotsGrid = document.getElementById("slotsGrid");
+        const empty = document.getElementById("slotsEmpty");
+        slotsGrid.innerHTML = "";
+        if (!data.slots || data.slots.length === 0) {
+          empty.style.display = "block";
+          return;
+        }
+        empty.style.display = "none";
+        data.slots.forEach(slot => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "slot-btn";
+        b.textContent = slot.label + (slot.available ? "" : " · Booked");
+        b.disabled = !slot.available;
+        if (slot.available) {
+            b.addEventListener("click", () => {
+            window.location.href =
+                `{{ url_for('public.appointments_form') }}?service_id=${serviceId}&date=${dateStr}&time=${encodeURIComponent(slot.value)}`;
+            });
+        }
+        slotsGrid.appendChild(b);
+        });
+      });
+  }
+
+  document.getElementById("prevMonth").addEventListener("click", () => {
+    month--; if (month < 1) { month = 12; year--; }
+    window.location.href = `{{ url_for('public.appointments_calendar', service_id=service.id) }}?year=${year}&month=${month}`;
+  });
+  document.getElementById("nextMonth").addEventListener("click", () => {
+    month++; if (month > 12) { month = 1; year++; }
+    window.location.href = `{{ url_for('public.appointments_calendar', service_id=service.id) }}?year=${year}&month=${month}`;
+  });
+
+  buildGrid();
+})();
+</script>
+{% endblock %}

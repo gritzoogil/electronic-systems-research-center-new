@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Review Appointment — {{ service.name }}{% endblock %}
+
+{% block content %}
+<div class="appointments-page">
+  <section style="padding:120px 0 60px;
+                  background:linear-gradient(135deg,var(--gray-900),var(--navy-dark),var(--navy));">
+    <div class="wrap" style="text-align:center;">
+      <span class="eyebrow" style="justify-content:center;">Step 4 of 4</span>
+      <h1 class="sec-h2 light" style="margin-bottom:.5rem;">Review Your Appointment</h1>
+      <p class="sec-lead light" style="margin:0 auto;">
+        Please confirm everything looks correct before submitting.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap" style="max-width:640px;">
+
+      <div class="review-card reveal">
+        <div class="review-row">
+          <span class="review-label">Service</span>
+          <span class="review-value">{{ service.name }}</span>
+        </div>
+        <div class="review-row">
+          <span class="review-label">Date</span>
+          <span class="review-value">{{ appt_date.strftime('%B %d, %Y') }}</span>
+        </div>
+        <div class="review-row">
+          <span class="review-label">Time</span>
+          <span class="review-value">{{ time_display }}</span>
+        </div>
+        <div class="review-divider"></div>
+        <div class="review-row">
+          <span class="review-label">Full Name</span>
+          <span class="review-value">{{ form_data.full_name }}</span>
+        </div>
+        <div class="review-row">
+          <span class="review-label">Email</span>
+          <span class="review-value">{{ form_data.email }}</span>
+        </div>
+        <div class="review-row">
+          <span class="review-label">Contact Number</span>
+          <span class="review-value">{{ form_data.contact_number }}</span>
+        </div>
+        {% if form_data.department %}
+        <div class="review-row">
+          <span class="review-label">Department / Organization</span>
+          <span class="review-value">{{ form_data.department }}</span>
+        </div>
+        {% endif %}
+        <div class="review-divider"></div>
+        <div class="review-row review-row-stacked">
+          <span class="review-label">Purpose</span>
+          <span class="review-value">{{ form_data.purpose }}</span>
+        </div>
+        {% if form_data.notes %}
+        <div class="review-row review-row-stacked">
+          <span class="review-label">Additional Notes</span>
+          <span class="review-value">{{ form_data.notes }}</span>
+        </div>
+        {% endif %}
+      </div>
+
+      <p class="review-disclaimer reveal">
+        Your appointment will be marked <strong>Pending</strong> until an ESRC
+        administrator approves it. You'll be notified at the email above.
+      </p>
+
+      <form method="POST" action="{{ url_for('public.appointments_submit') }}" class="reveal">
+        {% for key, value in form_data.items() %}
+        <input type="hidden" name="{{ key }}" value="{{ value }}">
+        {% endfor %}
+        <div style="display:flex; gap:12px;">
+          <a href="javascript:history.back()" class="appt-btn appt-btn-secondary">Back</a>
+          <button type="submit" class="appt-btn appt-btn-primary">Submit Appointment</button>
+        </div>
+      </form>
+
+    </div>
+  </section>
+</div>
+
+<style>
+.review-card {
+  background:var(--white); border:1px solid var(--gray-200); border-radius:16px;
+  padding:28px; margin-bottom:20px;
+}
+.review-row {
+  display:flex; justify-content:space-between; gap:16px; padding:10px 0; font-size:.875rem;
+}
+.review-row-stacked { flex-direction:column; gap:4px; }
+.review-label { color:var(--gray-400); font-weight:600; flex-shrink:0; }
+.review-value { color:var(--navy); font-weight:600; text-align:right; }
+.review-row-stacked .review-value { text-align:left; font-weight:400; color:var(--gray-900); }
+.review-divider { height:1px; background:var(--gray-200); margin:8px 0; }
+.review-disclaimer {
+  font-size:.8rem; color:var(--gray-400); text-align:center; margin-bottom:28px; line-height:1.5;
+}
+</style>
+{% endblock %}

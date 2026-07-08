@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Appointment Details — {{ service.name }}{% endblock %}
+
+{% block content %}
+<div class="appointments-page">
+  <section style="padding:120px 0 60px;
+                  background:linear-gradient(135deg,var(--gray-900),var(--navy-dark),var(--navy));">
+    <div class="wrap" style="text-align:center;">
+      <span class="eyebrow" style="justify-content:center;">Step 3 of 4</span>
+      <h1 class="sec-h2 light" style="margin-bottom:.5rem;">Your Details</h1>
+      <p class="sec-lead light" style="margin:0 auto;">
+        Almost there — tell us a bit about your appointment.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap" style="max-width:640px;">
+
+        <div class="booking-summary reveal">
+        <p><strong>Service:</strong> {{ service.name }}</p>
+        <p><strong>Date:</strong> <span id="summaryDate">{{ date_str }}</span></p>
+        <p><strong>Time:</strong> {{ time_display }}</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('public.appointments_review') }}" class="appt-form reveal" id="apptForm">
+        <input type="hidden" name="service_id" value="{{ service.id }}">
+        <input type="hidden" name="appointment_date" value="{{ date_str }}">
+        <input type="hidden" name="appointment_time" value="{{ time_str }}">
+
+        <div class="form-row-pair">
+          <div class="field-group">
+            <label for="full_name">Full Name *</label>
+            <input type="text" id="full_name" name="full_name" required>
+          </div>
+          <div class="field-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+        </div>
+
+        <div class="form-row-pair">
+          <div class="field-group">
+            <label for="contact_number">Contact Number *</label>
+            <input type="tel" id="contact_number" name="contact_number" required>
+          </div>
+          <div class="field-group">
+            <label for="department">Department / Organization</label>
+            <input type="text" id="department" name="department">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="purpose">Purpose of Appointment *</label>
+          <textarea id="purpose" name="purpose" required rows="3"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label for="notes">Additional Notes</label>
+          <textarea id="notes" name="notes" rows="2"></textarea>
+        </div>
+
+        <div style="display:flex; gap:12px; margin-top:24px;">
+          <a href="javascript:history.back()" class="appt-btn appt-btn-secondary">Back</a>
+          <button type="submit" class="appt-btn appt-btn-primary">Review Appointment →</button>
+        </div>
+      </form>
+
+    </div>
+  </section>
+</div>
+
+<style>
+.booking-summary {
+  background:#f0fdff; border:1px solid #cffafe; border-radius:12px;
+  padding:18px 20px; margin-bottom:32px; font-size:.875rem;
+}
+.booking-summary p { margin-bottom:4px; color:var(--navy); }
+.booking-summary p:last-child { margin-bottom:0; }
+
+.appt-form { background:var(--white); border:1px solid var(--gray-200); border-radius:16px; padding:28px; }
+.form-row-pair { display:grid; grid-template-columns:1fr; gap:16px; }
+@media (min-width:560px) { .form-row-pair { grid-template-columns:1fr 1fr; } }
+.field-group { margin-bottom:18px; }
+.field-group label { display:block; font-size:.8rem; font-weight:700; color:var(--navy); margin-bottom:6px; }
+.field-group input, .field-group textarea {
+  width:100%; padding:10px 12px; border:1px solid var(--gray-200); border-radius:8px;
+  font-size:.875rem; font-family:inherit;
+}
+.field-group input:focus, .field-group textarea:focus { outline:2px solid var(--cyan); outline-offset:1px; }
+.field-group textarea { resize:vertical; }
+
+.appt-btn {
+  padding:12px 24px; border-radius:8px; font-size:.875rem; font-weight:700;
+  cursor:pointer; border:none; text-decoration:none; text-align:center; flex:1;
+}
+.appt-btn-primary { background:var(--navy); color:#fff; }
+.appt-btn-primary:hover { background:var(--navy-dark); }
+.appt-btn-secondary { background:var(--gray-100, #f1f5f9); color:var(--gray-900); }
+</style>
+{% endblock %}
