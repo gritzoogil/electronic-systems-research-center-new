@@ -644,6 +644,11 @@ def staff_delete(staff_id):
 
 # ── OJT INTERNS ────────────────────────────────────────────────────────────
 
+def _get_ojt_batches():
+    """Distinct, non-empty batch labels currently in use, for the dropdown."""
+    rows = db.session.query(OJT.batch_label).filter(OJT.batch_label.isnot(None)).distinct().all()
+    return sorted(set(r[0] for r in rows if r[0]))
+
 @admin_bp.route("/ojt")
 @admin_required
 def ojt_list():
@@ -659,9 +664,16 @@ def ojt_new():
             photo_url = upload_image_to_blob(request.files.get("photo_file"), folder="ojt")
         except UploadError as e:
             flash(str(e), "error")
-            return render_template("admin/ojt_form.html", intern=None)
+            return render_template("admin/ojt_form.html", intern=None, existing_batches=_get_ojt_batches())
 
-        batch_label = request.form.get("batch_label", "").strip() or None
+        batch_label = request.form.get("batch_label", "").strip()
+        if batch_label == "__new__":
+            batch_label = request.form.get("new_batch_label", "").strip()
+
+        if not batch_label:
+            flash("Batch is required. Choose an existing batch or add a new one.", "error")
+            return render_template("admin/ojt_form.html", intern=None, existing_batches=_get_ojt_batches())
+
         requested_order = int(request.form.get("order", 0))
         safe_order = reorder_on_create(OJT, requested_order, filters={"batch_label": batch_label})
 
@@ -678,7 +690,7 @@ def ojt_new():
         db.session.commit()
         flash("Intern added.", "success")
         return redirect(url_for("admin.ojt_list"))
-    return render_template("admin/ojt_form.html", intern=None)
+    return render_template("admin/ojt_form.html", intern=None, existing_batches=_get_ojt_batches())
 
 
 @admin_bp.route("/ojt/<int:ojt_id>/edit", methods=["GET", "POST"])
@@ -692,15 +704,20 @@ def ojt_edit(ojt_id):
                 intern.photo_url = new_photo
         except UploadError as e:
             flash(str(e), "error")
-            return render_template("admin/ojt_form.html", intern=intern)
+            return render_template("admin/ojt_form.html", intern=intern, existing_batches=_get_ojt_batches())
 
-        new_batch_label = request.form.get("batch_label", "").strip() or None
+        new_batch_label = request.form.get("batch_label", "").strip()
+        if new_batch_label == "__new__":
+            new_batch_label = request.form.get("new_batch_label", "").strip()
+
+        if not new_batch_label:
+            flash("Batch is required. Choose an existing batch or add a new one.", "error")
+            return render_template("admin/ojt_form.html", intern=intern, existing_batches=_get_ojt_batches())
+
         old_order = intern.order
         requested_order = int(request.form.get("order", 0))
 
         if new_batch_label != intern.batch_label:
-            # Moved to a different batch entirely — close the gap in the OLD batch,
-            # then find a safe slot in the NEW batch (don't try to "move" within one list).
             reorder_on_delete(OJT, old_order, filters={"batch_label": intern.batch_label})
             safe_order = reorder_on_create(OJT, requested_order, filters={"batch_label": new_batch_label})
         else:
@@ -716,7 +733,7 @@ def ojt_edit(ojt_id):
         db.session.commit()
         flash("Intern updated.", "success")
         return redirect(url_for("admin.ojt_list"))
-    return render_template("admin/ojt_form.html", intern=intern)
+    return render_template("admin/ojt_form.html", intern=intern, existing_batches=_get_ojt_batches())
 
 
 @admin_bp.route("/ojt/<int:ojt_id>/delete", methods=["POST"])
@@ -771,6 +788,8 @@ def partners_list():
     return render_template("admin/partners.html", partners=partners)
 
 
+from app.ordering import reorder_on_create, reorder_on_update, reorder_on_delete
+
 @admin_bp.route("/partners/new", methods=["GET", "POST"])
 @admin_required
 def partner_new():
@@ -781,10 +800,13 @@ def partner_new():
             flash(str(e), "error")
             return render_template("admin/partner_form.html", partner=None)
 
+        requested_order = int(request.form.get("order", 0))
+        safe_order = reorder_on_create(Partner, requested_order)
+
         partner = Partner(
             name=request.form.get("name", "").strip(),
             logo_url=logo_url,
-            order=int(request.form.get("order", 0)),
+            order=safe_order,
             is_published=bool(request.form.get("is_published")),
         )
         db.session.add(partner)
@@ -807,8 +829,12 @@ def partner_edit(partner_id):
             flash(str(e), "error")
             return render_template("admin/partner_form.html", partner=partner)
 
+        old_order = partner.order
+        requested_order = int(request.form.get("order", 0))
+        safe_order = reorder_on_update(Partner, partner.id, old_order, requested_order)
+
         partner.name = request.form.get("name", "").strip()
-        partner.order = int(request.form.get("order", 0))
+        partner.order = safe_order
         partner.is_published = bool(request.form.get("is_published"))
         db.session.commit()
         flash("Partner updated.", "success")
@@ -820,15 +846,13 @@ def partner_edit(partner_id):
 @admin_required
 def partner_delete(partner_id):
     partner = Partner.query.get_or_404(partner_id)
+    deleted_order = partner.order
     db.session.delete(partner)
+    db.session.commit()
+    reorder_on_delete(Partner, deleted_order)
     db.session.commit()
     flash("Partner deleted.", "success")
     return redirect(url_for("admin.partners_list"))
-
-@admin_bp.route("/debug-env")
-def debug_env():
-    import os
-    return os.environ.get("FIREBASE_API_KEY", "NOT FOUND")
 
 @admin_bp.route("/settings", methods=["GET", "POST"])
 @admin_required

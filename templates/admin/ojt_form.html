@@ -24,8 +24,19 @@
 
     <div class="form-row">
       <div class="form-group">
-        <label for="batch_label">Batch Label</label>
-        <input type="text" id="batch_label" name="batch_label" value="{{ intern.batch_label if intern else '' }}" placeholder="e.g. 2025-2026 Midterm Interns">
+        <label for="batch_select">Batch *</label>
+        <select id="batch_select" name="batch_label" required onchange="toggleNewBatchInput(this)">
+          <option value="" disabled {{ 'selected' if not intern }}>Select an existing batch…</option>
+          {% for batch in existing_batches %}
+          <option value="{{ batch }}" {{ 'selected' if intern and intern.batch_label == batch }}>{{ batch }}</option>
+          {% endfor %}
+          <option value="__new__" {{ 'selected' if intern and intern.batch_label and intern.batch_label not in existing_batches }}>+ Create a new batch…</option>
+        </select>
+
+        <input type="text" id="new_batch_label" name="new_batch_label"
+               placeholder="Name for the new batch, e.g. 2025-2026 Midterm Interns"
+               style="margin-top:8px; {{ 'display:none;' if not (intern and intern.batch_label and intern.batch_label not in existing_batches) }}"
+               value="{{ intern.batch_label if intern and intern.batch_label and intern.batch_label not in existing_batches else '' }}">
       </div>
       <div class="form-group">
         <label for="order">Display Order</label>
@@ -56,4 +67,18 @@
 
   </form>
 </div>
+
+<script>
+function toggleNewBatchInput(select) {
+  var newInput = document.getElementById('new_batch_label');
+  if (select.value === '__new__') {
+    newInput.style.display = 'block';
+    newInput.required = true;
+    newInput.focus();
+  } else {
+    newInput.style.display = 'none';
+    newInput.required = false;
+  }
+}
+</script>
 {% endblock %}

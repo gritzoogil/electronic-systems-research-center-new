@@ -339,15 +339,6 @@
       <p class="sec-lead">Research papers, journal articles, and conference proceedings from our faculty and student researchers.</p>
     </div>
 
-    <div class="pub-controls">
-      <div class="pub-search">
-        <div class="pub-search-ico" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        </div>
-        <input type="search" id="pubSearch" placeholder="Search by title, author, or keyword…" aria-label="Search publications"/>
-      </div>
-    </div>
-
     <div class="pub-list" id="pubList">
       {% for pub in publications[:3] %}
       {% if pub.link %}
@@ -441,7 +432,13 @@
       <div class="partners-mask">
     <div class="partners-track" aria-label="Partner logos carousel">
       {% for partner in partners %}
-      <div class="partner-tile">{{ partner.name }}</div>
+      <div class="partner-tile">
+        {% if partner.logo_url %}
+          <img src="{{ partner.logo_url }}" alt="{{ partner.name }}" style="max-height:32px;max-width:100%;object-fit:contain;">
+        {% else %}
+          {{ partner.name }}
+        {% endif %}
+      </div>
       {% endfor %}
       {% for partner in partners %}
       <div class="partner-tile" aria-hidden="true">{{ partner.name }}</div>

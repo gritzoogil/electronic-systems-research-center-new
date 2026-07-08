@@ -18,17 +18,16 @@
 
 <section class="section">
   <div class="wrap">
-    {% if projects %}
-    <div class="proj-grid" data-stagger>
-      {% for project in projects %}
-      <article class="proj-card reveal">
+      <div class="pub-filters" role="group" aria-label="Sort projects" style="margin-bottom:24px;">
+        <a href="{{ url_for('public.projects', sort='order') }}" class="f-btn {{ 'active' if active_sort == 'order' }}">Default</a>
+        <a href="{{ url_for('public.projects', sort='date') }}" class="f-btn {{ 'active' if active_sort == 'date' }}">Newest First</a>
+        <a href="{{ url_for('public.projects', sort='name') }}" class="f-btn {{ 'active' if active_sort == 'name' }}">Name (A–Z)</a>
+      </div>
 
-        <!-- Project image from Vercel Blob URL, fallback to placeholder -->
-        <div class="pub-filters" role="group" aria-label="Sort projects" style="margin-bottom:24px;">
-          <a href="{{ url_for('public.projects', sort='order') }}" class="f-btn {{ 'active' if active_sort == 'order' }}">Default</a>
-          <a href="{{ url_for('public.projects', sort='date') }}" class="f-btn {{ 'active' if active_sort == 'date' }}">Newest First</a>
-          <a href="{{ url_for('public.projects', sort='name') }}" class="f-btn {{ 'active' if active_sort == 'name' }}">Name (A–Z)</a>
-        </div>
+      {% if projects %}
+      <div class="proj-grid" data-stagger>
+        {% for project in projects %}
+        <article class="proj-card reveal">
 
         <div class="proj-img"
              {% if project.img_path %}
