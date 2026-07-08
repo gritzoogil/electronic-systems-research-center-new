@@ -3,12 +3,19 @@
 {% block page_title %}Publications{% endblock %}
 
 {% block content %}
-<div class="page-actions">
+<div class="page-actions" style="flex-wrap:wrap;gap:10px;">
   <p style="color:#666;font-size:13px;">{{ publications|length }} publication(s) total</p>
-  <a href="{{ url_for('admin.publication_new') }}" class="btn btn-primary">+ New Publication</a>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+    <input type="text" data-search="pubsTable" placeholder="Search publications..."
+           style="padding:6px 10px;border:1px solid #ccc;border-radius:4px;font-size:13px;width:220px;">
+    <button data-sort-table="pubsTable" data-sort-col="0" data-sort-label="Title" class="btn btn-secondary btn-sm">Title ↕</button>
+    <button data-sort-table="pubsTable" data-sort-col="1" data-sort-label="Type" class="btn btn-secondary btn-sm">Type ↕</button>
+    <button data-sort-table="pubsTable" data-sort-col="2" data-sort-label="Date" class="btn btn-secondary btn-sm">Date ↕</button>
+    <a href="{{ url_for('admin.publication_new') }}" class="btn btn-primary">+ New Publication</a>
+  </div>
 </div>
 
-<table>
+<table id="pubsTable">
   <thead>
     <tr>
       <th>Title</th>
@@ -40,4 +47,74 @@
     {% endfor %}
   </tbody>
 </table>
+{% endblock %}
+{% block scripts %}
+<script>
+function initTableControls(tableId) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  const tbody = table.querySelector('tbody');
+  const getRows = () => Array.from(tbody.querySelectorAll('tr'));
+
+  const searchInput = document.querySelector(`[data-search="${tableId}"]`);
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      const q = this.value.toLowerCase();
+      getRows().forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+  }
+
+  document.querySelectorAll(`[data-sort-table="${tableId}"]`).forEach(btn => {
+    btn.addEventListener('click', function() {
+      const col = parseInt(this.dataset.sortCol);
+      const current = this.dataset.sortDir || 'desc';
+      const next = current === 'asc' ? 'desc' : 'asc';
+      this.dataset.sortDir = next;
+
+      // Reset all other sort buttons
+      document.querySelectorAll(`[data-sort-table="${tableId}"]`).forEach(b => {
+        if (b !== this) { b.dataset.sortDir = ''; b.textContent = b.dataset.sortLabel + ' ↕'; }
+      });
+      this.textContent = this.dataset.sortLabel + (next === 'asc' ? ' ↑' : ' ↓');
+
+      function parseFlexDate(str) {
+        if (!str || str === '—') return null;
+        // Handle date ranges like "August 23-25, 2021" → use first date "August 23, 2021"
+        const rangeFixed = str.replace(/(\d+)-\d+(,)/, '$1$2');
+        const d = new Date(rangeFixed);
+        return isNaN(d) ? null : d;
+      }
+
+      const sorted = getRows().sort((a, b) => {
+        const aVal = (a.cells[col]?.textContent || '').trim();
+        const bVal = (b.cells[col]?.textContent || '').trim();
+
+        // Try date parsing first
+        const aDate = parseFlexDate(aVal);
+        const bDate = parseFlexDate(bVal);
+        if (aDate && bDate) {
+          return next === 'asc' ? aDate - bDate : bDate - aDate;
+        }
+
+        // Try numeric
+        const aNum = parseFloat(aVal);
+        const bNum = parseFloat(bVal);
+        if (!isNaN(aNum) && !isNaN(bNum)) {
+          return next === 'asc' ? aNum - bNum : bNum - aNum;
+        }
+
+        // Alphabetical fallback
+        const aLow = aVal.toLowerCase();
+        const bLow = bVal.toLowerCase();
+        return next === 'asc' ? aLow.localeCompare(bLow) : bLow.localeCompare(aLow);
+      });
+      sorted.forEach(row => tbody.appendChild(row));
+    });
+  });
+}
+
+initTableControls('pubsTable'); // change this per template
+</script>
 {% endblock %}

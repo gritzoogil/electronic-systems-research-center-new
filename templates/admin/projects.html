@@ -3,12 +3,19 @@
 {% block page_title %}Projects{% endblock %}
 
 {% block content %}
-<div class="page-actions">
+<div class="page-actions" style="flex-wrap:wrap;gap:10px;">
   <p style="color:#666;font-size:13px;">{{ projects|length }} project(s) total</p>
-  <a href="{{ url_for('admin.project_new') }}" class="btn btn-primary">+ New Project</a>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+    <input type="text" data-search="projectsTable" placeholder="Search projects..."
+           style="padding:6px 10px;border:1px solid #ccc;border-radius:4px;font-size:13px;width:200px;">
+    <button data-sort-table="projectsTable" data-sort-col="1" data-sort-label="Title" class="btn btn-secondary btn-sm">Title ↑</button>
+    <button data-sort-table="projectsTable" data-sort-col="2" data-sort-label="Year" class="btn btn-secondary btn-sm">Year ↑</button>
+    <button data-sort-table="projectsTable" data-sort-col="5" data-sort-label="Order" class="btn btn-secondary btn-sm">Order ↑</button>
+    <a href="{{ url_for('admin.project_new') }}" class="btn btn-primary">+ New Project</a>
+  </div>
 </div>
 
-<table>
+<table id="projectsTable">
   <thead>
     <tr>
       <th>Image</th>
@@ -46,4 +53,56 @@
     {% endfor %}
   </tbody>
 </table>
+{% endblock %}
+{% block scripts %}
+<script>
+function parseFlexDate(str) {
+  if (!str || str === '—') return null;
+  const rangeFixed = str.replace(/(\d+)-\d+(,)/, '$1$2');
+  const d = new Date(rangeFixed);
+  return isNaN(d) ? null : d;
+}
+function initTableControls(tableId) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  const tbody = table.querySelector('tbody');
+  const getRows = () => Array.from(tbody.querySelectorAll('tr'));
+  const searchInput = document.querySelector(`[data-search="${tableId}"]`);
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      const q = this.value.toLowerCase();
+      getRows().forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+  }
+  document.querySelectorAll(`[data-sort-table="${tableId}"]`).forEach(btn => {
+    btn.addEventListener('click', function() {
+      const col = parseInt(this.dataset.sortCol);
+      const current = this.dataset.sortDir || 'desc';
+      const next = current === 'asc' ? 'desc' : 'asc';
+      this.dataset.sortDir = next;
+      document.querySelectorAll(`[data-sort-table="${tableId}"]`).forEach(b => {
+        if (b !== this) { b.dataset.sortDir = ''; b.textContent = b.dataset.sortLabel + ' ↕'; }
+      });
+      this.textContent = this.dataset.sortLabel + (next === 'asc' ? ' ↑' : ' ↓');
+      const sorted = getRows().sort((a, b) => {
+        const aVal = (a.cells[col]?.textContent || '').trim();
+        const bVal = (b.cells[col]?.textContent || '').trim();
+        const aDate = parseFlexDate(aVal);
+        const bDate = parseFlexDate(bVal);
+        if (aDate && bDate) return next === 'asc' ? aDate - bDate : bDate - aDate;
+        const aNum = parseFloat(aVal);
+        const bNum = parseFloat(bVal);
+        if (!isNaN(aNum) && !isNaN(bNum)) return next === 'asc' ? aNum - bNum : bNum - aNum;
+        const aLow = aVal.toLowerCase();
+        const bLow = bVal.toLowerCase();
+        return next === 'asc' ? aLow.localeCompare(bLow) : bLow.localeCompare(aLow);
+      });
+      sorted.forEach(row => tbody.appendChild(row));
+    });
+  });
+}
+initTableControls('projectsTable');
+</script>
 {% endblock %}
