@@ -509,7 +509,7 @@ def appointments_submit():
 
     try:
         resend.Emails.send({
-            "from": "onboarding@resend.dev",
+            "from": "ESRC Appointment Form <onboarding@resend.dev>",
             "to": ["esrc.batstateutneu@gmail.com"],
             "subject": f"New Appointment Request: {service.name}",
             "html": f"""
