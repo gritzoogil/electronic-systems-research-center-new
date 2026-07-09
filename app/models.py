@@ -152,6 +152,7 @@ class SiteSettings(db.Model):
     __tablename__ = "site_settings"
 
     id = db.Column(db.Integer, primary_key=True)
+    hero_image_url = db.Column(db.String(255), default="https://5xb2ufjgpdzgmhwg.public.blob.vercel-storage.com/images/esrc4-Um1zHQhHBYOg3udUymNY5Okg2toNze.webp")
     avp_video_url = db.Column(db.String(255), default="https://www.youtube.com/embed/Wa1IqM9Hn3c")
     contact_email = db.Column(db.String(150), default="esrc@g.batstate-u.edu.ph")
     contact_phone = db.Column(db.String(50), default="(043) 980-0385 local 2405")
@@ -161,6 +162,17 @@ class SiteSettings(db.Model):
     facebook_url = db.Column(db.String(255), default="https://www.facebook.com/ESRC.BatStateU")
     youtube_url = db.Column(db.String(255))
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # ── NEW: editable homepage content ──
+    hero_eyebrow = db.Column(db.String(150), default="Batangas State University · The NEU")
+    hero_heading = db.Column(db.Text, default="Advancing Innovation Through Electronic Systems Research")
+    hero_paragraph = db.Column(db.Text, default="We pioneer breakthroughs in electronic systems engineering, developing next-generation technologies that bridge academia and industry, empowering students, researchers, and communities at BatStateU.")
+
+    about_paragraph = db.Column(db.Text, default="The Electronic Systems Research Center (ESRC) is at the forefront of innovation in electronics engineering. We provide state-of-the-art facilities, foster collaborative research, and develop cutting-edge solutions that bridge the gap between academia and industry.")
+
+    vision = db.Column(db.Text)
+    mission = db.Column(db.Text)
+    quality_policy = db.Column(db.Text)
 
 
 class Partner(db.Model):
@@ -263,3 +275,49 @@ class ScheduleConfig(db.Model):
     slot_duration_minutes = db.Column(db.Integer, default=60)
     max_appointments_per_day = db.Column(db.Integer, default=8)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class ResearchArea(db.Model):
+    """Research Areas grid on index.html"""
+    __tablename__ = "research_area"
+
+    id = db.Column(db.Integer, primary_key=True)
+    icon_key = db.Column(db.String(50), default="embedded")  # maps to a fixed SVG in the template
+    title = db.Column(db.String(150), nullable=False)
+    description = db.Column(db.Text)
+    order = db.Column(db.Integer, default=0)
+    is_published = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class ServiceOffered(db.Model):
+    """Bullet list under 'Services Offered' in About Us"""
+    __tablename__ = "service_offered"
+
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.String(255), nullable=False)
+    order = db.Column(db.Integer, default=0)
+    is_published = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class EquipmentItem(db.Model):
+    """Bullet list under 'Equipment Available' in About Us"""
+    __tablename__ = "equipment_item"
+
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.String(255), nullable=False)
+    order = db.Column(db.Integer, default=0)
+    is_published = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class CoreValue(db.Model):
+    """Vision/Mission/Core Values section"""
+    __tablename__ = "core_value"
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(150), nullable=False)
+    description = db.Column(db.Text)
+    order = db.Column(db.Integer, default=0)
+    is_published = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)

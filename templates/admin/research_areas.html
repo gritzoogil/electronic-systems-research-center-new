@@ -1,0 +1,41 @@
+{% extends 'admin/base.html' %}
+{% block title %}Research Areas{% endblock %}
+{% block page_title %}Research Areas{% endblock %}
+
+{% block content %}
+<div class="page-actions">
+  <span style="font-size:12px;color:#888;">{{ areas|length }} area(s)</span>
+  <a href="{{ url_for('admin.research_area_new') }}" class="btn btn-primary">+ New Research Area</a>
+</div>
+
+<table>
+  <thead>
+    <tr><th>Order</th><th>Icon</th><th>Title</th><th>Status</th><th>Actions</th></tr>
+  </thead>
+  <tbody>
+    {% for area in areas %}
+    <tr>
+      <td>{{ area.order }}</td>
+      <td>{{ area.icon_key }}</td>
+      <td>{{ area.title }}</td>
+      <td>
+        <span class="badge {{ 'badge-yes' if area.is_published else 'badge-no' }}">
+          {{ 'Published' if area.is_published else 'Hidden' }}
+        </span>
+      </td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <a href="{{ url_for('admin.research_area_edit', area_id=area.id) }}" class="btn btn-secondary btn-sm">Edit</a>
+          <form method="POST" action="{{ url_for('admin.research_area_delete', area_id=area.id) }}"
+                onsubmit="return confirm('Delete this research area?');">
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+          </form>
+        </div>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" style="text-align:center;color:#999;padding:30px 0;">No research areas yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

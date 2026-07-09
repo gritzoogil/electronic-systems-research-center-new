@@ -1,0 +1,40 @@
+{% extends 'admin/base.html' %}
+{% block title %}Core Values{% endblock %}
+{% block page_title %}Core Values{% endblock %}
+
+{% block content %}
+<div class="page-actions">
+  <span style="font-size:12px;color:#888;">{{ values|length }} value(s)</span>
+  <a href="{{ url_for('admin.core_value_new') }}" class="btn btn-primary">+ New Core Value</a>
+</div>
+
+<table>
+  <thead>
+    <tr><th>Order</th><th>Title</th><th>Status</th><th>Actions</th></tr>
+  </thead>
+  <tbody>
+    {% for value in values %}
+    <tr>
+      <td>{{ value.order }}</td>
+      <td>{{ value.title }}</td>
+      <td>
+        <span class="badge {{ 'badge-yes' if value.is_published else 'badge-no' }}">
+          {{ 'Published' if value.is_published else 'Hidden' }}
+        </span>
+      </td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <a href="{{ url_for('admin.core_value_edit', value_id=value.id) }}" class="btn btn-secondary btn-sm">Edit</a>
+          <form method="POST" action="{{ url_for('admin.core_value_delete', value_id=value.id) }}"
+                onsubmit="return confirm('Delete this core value?');">
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+          </form>
+        </div>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4" style="text-align:center;color:#999;padding:30px 0;">No core values yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

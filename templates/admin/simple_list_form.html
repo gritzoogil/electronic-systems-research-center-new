@@ -1,0 +1,28 @@
+{% extends 'admin/base.html' %}
+{% block title %}{{ 'Edit' if item else 'New' }} {{ title }}{% endblock %}
+{% block page_title %}{{ 'Edit' if item else 'New' }} {{ title }}{% endblock %}
+
+{% block content %}
+<div class="form-wrap">
+  <form method="POST" action="{{ url_for(save_url, item_id=item.id) if item else url_for(save_url) }}">
+    <div class="form-group">
+      <label for="text">Text *</label>
+      <input type="text" id="text" name="text" value="{{ item.text if item else '' }}" required>
+    </div>
+    <div class="form-group">
+      <label for="order">Display Order</label>
+      <input type="number" id="order" name="order" value="{{ item.order if item else 0 }}">
+    </div>
+    <div class="form-group">
+      <div class="checkbox-group">
+        <input type="checkbox" id="is_published" name="is_published" value="1" {{ 'checked' if not item or item.is_published }}>
+        <label for="is_published">Published (visible on site)</label>
+      </div>
+    </div>
+    <div style="margin-top:24px;display:flex;gap:10px;">
+      <button type="submit" class="btn btn-primary">{{ 'Save Changes' if item else 'Add Item' }}</button>
+      <a href="{{ url_for(list_url) }}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

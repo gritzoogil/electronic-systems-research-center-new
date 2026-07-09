@@ -3,7 +3,8 @@ from app.auth import require_firebase_user
 from app.models import (
     Project, Publication, Staff, OJT, OJTAttendance,
     CenterHighlight, CenterHighlightImage, AccomplishmentReport,
-    LearningResource, ResourcePage, Partner, SiteSettings
+    LearningResource, ResourcePage, Partner, SiteSettings,
+    ResearchArea, ServiceOffered, EquipmentItem, CoreValue
 )
 from app.uploads import upload_image_to_blob, UploadError
 from app.attendance import get_sheets_service, get_available_dates, get_attendance_for_date
@@ -1036,6 +1037,14 @@ def settings():
         db.session.commit()
 
     if request.method == "POST":
+        try:
+            new_hero_image = upload_image_to_blob(request.files.get("hero_image_file"), folder="site")
+            if new_hero_image:
+                s.hero_image_url = new_hero_image
+        except UploadError as e:
+            flash(str(e), "error")
+            return render_template("admin/settings.html", s=s)
+
         s.avp_video_url = request.form.get("avp_video_url", "").strip()
         s.contact_email = request.form.get("contact_email", "").strip()
         s.contact_phone = request.form.get("contact_phone", "").strip()
@@ -1044,6 +1053,15 @@ def settings():
         s.maps_embed_url = request.form.get("maps_embed_url", "").strip()
         s.facebook_url = request.form.get("facebook_url", "").strip()
         s.youtube_url = request.form.get("youtube_url", "").strip()
+
+        s.hero_eyebrow = request.form.get("hero_eyebrow", "").strip()
+        s.hero_heading = request.form.get("hero_heading", "").strip()
+        s.hero_paragraph = request.form.get("hero_paragraph", "").strip()
+        s.about_paragraph = request.form.get("about_paragraph", "").strip()
+        s.vision = request.form.get("vision", "").strip() or None
+        s.mission = request.form.get("mission", "").strip() or None
+        s.quality_policy = request.form.get("quality_policy", "").strip() or None
+
         db.session.commit()
         flash("Settings saved successfully.", "success")
         return redirect(url_for("admin.settings"))
@@ -1265,3 +1283,258 @@ def appointment_update_status(appt_id):
         flash(f"Appointment marked as {new_status}.", "success")
 
     return redirect(url_for("admin.appointment_detail", appt_id=appt.id))
+
+# ── RESEARCH AREAS ─────────────────────────────────────────────────────────
+
+@admin_bp.route("/research-areas")
+@admin_required
+def research_areas_list():
+    areas = ResearchArea.query.order_by(ResearchArea.order).all()
+    return render_template("admin/research_areas.html", areas=areas)
+
+
+@admin_bp.route("/research-areas/new", methods=["GET", "POST"])
+@admin_required
+def research_area_new():
+    if request.method == "POST":
+        requested_order = int(request.form.get("order", 0))
+        safe_order = reorder_on_create(ResearchArea, requested_order)
+        area = ResearchArea(
+            icon_key=request.form.get("icon_key", "embedded").strip(),
+            title=request.form.get("title", "").strip(),
+            description=request.form.get("description", "").strip(),
+            order=safe_order,
+            is_published=bool(request.form.get("is_published")),
+        )
+        db.session.add(area)
+        db.session.commit()
+        flash("Research area created.", "success")
+        return redirect(url_for("admin.research_areas_list"))
+    return render_template("admin/research_area_form.html", area=None)
+
+
+@admin_bp.route("/research-areas/<int:area_id>/edit", methods=["GET", "POST"])
+@admin_required
+def research_area_edit(area_id):
+    area = ResearchArea.query.get_or_404(area_id)
+    if request.method == "POST":
+        old_order = area.order
+        requested_order = int(request.form.get("order", 0))
+        safe_order = reorder_on_update(ResearchArea, area.id, old_order, requested_order)
+
+        area.icon_key = request.form.get("icon_key", "embedded").strip()
+        area.title = request.form.get("title", "").strip()
+        area.description = request.form.get("description", "").strip()
+        area.order = safe_order
+        area.is_published = bool(request.form.get("is_published"))
+        db.session.commit()
+        flash("Research area updated.", "success")
+        return redirect(url_for("admin.research_areas_list"))
+    return render_template("admin/research_area_form.html", area=area)
+
+
+@admin_bp.route("/research-areas/<int:area_id>/delete", methods=["POST"])
+@admin_required
+def research_area_delete(area_id):
+    area = ResearchArea.query.get_or_404(area_id)
+    deleted_order = area.order
+    db.session.delete(area)
+    db.session.commit()
+    reorder_on_delete(ResearchArea, deleted_order)
+    db.session.commit()
+    flash("Research area deleted.", "success")
+    return redirect(url_for("admin.research_areas_list"))
+
+
+# ── SERVICES OFFERED (simple list) ─────────────────────────────────────────
+
+@admin_bp.route("/services-offered")
+@admin_required
+def services_offered_list():
+    items = ServiceOffered.query.order_by(ServiceOffered.order).all()
+    return render_template("admin/simple_list.html",
+                           items=items, kind="services_offered",
+                           title="Services Offered",
+                           list_url="admin.services_offered_list",
+                           new_url="admin.service_offered_new",
+                           edit_url="admin.service_offered_edit",
+                           delete_url="admin.service_offered_delete")
+
+
+@admin_bp.route("/services-offered/new", methods=["GET", "POST"])
+@admin_required
+def service_offered_new():
+    if request.method == "POST":
+        requested_order = int(request.form.get("order", 0))
+        safe_order = reorder_on_create(ServiceOffered, requested_order)
+        item = ServiceOffered(
+            text=request.form.get("text", "").strip(),
+            order=safe_order,
+            is_published=bool(request.form.get("is_published")),
+        )
+        db.session.add(item)
+        db.session.commit()
+        flash("Item added.", "success")
+        return redirect(url_for("admin.services_offered_list"))
+    return render_template("admin/simple_list_form.html", item=None,
+                           title="Service Offered",
+                           list_url="admin.services_offered_list",
+                           save_url="admin.service_offered_new")
+
+
+@admin_bp.route("/services-offered/<int:item_id>/edit", methods=["GET", "POST"])
+@admin_required
+def service_offered_edit(item_id):
+    item = ServiceOffered.query.get_or_404(item_id)
+    if request.method == "POST":
+        old_order = item.order
+        requested_order = int(request.form.get("order", 0))
+        item.order = reorder_on_update(ServiceOffered, item.id, old_order, requested_order)
+        item.text = request.form.get("text", "").strip()
+        item.is_published = bool(request.form.get("is_published"))
+        db.session.commit()
+        flash("Item updated.", "success")
+        return redirect(url_for("admin.services_offered_list"))
+    return render_template("admin/simple_list_form.html", item=item,
+                           title="Service Offered",
+                           list_url="admin.services_offered_list",
+                           save_url="admin.service_offered_edit")
+
+
+@admin_bp.route("/services-offered/<int:item_id>/delete", methods=["POST"])
+@admin_required
+def service_offered_delete(item_id):
+    item = ServiceOffered.query.get_or_404(item_id)
+    deleted_order = item.order
+    db.session.delete(item)
+    db.session.commit()
+    reorder_on_delete(ServiceOffered, deleted_order)
+    db.session.commit()
+    flash("Item deleted.", "success")
+    return redirect(url_for("admin.services_offered_list"))
+
+
+# ── EQUIPMENT ITEMS (simple list) ──────────────────────────────────────────
+
+@admin_bp.route("/equipment-items")
+@admin_required
+def equipment_items_list():
+    items = EquipmentItem.query.order_by(EquipmentItem.order).all()
+    return render_template("admin/simple_list.html",
+                           items=items, kind="equipment_items",
+                           title="Equipment Available",
+                           list_url="admin.equipment_items_list",
+                           new_url="admin.equipment_item_new",
+                           edit_url="admin.equipment_item_edit",
+                           delete_url="admin.equipment_item_delete")
+
+
+@admin_bp.route("/equipment-items/new", methods=["GET", "POST"])
+@admin_required
+def equipment_item_new():
+    if request.method == "POST":
+        requested_order = int(request.form.get("order", 0))
+        safe_order = reorder_on_create(EquipmentItem, requested_order)
+        item = EquipmentItem(
+            text=request.form.get("text", "").strip(),
+            order=safe_order,
+            is_published=bool(request.form.get("is_published")),
+        )
+        db.session.add(item)
+        db.session.commit()
+        flash("Item added.", "success")
+        return redirect(url_for("admin.equipment_items_list"))
+    return render_template("admin/simple_list_form.html", item=None,
+                           title="Equipment Item",
+                           list_url="admin.equipment_items_list",
+                           save_url="admin.equipment_item_new")
+
+
+@admin_bp.route("/equipment-items/<int:item_id>/edit", methods=["GET", "POST"])
+@admin_required
+def equipment_item_edit(item_id):
+    item = EquipmentItem.query.get_or_404(item_id)
+    if request.method == "POST":
+        old_order = item.order
+        requested_order = int(request.form.get("order", 0))
+        item.order = reorder_on_update(EquipmentItem, item.id, old_order, requested_order)
+        item.text = request.form.get("text", "").strip()
+        item.is_published = bool(request.form.get("is_published"))
+        db.session.commit()
+        flash("Item updated.", "success")
+        return redirect(url_for("admin.equipment_items_list"))
+    return render_template("admin/simple_list_form.html", item=item,
+                           title="Equipment Item",
+                           list_url="admin.equipment_items_list",
+                           save_url="admin.equipment_item_edit")
+
+
+@admin_bp.route("/equipment-items/<int:item_id>/delete", methods=["POST"])
+@admin_required
+def equipment_item_delete(item_id):
+    item = EquipmentItem.query.get_or_404(item_id)
+    deleted_order = item.order
+    db.session.delete(item)
+    db.session.commit()
+    reorder_on_delete(EquipmentItem, deleted_order)
+    db.session.commit()
+    flash("Item deleted.", "success")
+    return redirect(url_for("admin.equipment_items_list"))
+
+
+# ── CORE VALUES ─────────────────────────────────────────────────────────────
+
+@admin_bp.route("/core-values")
+@admin_required
+def core_values_list():
+    values = CoreValue.query.order_by(CoreValue.order).all()
+    return render_template("admin/core_values.html", values=values)
+
+
+@admin_bp.route("/core-values/new", methods=["GET", "POST"])
+@admin_required
+def core_value_new():
+    if request.method == "POST":
+        requested_order = int(request.form.get("order", 0))
+        safe_order = reorder_on_create(CoreValue, requested_order)
+        value = CoreValue(
+            title=request.form.get("title", "").strip(),
+            description=request.form.get("description", "").strip(),
+            order=safe_order,
+            is_published=bool(request.form.get("is_published")),
+        )
+        db.session.add(value)
+        db.session.commit()
+        flash("Core value created.", "success")
+        return redirect(url_for("admin.core_values_list"))
+    return render_template("admin/core_value_form.html", value=None)
+
+
+@admin_bp.route("/core-values/<int:value_id>/edit", methods=["GET", "POST"])
+@admin_required
+def core_value_edit(value_id):
+    value = CoreValue.query.get_or_404(value_id)
+    if request.method == "POST":
+        old_order = value.order
+        requested_order = int(request.form.get("order", 0))
+        value.order = reorder_on_update(CoreValue, value.id, old_order, requested_order)
+        value.title = request.form.get("title", "").strip()
+        value.description = request.form.get("description", "").strip()
+        value.is_published = bool(request.form.get("is_published"))
+        db.session.commit()
+        flash("Core value updated.", "success")
+        return redirect(url_for("admin.core_values_list"))
+    return render_template("admin/core_value_form.html", value=value)
+
+
+@admin_bp.route("/core-values/<int:value_id>/delete", methods=["POST"])
+@admin_required
+def core_value_delete(value_id):
+    value = CoreValue.query.get_or_404(value_id)
+    deleted_order = value.order
+    db.session.delete(value)
+    db.session.commit()
+    reorder_on_delete(CoreValue, deleted_order)
+    db.session.commit()
+    flash("Core value deleted.", "success")
+    return redirect(url_for("admin.core_values_list"))

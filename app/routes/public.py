@@ -7,7 +7,8 @@ from app import db
 from app.models import (
     Staff, OJT, Project, Publication,
     AccomplishmentReport, CenterHighlight, LearningResource,
-    SiteSettings, Partner, ResourcePage, ContactMessage
+    SiteSettings, Partner, ResourcePage, ContactMessage, 
+    ResearchArea, ServiceOffered, EquipmentItem, CoreValue
 )
 
 public_bp = Blueprint("public", __name__)
@@ -45,6 +46,10 @@ def home():
     )
     partners = Partner.query.filter_by(is_published=True).order_by(Partner.order).all()
     settings = SiteSettings.query.get(1)
+    research_areas = ResearchArea.query.filter_by(is_published=True).order_by(ResearchArea.order).all()
+    services_offered = ServiceOffered.query.filter_by(is_published=True).order_by(ServiceOffered.order).all()
+    equipment_items = EquipmentItem.query.filter_by(is_published=True).order_by(EquipmentItem.order).all()
+    core_values = CoreValue.query.filter_by(is_published=True).order_by(CoreValue.order).all()
     stats = {
         "projects": Project.query.filter_by(is_published=True).count(),
         "publications": Publication.query.filter_by(is_published=True).count(),
@@ -52,7 +57,11 @@ def home():
     }
     return render_template("index.html", projects=projects, staff=staff,
                            publications=publications, partners=partners,
-                           settings=settings, stats=stats)
+                           settings=settings, stats=stats,
+                           research_areas=research_areas,
+                           services_offered=services_offered,
+                           equipment_items=equipment_items,
+                           core_values=core_values)
 
 
 @public_bp.route("/team")

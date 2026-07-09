@@ -1,0 +1,40 @@
+{% extends 'admin/base.html' %}
+{% block title %}{{ 'Edit' if area else 'New' }} Research Area{% endblock %}
+{% block page_title %}{{ 'Edit' if area else 'New' }} Research Area{% endblock %}
+
+{% block content %}
+<div class="form-wrap">
+  <form method="POST">
+    <div class="form-group">
+      <label for="title">Title *</label>
+      <input type="text" id="title" name="title" value="{{ area.title if area else '' }}" required>
+    </div>
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" name="description">{{ area.description if area else '' }}</textarea>
+    </div>
+    <div class="form-group">
+      <label for="icon_key">Icon</label>
+      <select id="icon_key" name="icon_key">
+        {% for key, label in [('embedded','Embedded Systems'),('iot','IoT'),('signal','Signal Processing'),('wireless','Wireless Communications'),('energy','Renewable Energy')] %}
+        <option value="{{ key }}" {{ 'selected' if area and area.icon_key == key }}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="order">Display Order</label>
+      <input type="number" id="order" name="order" value="{{ area.order if area else 0 }}">
+    </div>
+    <div class="form-group">
+      <div class="checkbox-group">
+        <input type="checkbox" id="is_published" name="is_published" value="1" {{ 'checked' if not area or area.is_published }}>
+        <label for="is_published">Published (visible on site)</label>
+      </div>
+    </div>
+    <div style="margin-top:24px;display:flex;gap:10px;">
+      <button type="submit" class="btn btn-primary">{{ 'Save Changes' if area else 'Add Research Area' }}</button>
+      <a href="{{ url_for('admin.research_areas_list') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

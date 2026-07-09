@@ -5,38 +5,38 @@
 {% block content %}
 
 <div class="stat-cards">
-  <div class="stat-card">
+  <a href="{{ url_for('admin.projects_list') }}" class="stat-card stat-card-link">
     <div class="num">{{ counts.projects }}</div>
     <div class="lbl">Projects</div>
-  </div>
-  <div class="stat-card">
+  </a>
+  <a href="{{ url_for('admin.publications_list') }}" class="stat-card stat-card-link">
     <div class="num">{{ counts.publications }}</div>
     <div class="lbl">Publications</div>
-  </div>
-  <div class="stat-card">
+  </a>
+  <a href="{{ url_for('admin.staff_list') }}" class="stat-card stat-card-link">
     <div class="num">{{ counts.staff }}</div>
     <div class="lbl">Staff</div>
-  </div>
-  <div class="stat-card">
+  </a>
+  <a href="{{ url_for('admin.ojt_list') }}" class="stat-card stat-card-link">
     <div class="num">{{ counts.ojt }}</div>
     <div class="lbl">OJT Interns</div>
-  </div>
-  <div class="stat-card">
+  </a>
+  <a href="{{ url_for('admin.highlights_list') }}" class="stat-card stat-card-link">
     <div class="num">{{ counts.highlights }}</div>
     <div class="lbl">Highlights</div>
-  </div>
-  <div class="stat-card">
+  </a>
+  <a href="{{ url_for('admin.accomplishments_list') }}" class="stat-card stat-card-link">
     <div class="num">{{ counts.accomplishments }}</div>
     <div class="lbl">Accomplishments</div>
-  </div>
-  <div class="stat-card">
+  </a>
+  <a href="{{ url_for('admin.resources_list') }}" class="stat-card stat-card-link">
     <div class="num">{{ counts.resources }}</div>
     <div class="lbl">Resources</div>
-  </div>
-  <div class="stat-card">
+  </a>
+  <a href="{{ url_for('admin.partners_list') }}" class="stat-card stat-card-link">
     <div class="num">{{ counts.partners }}</div>
     <div class="lbl">Partners</div>
-  </div>
+  </a>
 </div>
 
 <h2 style="font-size:15px;font-weight:bold;margin-bottom:12px;">Quick Links</h2>
@@ -48,5 +48,19 @@
   <a href="{{ url_for('admin.ojt_new') }}" class="btn btn-primary">+ New OJT Intern</a>
   <a href="{{ url_for('admin.settings') }}" class="btn btn-secondary">Edit Site Settings</a>
 </div>
+
+<style>
+.stat-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.stat-card-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(15,76,129,.12);
+  border-color: #0f4c81;
+}
+</style>
 
 {% endblock %}

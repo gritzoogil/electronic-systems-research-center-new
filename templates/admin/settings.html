@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="form-wrap">
-  <form method="POST" action="{{ url_for('admin.settings') }}">
+  <form method="POST" action="{{ url_for('admin.settings') }}" enctype="multipart/form-data">
 
     <h2 style="font-size:15px;font-weight:bold;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #e0e0e0;">AVP Video</h2>
     <div class="form-group">
@@ -45,6 +45,55 @@
       <label for="youtube_url">YouTube Channel URL</label>
       <input type="url" id="youtube_url" name="youtube_url" value="{{ s.youtube_url or '' }}">
     </div>
+
+    <h2 style="font-size:15px;font-weight:bold;margin:24px 0 16px;padding-bottom:8px;border-bottom:1px solid #e0e0e0;">Hero Section</h2>
+    <h2 style="font-size:15px;font-weight:bold;margin:24px 0 16px;padding-bottom:8px;border-bottom:1px solid #e0e0e0;">Hero Section</h2>
+    <div class="form-group">
+      <label for="hero_image_file">Background Image</label>
+      <input type="file" id="hero_image_file" name="hero_image_file" accept="image/png,image/jpeg,image/webp,image/gif">
+      {% if s.hero_image_url %}
+      <p class="hint" style="margin-top:8px;">Current image:</p>
+      <img src="{{ s.hero_image_url }}" style="margin-top:4px;max-width:280px;border-radius:8px;display:block;">
+      {% endif %}
+    </div>
+    <div class="form-group">
+      <label for="hero_eyebrow">Eyebrow Text</label>
+      <input type="text" id="hero_eyebrow" name="hero_eyebrow" value="{{ s.hero_eyebrow or '' }}">
+    </div>
+    <div class="form-group">
+      <label for="hero_eyebrow">Eyebrow Text</label>
+      <input type="text" id="hero_eyebrow" name="hero_eyebrow" value="{{ s.hero_eyebrow or '' }}">
+    </div>
+    <div class="form-group">
+      <label for="hero_heading">Heading (HTML allowed, e.g. &lt;span class="cyan"&gt;word&lt;/span&gt;)</label>
+      <textarea id="hero_heading" name="hero_heading">{{ s.hero_heading or '' }}</textarea>
+    </div>
+    <div class="form-group">
+      <label for="hero_paragraph">Paragraph</label>
+      <textarea id="hero_paragraph" name="hero_paragraph">{{ s.hero_paragraph or '' }}</textarea>
+    </div>
+
+    <h2 style="font-size:15px;font-weight:bold;margin:24px 0 16px;padding-bottom:8px;border-bottom:1px solid #e0e0e0;">About Us</h2>
+    <div class="form-group">
+      <label for="about_paragraph">About Us Paragraph</label>
+      <textarea id="about_paragraph" name="about_paragraph">{{ s.about_paragraph or '' }}</textarea>
+    </div>
+    <p class="hint">Manage the "Services Offered" and "Equipment Available" lists from their own pages in the sidebar.</p>
+
+    <h2 style="font-size:15px;font-weight:bold;margin:24px 0 16px;padding-bottom:8px;border-bottom:1px solid #e0e0e0;">Vision, Mission &amp; Quality Policy</h2>
+    <div class="form-group">
+      <label for="vision">Vision</label>
+      <textarea id="vision" name="vision">{{ s.vision or '' }}</textarea>
+    </div>
+    <div class="form-group">
+      <label for="mission">Mission</label>
+      <textarea id="mission" name="mission">{{ s.mission or '' }}</textarea>
+    </div>
+    <div class="form-group">
+      <label for="quality_policy">Quality Policy</label>
+      <textarea id="quality_policy" name="quality_policy">{{ s.quality_policy or '' }}</textarea>
+    </div>
+    <p class="hint">Manage individual Core Values from the Core Values page in the sidebar.</p>
 
     <div style="margin-top:24px;display:flex;gap:10px;">
       <button type="submit" class="btn btn-primary">Save Settings</button>

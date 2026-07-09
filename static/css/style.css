@@ -357,7 +357,7 @@ input,textarea,select { font-family: inherit; }
 .r-card:hover .r-icon { background: linear-gradient(135deg, var(--navy), var(--cyan)); }
 .r-card:hover .r-icon svg { color: var(--white); }
 .r-title {
-  font-family: var(--font-d); font-size: .97rem; font-weight: 700;
+  font-family: var(--font-d); font-size: 1rem; font-weight: 700;
   color: var(--dark); margin-bottom: 7px;
 }
 .r-desc { font-size: .83rem; color: var(--gray-500); line-height: 1.6; }

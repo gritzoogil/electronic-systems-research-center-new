@@ -100,6 +100,10 @@
       <li><a href="{{ url_for('admin.highlights_list') }}" class="{{ 'active' if 'highlights' in request.endpoint }}">Center Highlights</a></li>
       <li><a href="{{ url_for('admin.accomplishments_list') }}" class="{{ 'active' if 'accomplishments' in request.endpoint }}">Accomplishments</a></li>
       <li><a href="{{ url_for('admin.resources_list') }}" class="{{ 'active' if 'resources' in request.endpoint }}">Resources</a></li>
+      <li><a href="{{ url_for('admin.research_areas_list') }}" class="{{ 'active' if 'research_area' in request.endpoint }}">Research Areas</a></li>
+      <li><a href="{{ url_for('admin.services_offered_list') }}" class="{{ 'active' if 'service_offered' in request.endpoint or request.endpoint == 'admin.services_offered_list' }}">Services Offered</a></li>
+      <li><a href="{{ url_for('admin.equipment_items_list') }}" class="{{ 'active' if 'equipment_item' in request.endpoint }}">Equipment</a></li>
+      <li><a href="{{ url_for('admin.core_values_list') }}" class="{{ 'active' if 'core_value' in request.endpoint }}">Core Values</a></li>
 
       <li class="sidebar-section">People</li>
       <li><a href="{{ url_for('admin.staff_list') }}" class="{{ 'active' if 'staff' in request.endpoint }}">Staff</a></li>

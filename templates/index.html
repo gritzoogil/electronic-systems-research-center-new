@@ -3,8 +3,7 @@
 {% block content %}
 
 {# ═══ 1. HERO ═══════════════════════════════════════════════════════ #}
-<section class="hero" aria-label="Hero" style="background:linear-gradient(to bottom, rgba(10,30,60,.82), rgba(10,30,60,.82)), url('https://5xb2ufjgpdzgmhwg.public.blob.vercel-storage.com/images/esrc4-Um1zHQhHBYOg3udUymNY5Okg2toNze.webp') center/cover no-repeat;">
-  <!-- Background glows -->
+<section class="hero" aria-label="Hero" style="background:linear-gradient(to bottom, rgba(10,30,60,.82), rgba(10,30,60,.82)), url('{{ settings.hero_image_url if settings and settings.hero_image_url else "https://5xb2ufjgpdzgmhwg.public.blob.vercel-storage.com/images/esrc4-Um1zHQhHBYOg3udUymNY5Okg2toNze.webp" }}') center/cover no-repeat;">
   <div class="hero-glow hero-glow-1" aria-hidden="true"></div>
   <div class="hero-glow hero-glow-2" aria-hidden="true"></div>
 
@@ -13,19 +12,16 @@
   <div class="hero-inner">
     <div class="hero-content">
       <div class="hero-pill">
-        <span class="hero-pill-dot" aria-hidden="true"></span>
-        Batangas State University · The NEU
+      <span class="hero-pill-dot" aria-hidden="true"></span>
+        {{ settings.hero_eyebrow if settings and settings.hero_eyebrow else "Batangas State University · The NEU" }}
       </div>
 
       <h1 class="hero-h1">
-        Advancing <span class="cyan">Innovation</span><br>
-        Through Electronic<br>Systems Research
+        {{ (settings.hero_heading if settings and settings.hero_heading else "Advancing Innovation Through Electronic Systems Research") | safe }}
       </h1>
 
       <p class="hero-p">
-        We pioneer breakthroughs in electronic systems engineering, developing
-        next-generation technologies that bridge academia and industry, empowering
-        students, researchers, and communities at BatStateU.
+        {{ settings.hero_paragraph if settings and settings.hero_paragraph else "We pioneer breakthroughs in electronic systems engineering, developing next-generation technologies that bridge academia and industry, empowering students, researchers, and communities at BatStateU." }}
       </p>
 
       <div class="hero-btns">
@@ -85,52 +81,27 @@
     </div>
 
     <div class="research-grid" data-stagger>
-      <!-- Embedded Systems -->
+      {% for area in research_areas %}
       <div class="r-card reveal">
         <div class="r-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M7 9H4M7 12H2M7 15H4M17 9h3M17 12h5M17 15h3M9 7V4M12 7V2M15 7V4M9 17v3M12 17v5M15 17v3"/></svg>
-        </div>
-        <h3 class="r-title">Embedded Systems</h3>
-        <p class="r-desc">Designing efficient microcontroller-based systems for real-time applications in industrial and consumer domains.</p>
-      </div>
-
-      <!-- IoT -->
-      <div class="r-card reveal">
-        <div class="r-icon" aria-hidden="true">
+          {% if area.icon_key == "iot" %}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14M19.07 4.93a10 10 0 0 1 0 14.14M7.76 7.76a6 6 0 0 0 0 8.48M16.24 7.76a6 6 0 0 1 0 8.48"/></svg>
-        </div>
-        <h3 class="r-title">Internet of Things (IoT)</h3>
-        <p class="r-desc">Building connected sensor networks and edge computing platforms for smart infrastructure and environmental monitoring.</p>
-      </div>
-
-      <!-- Signal Processing -->
-      <div class="r-card reveal">
-        <div class="r-icon" aria-hidden="true">
+          {% elif area.icon_key == "signal" %}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        </div>
-        <h3 class="r-title">Signal Processing</h3>
-        <p class="r-desc">Analyzing and transforming digital signals for communications, biomedical imaging, and audio/RF applications.</p>
-      </div>
-
-      <!-- Wireless Comms -->
-      <div class="r-card reveal">
-        <div class="r-icon" aria-hidden="true">
+          {% elif area.icon_key == "wireless" %}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M10.54 16.1a6 6 0 0 1 2.92 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
-        </div>
-        <h3 class="r-title">Wireless Communications</h3>
-        <p class="r-desc">Designing and evaluating next-generation wireless protocols, antenna systems, and spectrum management techniques.</p>
-      </div>
-
-      <!-- Renewable Energy -->
-      <div class="r-card reveal">
-        <div class="r-icon" aria-hidden="true">
+          {% elif area.icon_key == "energy" %}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          {% else %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M7 9H4M7 12H2M7 15H4M17 9h3M17 12h5M17 15h3M9 7V4M12 7V2M15 7V4M9 17v3M12 17v5M15 17v3"/></svg>
+          {% endif %}
         </div>
-        <h3 class="r-title">Renewable Energy Systems</h3>
-        <p class="r-desc">Advancing solar, wind, and hybrid energy conversion systems with efficient power electronics and smart grid integration.</p>
+        <h3 class="r-title">{{ area.title }}</h3>
+        <p class="r-desc">{{ area.description }}</p>
       </div>
+      {% endfor %}
 
-      <!-- CTA card -->
+      <!-- CTA card (stays static) -->
       <div class="r-card reveal" style="background:linear-gradient(135deg,var(--navy),var(--navy-light));border-color:transparent;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:14px;">
         <div style="font-family:var(--font-d);font-size:1rem;font-weight:700;color:var(--white);">Start a Research Collaboration</div>
         <p style="font-size:.83rem;color:rgba(255,255,255,.65);line-height:1.55;">Partner with ESRC to bring your research vision to life.</p>
@@ -162,9 +133,7 @@
       <span class="eyebrow">Who We Are</span>
       <h2 class="sec-h2" id="about-heading">About Us</h2>
       <p class="sec-lead">
-        The Electronic Systems Research Center (ESRC) is at the forefront of innovation in
-        electronics engineering. We provide state-of-the-art facilities, foster collaborative
-        research, and develop cutting-edge solutions that bridge the gap between academia and industry.
+        {{ settings.about_paragraph if settings and settings.about_paragraph else "The Electronic Systems Research Center (ESRC) is at the forefront of innovation in electronics engineering. We provide state-of-the-art facilities, foster collaborative research, and develop cutting-edge solutions that bridge the gap between academia and industry." }}
       </p>
     </div>
 
@@ -173,24 +142,18 @@
         <h3 class="r-title">Services Offered</h3>
         <p class="r-desc" style="margin-bottom:8px;">The ESRC offers a wide range of services:</p>
         <ul style="font-size:.85rem;color:var(--gray-500);line-height:1.7;list-style:disc;padding-left:18px;">
-          <li>Electronic Prototyping</li>
-          <li>PCB Fabrication</li>
-          <li>3D Modeling and Printing</li>
-          <li>Data Logging</li>
-          <li>Schematic Design</li>
-          <li>Research Consultation</li>
+          {% for item in services_offered %}
+          <li>{{ item.text }}</li>
+          {% endfor %}
         </ul>
       </div>
 
       <div class="r-card reveal">
         <h3 class="r-title">Equipment Available</h3>
         <ul style="font-size:.85rem;color:var(--gray-500);line-height:1.7;list-style:disc;padding-left:18px;">
-          <li>Spectral Camera, Weather Station</li>
-          <li>Test &amp; Measurement Instruments</li>
-          <li>Data Loggers, Dremel Tools</li>
-          <li>3D Printers, Solder Workstations</li>
-          <li>Function Generators</li>
-          <li>Bench Power Supplies</li>
+          {% for item in equipment_items %}
+          <li>{{ item.text }}</li>
+          {% endfor %}
         </ul>
       </div>
     </div>
@@ -209,6 +172,53 @@
     <circle cx="760" cy="14" r="3" fill="var(--navy)" opacity=".35"/>
   </svg>
 </div>
+
+{% if (settings and (settings.vision or settings.mission or settings.quality_policy)) or core_values %}
+<section id="vmv" class="section bg-gray" aria-labelledby="vmv-heading">
+  <div class="wrap">
+    <div class="sec-header center reveal">
+      <span class="eyebrow">What Drives Us</span>
+      <h2 class="sec-h2" id="vmv-heading">Vision, Mission &amp; Core Values</h2>
+    </div>
+
+    {% if settings and (settings.vision or settings.mission or settings.quality_policy) %}
+    <div class="research-grid" data-stagger style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-bottom:32px;">
+      {% if settings.vision %}
+      <div class="r-card reveal">
+        <h3 class="r-title">Vision</h3>
+        <p class="r-desc">{{ settings.vision }}</p>
+      </div>
+      {% endif %}
+      {% if settings.mission %}
+      <div class="r-card reveal">
+        <h3 class="r-title">Mission</h3>
+        <p class="r-desc">{{ settings.mission }}</p>
+      </div>
+      {% endif %}
+      {% if settings.quality_policy %}
+      <div class="r-card reveal">
+        <h3 class="r-title">Quality Policy</h3>
+        <p class="r-desc">{{ settings.quality_policy }}</p>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% if core_values %}
+    <div class="research-grid" data-stagger>
+      {% for value in core_values %}
+      <div class="r-card reveal">
+        <h3 class="r-title">{{ value.title }}</h3>
+        {% if value.description %}
+        <p class="r-desc">{{ value.description }}</p>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endif %}
 
 {# ═══ ESRC VIDEO (AVP) ═══════════════════════════════════════════════ #}
 <section id="esrc-video" class="section bg-gray" aria-labelledby="video-heading">
@@ -514,14 +524,19 @@
 
         <div>
           <p class="c-lbl" style="margin-bottom:10px;">Follow Us</p>
-          <div class="c-socials">
-            <a href="{{ settings.facebook_url if settings and settings.facebook_url else 'https://www.facebook.com/share/1Cvdcot6a3/' }}" class="c-soc" aria-label="Facebook">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
-            </a>
-            <a href="{{ settings.youtube_url if settings and settings.youtube_url else 'https://l.messenger.com/l.php?u=https%3A%2F%2Fwww.youtube.com%2F%40ESRC_BatStateUTheNEU&h=AUAFPlW_BNfGvkoyLk8-GCd9bCfCbLwpstHKrEegOyTkxTXMSTDfLB9m-OZbbEzOk_HOtuIC4n_ltuhWDb0wlgzW0_Zrd3JNmawQ73KvtyLqhiSm6k7Nb57cxifoAcc' }}" class="c-soc" aria-label="YouTube">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 00-1.95 1.96A29 29 0 001 12a29 29 0 00.46 5.58A2.78 2.78 0 003.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 001.95-1.95A29 29 0 0023 12a29 29 0 00-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="var(--gray-900)"/></svg>
-            </a>
-          </div>
+         <div class="c-socials"> 
+          <a href="{{ settings.facebook_url if settings and settings.facebook_url else 'https://www.facebook.com/share/1Cvdcot6a3/' }}" class="c-soc" aria-label="Facebook" target="_blank" rel="noopener noreferrer"> 
+              <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                  <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/>
+              </svg> 
+          </a> 
+          <a href="{{ settings.youtube_url if settings and settings.youtube_url else 'https://l.messenger.com/l.php?u=https%3A%2F%2Fwww.youtube.com%2F%40ESRC_BatStateUTheNEU&h=AUAFPlW_BNfGvkoyLk8-GCd9bCfCbLwpstHKrEegOyTkxTXMSTDfLB9m-OZbbEzOk_HOtuIC4n_ltuhWDb0wlgzW0_Zrd3JNmawQ73KvtyLqhiSm6k7Nb57cxifoAcc' }}" class="c-soc" aria-label="YouTube" target="_blank" rel="noopener noreferrer"> 
+              <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                  <path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 00-1.95 1.96A29 29 0 001 12a29 29 0 00.46 5.58A2.78 2.78 0 003.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 001.95-1.95A29 29 0 0023 12a29 29 0 00-.46-5.58z"/>
+                  <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="var(--gray-900)"/>
+              </svg> 
+          </a> 
+      </div>
         </div>
 
         <!-- Map placeholder -->
