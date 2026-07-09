@@ -123,13 +123,8 @@
   const monthNames = ["January","February","March","April","May","June","July",
                        "August","September","October","November","December"];
 
-  function renderMonth() {
+  function setMonthLabel() {
     document.getElementById("calMonthLabel").textContent = monthNames[month - 1] + " " + year;
-    fetch(`{{ url_for('public.appointments_calendar', service_id=service.id) }}?year=${year}&month=${month}`)
-      .then(r => r.text())
-      .then(html => {
-        // Re-fetch full page's grid via a lightweight approach: request JSON instead in production.
-      });
   }
 
   // Build calendar grid client-side using server-rendered availability passed via data attribute.
@@ -178,31 +173,32 @@
         }
         empty.style.display = "none";
         data.slots.forEach(slot => {
-        const b = document.createElement("button");
-        b.type = "button";
-        b.className = "slot-btn";
-        b.textContent = slot.label + (slot.available ? "" : " · Booked");
-        b.disabled = !slot.available;
-        if (slot.available) {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "slot-btn";
+          b.textContent = slot.label + (slot.available ? "" : " · Booked");
+          b.disabled = !slot.available;
+          if (slot.available) {
             b.addEventListener("click", () => {
-            window.location.href =
+              window.location.href =
                 `{{ url_for('public.appointments_form') }}?service_id=${serviceId}&date=${dateStr}&time=${encodeURIComponent(slot.value)}`;
             });
-        }
-        slotsGrid.appendChild(b);
+          }
+          slotsGrid.appendChild(b);
         });
       });
   }
 
   document.getElementById("prevMonth").addEventListener("click", () => {
     month--; if (month < 1) { month = 12; year--; }
-    window.location.href = `{{ url_for('public.appointments_calendar', service_id=service.id) }}?year=${year}&month=${month}`;
+    window.location.href = `{{ url_for('public.appointments_calendar', service_id=service.id) }}&year=${year}&month=${month}`;
   });
   document.getElementById("nextMonth").addEventListener("click", () => {
     month++; if (month > 12) { month = 1; year++; }
-    window.location.href = `{{ url_for('public.appointments_calendar', service_id=service.id) }}?year=${year}&month=${month}`;
+    window.location.href = `{{ url_for('public.appointments_calendar', service_id=service.id) }}&year=${year}&month=${month}`;
   });
 
+  setMonthLabel();
   buildGrid();
 })();
 </script>
