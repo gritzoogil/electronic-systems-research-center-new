@@ -81,8 +81,11 @@ def get_slots_for_date(target_date, service):
             "capacity": cap,
             "available": booked < cap,
         })
-    return result
 
+    if target_date == date_cls.today():
+        now = datetime.now()
+        result = [s for s in result if datetime.combine(target_date, s["time"]) > now]
+    return result
 
 def get_day_status(target_date, service):
     """Returns 'available' | 'limited' | 'full' | 'unavailable' for calendar coloring."""

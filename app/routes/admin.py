@@ -11,46 +11,171 @@ from app import db
 from app.ordering import reorder_on_create, reorder_on_update, reorder_on_delete
 import os
 import resend
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from datetime import timedelta
 
 import logging
 logger = logging.getLogger(__name__)
 
+def _send_email(to_address, subject, html):
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = subject
+    msg["From"] = "ESRC Appointments <esrc.batstateutneu@gmail.com>"
+    msg["To"] = to_address
+    msg.attach(MIMEText(html, "html"))
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        server.login("esrc.batstateutneu@gmail.com", os.environ.get("GMAIL_APP_PASSWORD"))
+        server.sendmail("esrc.batstateutneu@gmail.com", to_address, msg.as_string())
 
 def send_status_email(appt, new_status):
+    from app.scheduling import format_time_for_display
+    resend.api_key = os.environ.get("RESEND_API_KEY")
+
+    if new_status == "Approved":
+        date_display = appt.appointment_date.strftime("%B %d, %Y")
+        time_display = format_time_for_display(appt.appointment_time)
+        service_name = appt.service.name
+        duration = appt.service.duration_minutes
+        admin_notes_row = f'<div class="ticket-row"><span class="ticket-label">Admin Notes</span><span class="ticket-value">{appt.admin_notes}</span></div>' if appt.admin_notes else ''
+
+        html = f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body {{ font-family: Arial, sans-serif; background: #f4f7fb; margin: 0; padding: 24px; }}
+  .container {{ max-width: 560px; margin: 0 auto; }}
+  .header {{ background: linear-gradient(135deg, #0f2942, #0f4c81); color: white;
+             border-radius: 12px 12px 0 0; padding: 32px 28px; text-align: center; }}
+  .header h1 {{ margin: 0 0 4px; font-size: 22px; }}
+  .header p {{ margin: 0; font-size: 13px; opacity: .8; }}
+  .ticket {{ background: white; border: 1px solid #e2e8f0; padding: 28px; position: relative; }}
+  .ticket::before {{ content: 'CONFIRMED'; position: absolute; top: 16px; right: 16px;
+    background: #dcfce7; color: #166534; font-size: 10px; font-weight: 800;
+    letter-spacing: .1em; padding: 3px 8px; border-radius: 4px; }}
+  .ticket-row {{ display: table; width: 100%; padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; }}
+    padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; }}
+  .ticket-row:last-child {{ border-bottom: none; }}
+  .ticket-label {{ display: table-cell; color: #64748b; font-weight: 600; width: 40%; }}
+  .ticket-value {{ display: table-cell; color: #0f2942; font-weight: 700; width: 60%; }}
+  .divider {{ border: none; border-top: 2px dashed #e2e8f0; margin: 20px 0; }}
+  .ref-box {{ background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 8px;
+    text-align: center; padding: 14px; margin: 16px 0; }}
+  .ref-box p {{ margin: 0 0 4px; font-size: 11px; color: #64748b; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .05em; }}
+  .ref-box span {{ font-size: 22px; font-weight: 900; color: #0f4c81; letter-spacing: .15em; }}
+  .instructions {{ background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
+    padding: 14px 16px; margin: 16px 0 0; font-size: 13px; color: #78350f; }}
+  .instructions ul {{ margin: 6px 0 0 0; padding-left: 18px; }}
+  .instructions li {{ margin-bottom: 4px; }}
+  .footer {{ background: #f8fafc; border: 1px solid #e2e8f0; border-top: none;
+    border-radius: 0 0 12px 12px; padding: 20px 28px; text-align: center;
+    font-size: 12px; color: #94a3b8; }}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Appointment Confirmed ✓</h1>
+    <p>Electronic Systems Research Center · BatStateU</p>
+  </div>
+  <div class="ticket">
+    <p style="font-size:14px;color:#475569;margin:0 0 16px;">
+      Hi <strong>{appt.full_name}</strong>, your appointment has been
+      <strong style="color:#166534;">approved</strong>. Please present this email
+      (printed or on your phone) when you arrive at the ESRC office.
+    </p>
+    <div class="ref-box">
+      <p>Appointment Reference</p>
+      <span>ESRC-{appt.id:05d}</span>
+    </div>
+    <div class="ticket-row">
+      <span class="ticket-label">Service:</span>
+      <span class="ticket-value">{service_name}</span>
+    </div>
+    <div class="ticket-row">
+      <span class="ticket-label">Date:</span>
+      <span class="ticket-value">{date_display}</span>
+    </div>
+    <div class="ticket-row">
+      <span class="ticket-label">Time:</span>
+      <span class="ticket-value">{time_display}</span>
+    </div>
+    <div class="ticket-row">
+      <span class="ticket-label">Duration:</span>
+      <span class="ticket-value">{duration} minutes</span>
+    </div>
+    <div class="ticket-row">
+      <span class="ticket-label">Name:</span>
+      <span class="ticket-value">{appt.full_name}</span>
+    </div>
+    <div class="ticket-row">
+      <span class="ticket-label">Purpose:</span>
+      <span class="ticket-value">{appt.purpose}</span>
+    </div>
+    {admin_notes_row}
+    <hr class="divider">
+    <div class="instructions">
+      <strong>📍 What to bring on the day:</strong>
+      <ul>
+        <li>This email (printed or on your phone)</li>
+        <li>Your valid school / company ID</li>
+        <li>Any materials relevant to your appointment</li>
+      </ul>
+    </div>
+    <p style="font-size:12px;color:#94a3b8;margin:16px 0 0;text-align:center;">
+      Location: 2nd Floor, STEER Hub Building, BatStateU Alangilan Campus<br>
+      Office Hours: Monday – Thursday, 7:00 AM – 8:00 PM
+    </p>
+  </div>
+  <div class="footer">
+    To cancel or reschedule, contact
+    <a href="mailto:esrc.batstateutneu@gmail.com" style="color:#0f4c81;">esrc.batstateutneu@gmail.com</a><br>
+    Reference: ESRC-{appt.id:05d} · {service_name} · {date_display}
+  </div>
+</div>
+</body>
+</html>"""
+
+        subject = f"✓ Appointment Confirmed — {service_name} on {date_display} | ESRC-{appt.id:05d}"
+
+    else:  # Rejected
+        html = f"""
+            <p>Hi {appt.full_name},</p>
+            <p>Your appointment request for <strong>{appt.service.name}</strong> on
+            {appt.appointment_date.strftime('%B %d, %Y')} at
+            {format_time_for_display(appt.appointment_time)} has been
+            <strong>rejected</strong>.</p>
+            <p>If you have questions, feel free to reach out to us at
+            <a href="mailto:esrc.batstateutneu@gmail.com">esrc.batstateutneu@gmail.com</a>.</p>
+        """
+        subject = f"Your ESRC Appointment Request was {new_status}"
+
     try:
-        resend.Emails.send({
-            "from": "onboarding@resend.dev",
-            "to": [appt.email],
-            "subject": f"Your ESRC Appointment Request was {new_status}",
-            "html": f"""
-                <p>Hi {appt.full_name},</p>
-                <p>Your appointment request for <strong>{appt.service.name}</strong> on
-                {appt.appointment_date.strftime('%B %d, %Y')} at
-                {format_time_for_display(appt.appointment_time)} has been
-                <strong>{new_status}</strong>.</p>
-                {'<p>We look forward to seeing you.</p>' if new_status == 'Approved' else '<p>If you have questions, feel free to reach out to us.</p>'}
-            """,
-        })
+        _send_email(appt.email, subject, html)
         return True
     except Exception as e:
         logger.error(f"Status notification email to {appt.email} failed: {e}")
+        flash(f"Email error: {e}", "error")
         return False
 
 
 def send_reschedule_email(appt, old_date, old_time):
+    from app.scheduling import format_time_for_display
     try:
-        resend.Emails.send({
-            "from": "onboarding@resend.dev",
-            "to": [appt.email],
-            "subject": "Your ESRC Appointment Has Been Rescheduled",
-            "html": f"""
+        _send_email(
+            appt.email,
+            "Your ESRC Appointment Has Been Rescheduled",
+            f"""
                 <p>Hi {appt.full_name},</p>
                 <p>Your appointment for <strong>{appt.service.name}</strong> has been rescheduled.</p>
                 <p><strong>Previous:</strong> {old_date.strftime('%B %d, %Y')} at {format_time_for_display(old_time)}</p>
                 <p><strong>New:</strong> {appt.appointment_date.strftime('%B %d, %Y')} at {format_time_for_display(appt.appointment_time)}</p>
                 <p>Please let us know if this new time doesn't work for you.</p>
-            """,
-        })
+            """
+        )
         return True
     except Exception as e:
         logger.error(f"Reschedule notification email to {appt.email} failed: {e}")
@@ -998,6 +1123,17 @@ def service_delete(service_id):
 @admin_bp.route("/appointments")
 @admin_required
 def appointments_list():
+    # Auto-cancel pending appointments whose date+time has passed
+    from datetime import datetime, date, time as dtime
+    import datetime as dt
+    now = datetime.now()
+    stale = Appointment.query.filter_by(status="Pending").all()
+    for a in stale:
+        appt_dt = datetime.combine(a.appointment_date, a.appointment_time)
+        if appt_dt < now:
+            a.status = "Cancelled"
+    db.session.commit()
+
     view = request.args.get("view", "table")  # table | calendar
     status_filter = request.args.get("status", "all")
 
@@ -1018,7 +1154,7 @@ def appointments_list():
 def appointment_detail(appt_id):
     appt = Appointment.query.get_or_404(appt_id)
     return render_template("admin/appointment_detail.html", appt=appt,
-                            statuses=Appointment.STATUSES)
+                            statuses=Appointment.STATUSES, timedelta=timedelta)
 
 from app.scheduling import get_schedule_config, DAY_ABBR, parse_time_from_input, format_time_for_display
 

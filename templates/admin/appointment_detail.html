@@ -23,7 +23,7 @@
       <tr><td style="font-weight:bold;">Department / Org</td><td>{{ appt.department or '—' }}</td></tr>
       <tr><td style="font-weight:bold;">Purpose</td><td>{{ appt.purpose }}</td></tr>
       <tr><td style="font-weight:bold;">Notes</td><td>{{ appt.notes or '—' }}</td></tr>
-      <tr><td style="font-weight:bold;">Submitted</td><td>{{ appt.created_at.strftime('%b %d, %Y %I:%M %p') }}</td></tr>
+      <tr><td style="font-weight:bold;">Submitted</td><td>{{ (appt.created_at + timedelta(hours=8)).strftime('%b %d, %Y %I:%M %p') }} (PHT)</td></tr>
     </tbody>
   </table>
 
