@@ -37,8 +37,7 @@
       <td><span class="badge {{ 'badge-yes' if partner.is_published else 'badge-no' }}">{{ 'Yes' if partner.is_published else 'No' }}</span></td>
       <td style="display:flex;gap:6px;">
         <a href="{{ url_for('admin.partner_edit', partner_id=partner.id) }}" class="btn btn-secondary btn-sm">Edit</a>
-        <form method="POST" action="{{ url_for('admin.partner_delete', partner_id=partner.id) }}"
-              onsubmit="return confirm('Delete this partner?')">
+        <form method="POST" action="{{ url_for('admin.partner_delete', partner_id=partner.id) }}" class="js-delete-form" data-confirm-message="Delete “{{ partner.name }}”? This cannot be undone.">
           <button type="submit" class="btn btn-danger btn-sm">Delete</button>
         </form>
       </td>

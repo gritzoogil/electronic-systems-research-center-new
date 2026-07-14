@@ -36,8 +36,7 @@
       <td><span class="badge {{ 'badge-yes' if pub.is_published else 'badge-no' }}">{{ 'Yes' if pub.is_published else 'No' }}</span></td>
       <td style="display:flex;gap:6px;">
         <a href="{{ url_for('admin.publication_edit', pub_id=pub.id) }}" class="btn btn-secondary btn-sm">Edit</a>
-        <form method="POST" action="{{ url_for('admin.publication_delete', pub_id=pub.id) }}"
-              onsubmit="return confirm('Delete this publication?')">
+        <form method="POST" action="{{ url_for('admin.publication_delete', pub_id=pub.id) }}" class="js-delete-form" data-confirm-message="Delete this publication? This cannot be undone.">
           <button type="submit" class="btn btn-danger btn-sm">Delete</button>
         </form>
       </td>

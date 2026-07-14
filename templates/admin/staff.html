@@ -35,8 +35,7 @@
       <td>{{ member.order }}</td>
       <td style="display:flex;gap:6px;">
         <a href="{{ url_for('admin.staff_edit', staff_id=member.id) }}" class="btn btn-secondary btn-sm">Edit</a>
-        <form method="POST" action="{{ url_for('admin.staff_delete', staff_id=member.id) }}"
-              onsubmit="return confirm('Delete this staff member?')">
+        <form method="POST" action="{{ url_for('admin.staff_delete', staff_id=member.id) }}" class="js-delete-form" data-confirm-message="Delete “{{ member.name }}”? This cannot be undone.">
           <button type="submit" class="btn btn-danger btn-sm">Delete</button>
         </form>
       </td>

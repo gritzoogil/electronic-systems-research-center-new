@@ -48,8 +48,7 @@
       <td><span class="badge {{ 'badge-yes' if highlight.is_published else 'badge-no' }}">{{ 'Yes' if highlight.is_published else 'No' }}</span></td>
       <td style="display:flex;gap:6px;">
         <a href="{{ url_for('admin.highlight_edit', highlight_id=highlight.id) }}" class="btn btn-secondary btn-sm">Edit</a>
-        <form method="POST" action="{{ url_for('admin.highlight_delete', highlight_id=highlight.id) }}"
-              onsubmit="return confirm('Delete this highlight?')">
+        <form method="POST" action="{{ url_for('admin.highlight_delete', highlight_id=highlight.id) }}" class="js-delete-form" data-confirm-message="Delete “{{ highlight.title }}”? This cannot be undone.">
           <button type="submit" class="btn btn-danger btn-sm">Delete</button>
         </form>
       </td>

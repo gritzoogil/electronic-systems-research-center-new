@@ -67,8 +67,7 @@
 
   <div style="border-top:1px solid #e0e0e0;padding-top:20px;display:flex;justify-content:space-between;">
     <a href="{{ url_for('admin.appointments_list') }}" class="btn btn-secondary">← Back to List</a>
-    <form method="POST" action="{{ url_for('admin.appointment_delete', appt_id=appt.id) }}"
-          onsubmit="return confirm('Permanently delete this appointment?');">
+    <form method="POST" action="{{ url_for('admin.appointment_delete', appt_id=appt.id) }}" class="js-delete-form" data-confirm-message="Delete “{{ appt.client_name }}”? This cannot be undone.">
       <button type="submit" class="btn btn-danger">Delete Appointment</button>
     </form>
   </div>
