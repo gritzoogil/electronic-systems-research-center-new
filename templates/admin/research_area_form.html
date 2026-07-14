@@ -16,7 +16,7 @@
     <div class="form-group">
       <label for="icon_key">Icon</label>
       <select id="icon_key" name="icon_key">
-        {% for key, label in [('embedded','Embedded Systems'),('iot','IoT'),('signal','Signal Processing'),('wireless','Wireless Communications'),('energy','Renewable Energy')] %}
+        {% for key, label in [('Chip','Chip'),('Connected Devices','Connected Devices'),('Activity Pulse','Activity Pulse'),('Wi-Fi','Wi-Fi'),('Power Energy','Power Energy')] %}
         <option value="{{ key }}" {{ 'selected' if area and area.icon_key == key }}>{{ label }}</option>
         {% endfor %}
       </select>

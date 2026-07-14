@@ -84,14 +84,16 @@
       {% for area in research_areas %}
       <div class="r-card reveal">
         <div class="r-icon" aria-hidden="true">
-          {% if area.icon_key == "iot" %}
+          {% if area.icon_key == "Connected Devices" %}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14M19.07 4.93a10 10 0 0 1 0 14.14M7.76 7.76a6 6 0 0 0 0 8.48M16.24 7.76a6 6 0 0 1 0 8.48"/></svg>
-          {% elif area.icon_key == "signal" %}
+          {% elif area.icon_key == "Activity Pulse" %}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-          {% elif area.icon_key == "wireless" %}
+          {% elif area.icon_key == "Wi-Fi" %}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M10.54 16.1a6 6 0 0 1 2.92 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
-          {% elif area.icon_key == "energy" %}
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          {% elif area.icon_key == "Power Energy" %}
+          <svg viewBox="0 0  24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><polyline points="12 2 12 12 16 14"/></svg>
+          {% elif area.icon_key == "Chip" %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M7 9H4M7 12H2M7 15H4M17 9h3M17 12h5M17 15h3M9 7V4M12 7V2M15 7V4M9 17v3M12 17v5M15 17v3"/></svg>
           {% else %}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M7 9H4M7 12H2M7 15H4M17 9h3M17 12h5M17 15h3M9 7V4M12 7V2M15 7V4M9 17v3M12 17v5M15 17v3"/></svg>
           {% endif %}
