@@ -47,7 +47,6 @@
     </div>
 
     <h2 style="font-size:15px;font-weight:bold;margin:24px 0 16px;padding-bottom:8px;border-bottom:1px solid #e0e0e0;">Hero Section</h2>
-    <h2 style="font-size:15px;font-weight:bold;margin:24px 0 16px;padding-bottom:8px;border-bottom:1px solid #e0e0e0;">Hero Section</h2>
     <div class="form-group">
       <label for="hero_image_file">Background Image</label>
       <input type="file" id="hero_image_file" name="hero_image_file" accept="image/png,image/jpeg,image/webp,image/gif">
@@ -55,10 +54,6 @@
       <p class="hint" style="margin-top:8px;">Current image:</p>
       <img src="{{ s.hero_image_url }}" style="margin-top:4px;max-width:280px;border-radius:8px;display:block;">
       {% endif %}
-    </div>
-    <div class="form-group">
-      <label for="hero_eyebrow">Eyebrow Text</label>
-      <input type="text" id="hero_eyebrow" name="hero_eyebrow" value="{{ s.hero_eyebrow or '' }}">
     </div>
     <div class="form-group">
       <label for="hero_eyebrow">Eyebrow Text</label>

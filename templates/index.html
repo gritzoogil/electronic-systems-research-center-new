@@ -180,46 +180,168 @@
   <div class="wrap">
     <div class="sec-header center reveal">
       <span class="eyebrow">What Drives Us</span>
+      <div class="vmv-affiliation reveal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+      </svg>
+      <span><strong>Batangas State University · The National Engineering University</strong></span>
+    </div>
       <h2 class="sec-h2" id="vmv-heading">Vision, Mission &amp; Core Values</h2>
     </div>
 
     {% if settings and (settings.vision or settings.mission or settings.quality_policy) %}
-    <div class="research-grid" data-stagger style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-bottom:32px;">
+    <div class="vmv-pillars" data-stagger>
       {% if settings.vision %}
-      <div class="r-card reveal">
-        <h3 class="r-title">Vision</h3>
-        <p class="r-desc">{{ settings.vision }}</p>
+      <div class="vmv-pillar reveal">
+        <div class="vmv-pillar-accent"></div>
+        <div class="vmv-pillar-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </div>
+        <h3 class="vmv-pillar-title">Vision</h3>
+        <p class="vmv-pillar-desc">{{ settings.vision }}</p>
       </div>
       {% endif %}
+
       {% if settings.mission %}
-      <div class="r-card reveal">
-        <h3 class="r-title">Mission</h3>
-        <p class="r-desc">{{ settings.mission }}</p>
+      <div class="vmv-pillar reveal" style="transition-delay:.08s">
+        <div class="vmv-pillar-accent"></div>
+        <div class="vmv-pillar-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+        <h3 class="vmv-pillar-title">Mission</h3>
+        <p class="vmv-pillar-desc">{{ settings.mission }}</p>
       </div>
       {% endif %}
+
       {% if settings.quality_policy %}
-      <div class="r-card reveal">
-        <h3 class="r-title">Quality Policy</h3>
-        <p class="r-desc">{{ settings.quality_policy }}</p>
+      <div class="vmv-pillar reveal" style="transition-delay:.16s">
+        <div class="vmv-pillar-accent"></div>
+        <div class="vmv-pillar-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/>
+          </svg>
+        </div>
+        <h3 class="vmv-pillar-title">Quality Policy</h3>
+        <p class="vmv-pillar-desc">{{ settings.quality_policy }}</p>
       </div>
       {% endif %}
     </div>
     {% endif %}
 
     {% if core_values %}
-    <div class="research-grid" data-stagger>
+    <div class="vmv-values-header reveal">
+      <span class="vmv-values-line" aria-hidden="true"></span>
+      <p class="vmv-values-label">Our Core Values</p>
+    </div>
+    <div class="vmv-values-grid" data-stagger>
       {% for value in core_values %}
-      <div class="r-card reveal">
-        <h3 class="r-title">{{ value.title }}</h3>
-        {% if value.description %}
-        <p class="r-desc">{{ value.description }}</p>
-        {% endif %}
+      <div class="vmv-value-card reveal" style="transition-delay:{{ (loop.index0 * 0.05)|round(2) }}s">
+        <div class="vmv-value-icon {{ 'alt' if loop.index0 % 2 }}" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2l2.6 6.9L22 9.3l-5.5 4.8L18 22l-6-3.6L6 22l1.5-7.9L2 9.3l7.4-.4z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="vmv-value-title">{{ value.title }}</h3>
+          {% if value.description %}
+          <p class="vmv-value-desc">{{ value.description }}</p>
+          {% endif %}
+        </div>
       </div>
       {% endfor %}
     </div>
     {% endif %}
+
   </div>
 </section>
+
+<style>
+/* ── Vision / Mission / Quality pillars ─────────────────────────────── */
+.vmv-affiliation {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin: 0 auto 20px; padding: 8px 18px;
+  background: var(--white); border: 1px solid var(--gray-200); border-radius: 999px;
+  font-size: .8rem; color: var(--gray-500);
+  box-shadow: 0 2px 8px rgba(15,76,129,.06);
+}
+.vmv-affiliation svg { width: 16px; height: 16px; color: var(--cyan); flex-shrink: 0; }
+.vmv-affiliation strong { color: var(--navy); font-weight: 700; }
+.vmv-values-header{
+  /* unchanged */
+}
+.vmv-pillars {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px; margin-bottom: 48px;
+}
+.vmv-pillar {
+  position: relative; background: var(--white); border: 1px solid var(--gray-200);
+  border-radius: 16px; padding: 32px 28px 28px; overflow: hidden;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.vmv-pillar:hover { transform: translateY(-3px); box-shadow: 0 14px 34px rgba(15,76,129,.1); }
+.vmv-pillar-accent {
+  position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, var(--navy), var(--cyan));
+}
+.vmv-pillar-icon {
+  width: 46px; height: 46px; border-radius: 12px; margin-bottom: 18px;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--navy-dark), var(--navy)); color: var(--white);
+}
+.vmv-pillar-icon svg { width: 22px; height: 22px; }
+.vmv-pillar-title {
+  font-family: var(--font-d); font-size: 1.05rem; font-weight: 700;
+  color: var(--navy); margin-bottom: 10px;
+}
+.vmv-pillar-desc { font-size: .875rem; color: var(--gray-500); line-height: 1.65; }
+
+/* ── Core values ─────────────────────────────────────────────────────── */
+.vmv-values-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+}
+.vmv-values-line { width: 28px; height: 2px; background: var(--cyan); display: inline-block; }
+.vmv-values-label {
+  font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--gray-400);
+}
+.vmv-values-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+}
+.vmv-value-card {
+  display: flex; align-items: flex-start; gap: 14px;
+  background: var(--white); border: 1px solid var(--gray-200); border-radius: 14px;
+  padding: 20px; transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.vmv-value-card:hover {
+  transform: translateY(-2px); border-color: var(--cyan);
+  box-shadow: 0 10px 24px rgba(15,76,129,.08);
+}
+.vmv-value-icon {
+  flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(15,76,129,.08); color: var(--navy);
+}
+.vmv-value-icon.alt { background: rgba(0,184,217,.12); color: var(--cyan); }
+.vmv-value-icon svg { width: 17px; height: 17px; }
+.vmv-value-title {
+  font-family: var(--font-d); font-size: .95rem; font-weight: 700;
+  color: var(--gray-900); margin-bottom: 4px;
+}
+.vmv-value-desc { font-size: .8rem; color: var(--gray-500); line-height: 1.5; }
+
+@media (max-width: 768px) {
+  .vmv-values-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .vmv-values-grid { grid-template-columns: 1fr; }
+}
+</style>
 {% endif %}
 
 {# ═══ ESRC VIDEO (AVP) ═══════════════════════════════════════════════ #}

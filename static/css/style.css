@@ -191,6 +191,13 @@ input,textarea,select { font-family: inherit; }
   display: block; font-size: .62rem; font-weight: 500;
   opacity: .65; letter-spacing: .06em; text-transform: uppercase;
 }
+.nav-brand-affiliation {
+  display: block;
+  font-size: .68rem;
+  color: var(--cyan);
+  font-weight: 600;
+  margin-top: 1px;
+}
 .nav.scrolled .nav-brand-text { color: var(--dark); }
 
 .nav-links {
