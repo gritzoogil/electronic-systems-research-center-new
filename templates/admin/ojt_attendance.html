@@ -8,55 +8,187 @@
 <div class="alert alert-error">{{ error }}</div>
 {% endif %}
 
-<div class="page-actions" style="flex-wrap:wrap;gap:12px;">
-  <div style="display:flex;align-items:center;gap:10px;">
-    <label style="font-size:13px;font-weight:bold;">Date:</label>
-    <select id="dateSelect" onchange="window.location='?date='+this.value"
-            style="padding:6px 10px;border:1px solid #ccc;border-radius:4px;font-size:13px;">
-      {% for date in dates %}
-      <option value="{{ date }}" {{ 'selected' if date == selected_date }}>{{ date }}</option>
-      {% endfor %}
-    </select>
-    <span style="font-size:12px;color:#888;">{{ records|length }} intern(s) present</span>
+<div class="attendance-layout">
+
+  <!-- CALENDAR -->
+  <div class="att-calendar-panel">
+    <div class="att-calendar-header">
+      <button type="button" id="prevMonth" class="att-cal-nav-btn" aria-label="Previous month">‹</button>
+      <p id="attCalMonthLabel" class="att-cal-month-label"></p>
+      <button type="button" id="nextMonth" class="att-cal-nav-btn" aria-label="Next month">›</button>
+    </div>
+
+    <div class="att-cal-legend">
+      <span><i class="dot dot-has-records"></i> Has records</span>
+      <span><i class="dot dot-selected"></i> Selected</span>
+      <span><i class="dot dot-none"></i> No records</span>
+    </div>
+
+    <div class="att-cal-weekdays">
+      <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+    </div>
+
+    <div class="att-cal-grid" id="attCalGrid"></div>
   </div>
-  <input type="text" id="searchInput" placeholder="Search name or course..."
-         style="padding:6px 10px;border:1px solid #ccc;border-radius:4px;font-size:13px;width:220px;">
+
+  <!-- RESULTS -->
+  <div class="att-results-panel">
+    <div class="page-actions" style="margin-bottom:16px;">
+      <span style="font-size:13px;font-weight:bold;" id="attSelectedDateLabel">
+        {{ selected_date or 'No date selected' }}
+      </span>
+      <span style="font-size:12px;color:#888;">{{ records|length }} intern(s) present</span>
+    </div>
+
+    <input type="text" id="searchInput" placeholder="Search name or course..."
+           style="padding:6px 10px;border:1px solid #ccc;border-radius:4px;font-size:13px;width:100%;margin-bottom:16px;">
+
+    {% if records %}
+    <table id="attendanceTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Course / Program</th>
+          <th>Time In</th>
+          <th>Task for the Day</th>
+          <th>Accomplishment</th>
+          <th>Time Out</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in records %}
+        <tr>
+          <td>{{ r.id or '—' }}</td>
+          <td>{{ r.name }}</td>
+          <td>{{ r.course or '—' }}</td>
+          <td style="{{ 'color:#dc2626;font-weight:bold;' if r.late else 'color:#16a34a;font-weight:bold;' }}">
+            {{ r.time_in or '—' }}
+          </td>
+          <td>{{ r.task or '—' }}</td>
+          <td>{{ r.accomplishment or '—' }}</td>
+          <td>{{ r.time_out or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% elif selected_date %}
+    <p style="text-align:center;color:#999;padding:40px 0;">No records found for {{ selected_date }}.</p>
+    {% else %}
+    <p style="text-align:center;color:#999;padding:40px 0;">Select a date on the calendar to view attendance.</p>
+    {% endif %}
+  </div>
+
 </div>
 
-{% if records %}
-<table id="attendanceTable" style="margin-top:16px;">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Name</th>
-      <th>Course / Program</th>
-      <th>Time In</th>
-      <th>Task for the Day</th>
-      <th>Accomplishment</th>
-      <th>Time Out</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for r in records %}
-    <tr>
-      <td>{{ r.id or '—' }}</td>
-      <td>{{ r.name }}</td>
-      <td>{{ r.course or '—' }}</td>
-      <td style="{{ 'color:#dc2626;font-weight:bold;' if r.late else 'color:#16a34a;font-weight:bold;' }}">
-        {{ r.time_in or '—' }}
-      </td>
-      <td>{{ r.task or '—' }}</td>
-      <td>{{ r.accomplishment or '—' }}</td>
-      <td>{{ r.time_out or '—' }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% elif selected_date %}
-<p style="text-align:center;color:#999;padding:40px 0;">No records found for {{ selected_date }}.</p>
-{% endif %}
+<style>
+.attendance-layout { display:grid; grid-template-columns:1fr; gap:24px; }
+@media (min-width:900px) { .attendance-layout { grid-template-columns:340px 1fr; align-items:start; } }
+
+.att-calendar-panel {
+  background:#fff; border:1px solid #e0e0e0; border-radius:8px; padding:20px;
+}
+.att-calendar-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.att-cal-month-label { font-weight:bold; color:#0f4c81; font-size:14px; }
+.att-cal-nav-btn {
+  width:30px; height:30px; border-radius:6px; border:1px solid #e0e0e0;
+  background:#fff; color:#0f4c81; font-size:1rem; cursor:pointer;
+}
+.att-cal-nav-btn:hover { background:#f5f5f5; }
+
+.att-cal-legend { display:flex; flex-wrap:wrap; gap:12px; font-size:.7rem; color:#888; margin-bottom:14px; }
+.att-cal-legend .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:4px; }
+.dot-has-records { background:#0f4c81; }
+.dot-selected { background:#00b8d9; }
+.dot-none { background:#e2e8f0; }
+
+.att-cal-weekdays, .att-cal-grid { display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); gap:3px; }
+.att-cal-weekdays span { text-align:center; font-size:.68rem; font-weight:bold; color:#888; padding-bottom:6px; }
+
+.att-cal-day {
+  aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+  border-radius:6px; font-size:.78rem; font-weight:600; cursor:pointer;
+  border:2px solid transparent; background:none; color:#333;
+}
+.att-cal-day.empty { cursor:default; visibility:hidden; }
+.att-cal-day[data-has-records="true"] { background:#eaf2f9; color:#0f4c81; }
+.att-cal-day[data-has-records="false"] { color:#cbd5e1; cursor:not-allowed; }
+.att-cal-day.selected { border-color:#00b8d9; background:#e0f7fb; color:#0f4c81; }
+.att-cal-day[data-has-records="true"]:hover { transform:scale(1.06); }
+
+.att-results-panel {
+  background:#fff; border:1px solid #e0e0e0; border-radius:8px; padding:20px;
+}
+</style>
 
 <script>
+(function () {
+  const availableDates = {{ dates | tojson }};  // e.g. ["2026-07-14", "2026-07-09", ...]
+  const selectedDate = {{ (selected_date | tojson) if selected_date else 'null' }};
+  const dateSet = new Set(availableDates);
+
+  const monthNames = ["January","February","March","April","May","June","July",
+                       "August","September","October","November","December"];
+
+  // Start on the selected date's month if one is selected, else the most recent available date, else today
+  let anchor = selectedDate || availableDates[0] || new Date().toISOString().slice(0, 10);
+  let [year, month] = anchor.split("-").map(Number); // month is 1-indexed here
+
+  function pad(n) { return String(n).padStart(2, "0"); }
+
+  function setMonthLabel() {
+    document.getElementById("attCalMonthLabel").textContent = monthNames[month - 1] + " " + year;
+  }
+
+  function buildGrid() {
+    const grid = document.getElementById("attCalGrid");
+    grid.innerHTML = "";
+
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const firstWeekday = new Date(year, month - 1, 1).getDay();
+
+    for (let i = 0; i < firstWeekday; i++) {
+      const empty = document.createElement("div");
+      empty.className = "att-cal-day empty";
+      grid.appendChild(empty);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${year}-${pad(month)}-${pad(d)}`;
+      const hasRecords = dateSet.has(dateStr);
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "att-cal-day";
+      btn.textContent = d;
+      btn.setAttribute("data-has-records", hasRecords ? "true" : "false");
+      btn.disabled = !hasRecords;
+      if (dateStr === selectedDate) btn.classList.add("selected");
+
+      if (hasRecords) {
+        btn.addEventListener("click", () => {
+          window.location.href = "?date=" + dateStr;
+        });
+      }
+      grid.appendChild(btn);
+    }
+  }
+
+  document.getElementById("prevMonth").addEventListener("click", () => {
+    month--; if (month < 1) { month = 12; year--; }
+    setMonthLabel();
+    buildGrid();
+  });
+  document.getElementById("nextMonth").addEventListener("click", () => {
+    month++; if (month > 12) { month = 1; year++; }
+    setMonthLabel();
+    buildGrid();
+  });
+
+  setMonthLabel();
+  buildGrid();
+})();
+
 document.getElementById('searchInput').addEventListener('input', function() {
   const q = this.value.toLowerCase();
   document.querySelectorAll('#attendanceTable tbody tr').forEach(row => {
