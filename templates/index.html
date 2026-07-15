@@ -68,51 +68,6 @@
   </svg>
 </div>
 
-{# ═══ 2. RESEARCH AREAS ══════════════════════════════════════════════ #}
-<section id="research" class="section bg-gray" aria-labelledby="research-heading">
-  <div class="wrap">
-    <div class="sec-header reveal">
-      <span class="eyebrow">What We Study</span>
-      <h2 class="sec-h2" id="research-heading">Research Areas</h2>
-      <p class="sec-lead">
-        Our multidisciplinary teams push the boundaries of electronic systems across
-        five core domains, tackling real-world challenges with cutting-edge methods.
-      </p>
-    </div>
-
-    <div class="research-grid" data-stagger>
-      {% for area in research_areas %}
-      <div class="r-card reveal">
-        <div class="r-icon" aria-hidden="true">
-          {% if area.icon_key == "Connected Devices" %}
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14M19.07 4.93a10 10 0 0 1 0 14.14M7.76 7.76a6 6 0 0 0 0 8.48M16.24 7.76a6 6 0 0 1 0 8.48"/></svg>
-          {% elif area.icon_key == "Activity Pulse" %}
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-          {% elif area.icon_key == "Wi-Fi" %}
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M10.54 16.1a6 6 0 0 1 2.92 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
-          {% elif area.icon_key == "Power Energy" %}
-          <svg viewBox="0 0  24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><polyline points="12 2 12 12 16 14"/></svg>
-          {% elif area.icon_key == "Chip" %}
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M7 9H4M7 12H2M7 15H4M17 9h3M17 12h5M17 15h3M9 7V4M12 7V2M15 7V4M9 17v3M12 17v5M15 17v3"/></svg>
-          {% else %}
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M7 9H4M7 12H2M7 15H4M17 9h3M17 12h5M17 15h3M9 7V4M12 7V2M15 7V4M9 17v3M12 17v5M15 17v3"/></svg>
-          {% endif %}
-        </div>
-        <h3 class="r-title">{{ area.title }}</h3>
-        <p class="r-desc">{{ area.description }}</p>
-      </div>
-      {% endfor %}
-
-      <!-- CTA card (stays static) -->
-      <div class="r-card reveal" style="background:linear-gradient(135deg,var(--navy),var(--navy-light));border-color:transparent;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:14px;">
-        <div style="font-family:var(--font-d);font-size:1rem;font-weight:700;color:var(--white);">Start a Research Collaboration</div>
-        <p style="font-size:.83rem;color:rgba(255,255,255,.65);line-height:1.55;">Partner with ESRC to bring your research vision to life.</p>
-        <a href="#contact" class="btn btn-ghost btn-sm">Get in Touch</a>
-      </div>
-    </div>
-  </div>
-</section>
-
 {# Circuit divider #}
 <div class="circuit-divider" aria-hidden="true">
   <svg viewBox="0 0 1440 28" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
@@ -174,6 +129,51 @@
     <circle cx="760" cy="14" r="3" fill="var(--navy)" opacity=".35"/>
   </svg>
 </div>
+
+{# ═══ 2. RESEARCH AREAS ══════════════════════════════════════════════ #}
+<section id="research" class="section bg-gray" aria-labelledby="research-heading">
+  <div class="wrap">
+    <div class="sec-header reveal">
+      <span class="eyebrow">What We Study</span>
+      <h2 class="sec-h2" id="research-heading">Research Areas</h2>
+      <p class="sec-lead">
+        Our multidisciplinary teams push the boundaries of electronic systems across
+        five core domains, tackling real-world challenges with cutting-edge methods.
+      </p>
+    </div>
+
+    <div class="research-grid" data-stagger>
+      {% for area in research_areas %}
+      <div class="r-card reveal">
+        <div class="r-icon" aria-hidden="true">
+          {% if area.icon_key == "Connected Devices" %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14M19.07 4.93a10 10 0 0 1 0 14.14M7.76 7.76a6 6 0 0 0 0 8.48M16.24 7.76a6 6 0 0 1 0 8.48"/></svg>
+          {% elif area.icon_key == "Activity Pulse" %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          {% elif area.icon_key == "Wi-Fi" %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M10.54 16.1a6 6 0 0 1 2.92 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+          {% elif area.icon_key == "Power Energy" %}
+          <svg viewBox="0 0  24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><polyline points="12 2 12 12 16 14"/></svg>
+          {% elif area.icon_key == "Chip" %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M7 9H4M7 12H2M7 15H4M17 9h3M17 12h5M17 15h3M9 7V4M12 7V2M15 7V4M9 17v3M12 17v5M15 17v3"/></svg>
+          {% else %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M7 9H4M7 12H2M7 15H4M17 9h3M17 12h5M17 15h3M9 7V4M12 7V2M15 7V4M9 17v3M12 17v5M15 17v3"/></svg>
+          {% endif %}
+        </div>
+        <h3 class="r-title">{{ area.title }}</h3>
+        <p class="r-desc">{{ area.description }}</p>
+      </div>
+      {% endfor %}
+
+      <!-- CTA card (stays static) -->
+      <div class="r-card reveal" style="background:linear-gradient(135deg,var(--navy),var(--navy-light));border-color:transparent;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:14px;">
+        <div style="font-family:var(--font-d);font-size:1rem;font-weight:700;color:var(--white);">Start a Research Collaboration</div>
+        <p style="font-size:.83rem;color:rgba(255,255,255,.65);line-height:1.55;">Partner with ESRC to bring your research vision to life.</p>
+        <a href="#contact" class="btn btn-ghost btn-sm">Get in Touch</a>
+      </div>
+    </div>
+  </div>
+</section>
 
 {% if (settings and (settings.vision or settings.mission or settings.quality_policy)) or core_values %}
 <section id="vmv" class="section bg-gray" aria-labelledby="vmv-heading">
