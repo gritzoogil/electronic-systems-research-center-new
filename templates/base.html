@@ -5,23 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="description" content="{% block meta_desc %}Electronic Systems Research Center - Advancing innovation through electronic systems research at Batangas State University The NEU.{% endblock %}"/>
   <link rel="canonical" href="{{ request.url_root.rstrip('/') }}{{ request.path }}"/>
-  <meta name="google-site-verification" content="bcWX71h0vi37DUAQRAEJ1G_P71FbSAnJTsxPOR0b44s" />
+  <meta name="google-site-verification" content="bcWX71h0vi37DUAQRAEJ1G_P71FbSAnJTsxPOR0b44s"/>
   <meta name="keywords" content="ESRC, Electronic Systems Research Center, BatStateU, Electronics Research, Engineering, IoT, AI, Robotics"/>
   <meta name="author" content="Electronic Systems Research Center"/>
+
+  <!-- Open Graph -->
   <meta property="og:title" content="{% block og_title %}Electronic Systems Research Center{% endblock %}"/>
   <meta property="og:type" content="website"/>
-  <meta property="og:image" content="{{ url_for('static', filename='img/esrc_logo.png', _external=True) }}"/>
+  <meta property="og:url" content="{{ request.url }}"/>
+  <meta property="og:image" content="{{ request.host_url }}static/img/esrc_logo.png"/>
+  <meta property="og:image:width" content="512"/>
+  <meta property="og:image:height" content="512"/>
+  <meta property="og:image:alt" content="Electronic Systems Research Center logo"/>
+  <meta property="og:site_name" content="ESRC — BatStateU The NEU"/>
+  <meta property="og:description" content="{% block og_desc %}Advancing innovation through electronic systems research at Batangas State University The NEU.{% endblock %}"/>
+
+  <!-- Twitter/X card -->
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:title" content="{% block tw_title %}Electronic Systems Research Center{% endblock %}"/>
+  <meta name="twitter:image" content="{{ request.host_url }}static/img/esrc_logo.png"/>
+
   <title>{% block title %}Electronic Systems Research Center · BatStateU The NEU{% endblock %}</title>
 
   <!-- Preconnect -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <!-- Google Fonts: Manrope (display) + Inter (body) -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet"/>
 
   <!-- Design system -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
-
   <link rel="dns-prefetch" href="https://fonts.googleapis.com"/>
   {% block head %}{% endblock %}
 
@@ -31,8 +43,32 @@
     "@context": "https://schema.org",
     "@type": "ResearchOrganization",
     "name": "Electronic Systems Research Center",
+    "alternateName": "ESRC",
     "url": "{{ request.host_url }}",
-    "memberOf": { "@type": "CollegeOrUniversity", "name": "Batangas State University The National Engineering University" }
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ request.host_url }}static/img/esrc_logo.png",
+      "width": 512,
+      "height": 512
+    },
+    "image": "{{ request.host_url }}static/img/esrc_logo.png",
+    "description": "The Electronic Systems Research Center (ESRC) at Batangas State University The NEU advances innovation through electronic systems research.",
+    "email": "esrc@g.batstate-u.edu.ph",
+    "telephone": "+63439800385",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "2nd Floor STEER Hub Building, Alangilan Campus",
+      "addressLocality": "Batangas City",
+      "postalCode": "4200",
+      "addressCountry": "PH"
+    },
+    "memberOf": {
+      "@type": "CollegeOrUniversity",
+      "name": "Batangas State University The National Engineering University"
+    },
+    "sameAs": [
+      "https://www.facebook.com/share/1Cvdcot6a3/"
+    ]
   }
   </script>
 </head>

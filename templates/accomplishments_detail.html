@@ -1,11 +1,79 @@
 {% extends 'base.html' %}
-{% block title %}{{ report.title }} · ESRC Accomplishments{% endblock %}
-{% block meta_desc %}{{ report.description[:155] if report.description else "A research project by the Electronic Systems Research Center at Batangas State University." }}{% endblock %}
+{% block title %}{{ report.title or ('Q' ~ report.quarter ~ ' ' ~ report.year ~ ' Report') }} - ESRC{% endblock %}
+
 {% block content %}
-<section style="padding-top:100px;">
-  <iframe allowfullscreen scrolling="no"
-    style="border:0;width:100%;height:90vh;"
-    src="{{ report.flipbook_link }}">
-  </iframe>
+
+<section style="padding:140px 0 60px;background:linear-gradient(135deg,var(--gray-900),var(--navy-dark),var(--navy));">
+  <div class="wrap">
+    <a href="{{ url_for('public.accomplishments') }}" style="display:inline-flex;align-items:center;gap:6px;font-size:.85rem;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:24px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to Accomplishments
+    </a>
+
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+      <span class="badge badge-cat">Q{{ report.quarter }}</span>
+      <span style="font-size:.78rem;color:rgba(255,255,255,.5);font-weight:600;">{{ report.year }}</span>
+    </div>
+
+    <h1 class="sec-h2 light" style="margin-bottom:.75rem;">
+      {{ report.title if report.title else 'Q' ~ report.quarter ~ ' Accomplishment Report ' ~ report.year }}
+    </h1>
+
+    {% if report.description %}
+    <p class="sec-lead light" style="max-width:720px;">{{ report.description }}</p>
+    {% endif %}
+  </div>
 </section>
+
+<div class="circuit-divider" aria-hidden="true">
+  <svg viewBox="0 0 1440 28" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+    <rect width="1440" height="28" fill="var(--white)"/>
+    <line x1="0" y1="14" x2="680" y2="14" stroke="#E2E8F0" stroke-width="1"/>
+    <line x1="760" y1="14" x2="1440" y2="14" stroke="#E2E8F0" stroke-width="1"/>
+    <circle cx="720" cy="14" r="8" fill="var(--navy)"/>
+    <circle cx="720" cy="14" r="4" fill="var(--cyan)"/>
+    <circle cx="680" cy="14" r="3" fill="var(--navy)" opacity=".35"/>
+    <circle cx="760" cy="14" r="3" fill="var(--navy)" opacity=".35"/>
+  </svg>
+</div>
+
+<section class="section">
+  <div class="wrap">
+
+    {% if report.flipbook_link %}
+    <div style="max-width:960px;margin:0 auto;">
+      <div style="position:relative;width:100%;aspect-ratio:4/3;border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-lg);border:1px solid var(--gray-200);">
+        <iframe
+          src="{{ report.flipbook_link }}"
+          style="width:100%;height:100%;border:0;"
+          allow="fullscreen"
+          loading="lazy"
+          title="{{ report.title or ('Q' ~ report.quarter ~ ' ' ~ report.year ~ ' Accomplishment Report') }}">
+        </iframe>
+      </div>
+      <p style="text-align:center;margin-top:16px;">
+        <a href="{{ report.flipbook_link }}" target="_blank" rel="noopener"
+           style="font-size:.85rem;font-weight:600;color:var(--navy);">
+          Open in full screen ↗
+        </a>
+      </p>
+    </div>
+
+    {% else %}
+    <div style="text-align:center;max-width:520px;margin:0 auto;padding:48px 32px;background:var(--gray-50);border-radius:var(--r-xl);border:1px solid var(--gray-200);">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" stroke-width="1.5" style="margin:0 auto 16px;">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+      </svg>
+      <p style="font-size:.9rem;color:var(--gray-500);margin-bottom:20px;">
+        The flipbook for this report hasn't been uploaded yet.
+      </p>
+      <a href="{{ url_for('public.accomplishments') }}" class="btn btn-outline btn-sm">
+        Back to All Reports
+      </a>
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+
 {% endblock %}
