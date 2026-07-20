@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
 Sitemap: https://electronic-systems-research-center.vercel.app/sitemap.xml
