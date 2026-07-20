@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
-{% block title %}{{ project.title }} - Electronic Systems Research Center{% endblock %}
-
+{% block title %}{{ project.title }} · ESRC Projects{% endblock %}
+{% block meta_desc %}{{ project.description[:155] if project.description else "A research project by the Electronic Systems Research Center at Batangas State University." }}{% endblock %}
 {% block head %}
 {% if project.img_path %}
 <link rel="preload" as="image" href="{{ project.img_path }}">

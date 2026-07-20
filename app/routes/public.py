@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, Response
 import resend
 import os
 from datetime import datetime
@@ -26,6 +26,48 @@ def _parse_pub_date(date_str):
         except ValueError:
             continue
     return datetime.min
+
+@public_bp.route("/robots.txt")
+def robots_txt():
+    lines = [
+        "User-agent: *",
+        "Allow: /",
+        "Disallow: /admin/",
+        f"Sitemap: {request.url_root.rstrip('/')}/sitemap.xml",
+    ]
+    return Response("\n".join(lines), mimetype="text/plain")
+
+@public_bp.route("/sitemap.xml")
+def sitemap():
+    base = request.url_root.rstrip('/')
+    urls = []
+
+    # Static/core pages
+    for path, priority in [
+        ("/", "1.0"), ("/team", "0.7"), ("/publications", "0.8"),
+        ("/projects", "0.8"), ("/resources", "0.6"),
+        ("/accomplishments", "0.6"), ("/center-highlights", "0.7"),
+        ("/appointments", "0.7"),
+    ]:
+        urls.append({"loc": base + path, "priority": priority})
+
+    # Dynamic content
+    for p in Project.query.filter_by(is_published=True).all():
+        urls.append({"loc": f"{base}/projects/{p.id}", "priority": "0.6"})
+    for pub in Publication.query.filter_by(is_published=True).all():
+        urls.append({"loc": f"{base}/publications/{pub.id}", "priority": "0.5"})
+    for r in AccomplishmentReport.query.filter_by(is_published=True).all():
+        urls.append({"loc": f"{base}/accomplishments/{r.id}", "priority": "0.5"})
+    for res in LearningResource.query.filter_by(is_published=True).all():
+        urls.append({"loc": f"{base}/resources/{res.id}", "priority": "0.5"})
+
+    xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>',
+                 '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for u in urls:
+        xml_parts.append(f'<url><loc>{u["loc"]}</loc><priority>{u["priority"]}</priority></url>')
+    xml_parts.append('</urlset>')
+
+    return Response("\n".join(xml_parts), mimetype="application/xml")
 
 @public_bp.route("/")
 def home():

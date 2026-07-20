@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% block title %}{{ report.title }} · ESRC Accomplishments{% endblock %}
+{% block meta_desc %}{{ report.description[:155] if report.description else "A research project by the Electronic Systems Research Center at Batangas State University." }}{% endblock %}
 {% block content %}
 <section style="padding-top:100px;">
   <iframe allowfullscreen scrolling="no"
