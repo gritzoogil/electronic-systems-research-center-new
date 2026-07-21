@@ -1,11 +1,12 @@
 {
   "builds": [
-    { "src": "/robots.txt", "dest": "/static/robots.txt" },
-    { "src": "/(.*)", "dest": "api/index.py" }
+    { "src": "api/index.py", "use": "@vercel/python" },
+    { "src": "static/**", "use": "@vercel/static" }
   ],
   "routes": [
     { "src": "/sitemap.xml", "dest": "/static/sitemap.xml" },
     { "src": "/robots.txt", "dest": "/static/robots.txt" },
+    { "src": "/favicon.ico", "dest": "/static/img/favicon.ico" },
     { "src": "/static/(.*)", "dest": "/static/$1" },
     { "src": "/(.*)", "dest": "api/index.py" }
   ]
