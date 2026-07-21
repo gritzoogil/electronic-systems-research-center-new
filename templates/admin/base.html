@@ -118,8 +118,10 @@
       <li><a href="{{ url_for('admin.schedule') }}" class="{{ 'active' if 'schedule' in request.endpoint }}">Schedule Settings</a></li>
     </ul>
 
-    <div class="sidebar-footer">
+    <div class="sidebar-footer" style="display:flex;flex-direction:column;gap:8px;">
       <a href="{{ url_for('public.home') }}" target="_blank">← View Site</a>
+      <a href="{{ url_for('admin.change_password') }}">Change Password</a>
+      <a href="{{ url_for('admin.logout') }}" style="color:#fecaca;">Logout</a>
     </div>
   </aside>
 

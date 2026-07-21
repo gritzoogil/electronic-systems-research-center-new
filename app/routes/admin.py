@@ -221,6 +221,10 @@ def admin_required(f):
 def login():
     return render_template("admin/login.html", **FIREBASE_CONFIG)
 
+@admin_bp.route("/change-password")
+@admin_required
+def change_password():
+    return render_template("admin/change_password.html", **FIREBASE_CONFIG)
 
 @admin_bp.route("/logout")
 def logout():
