@@ -26,6 +26,7 @@ class OJT(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False)
     email = db.Column(db.String(150))
+    sr_code = db.Column(db.String(10)) 
     course = db.Column(db.String(150))
     photo_url = db.Column(db.String(255))
     batch_label = db.Column(db.String(100))  # e.g. "2025-2026 Midterm Interns"

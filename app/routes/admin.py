@@ -861,10 +861,16 @@ def ojt_new():
             batch_label=batch_label,
             photo_url=photo_url,
             order=safe_order,
+            sr_code=request.form.get("sr_code", "").strip() or None,
             is_published=bool(request.form.get("is_published")),
         )
         db.session.add(intern)
         db.session.commit()
+        if intern.sr_code:
+            try:
+                add_student_to_sheet(intern.sr_code, intern.name, intern.course or "")
+            except Exception as e:
+                flash(f"Intern saved, but Sheet sync failed: {e}", "error")
         flash("Intern added.", "success")
         return redirect(url_for("admin.ojt_list"))
     return render_template("admin/ojt_form.html", intern=None, existing_batches=_get_ojt_batches())
@@ -906,8 +912,15 @@ def ojt_edit(ojt_id):
         intern.course = request.form.get("course", "").strip() or None
         intern.batch_label = new_batch_label
         intern.order = safe_order
+        intern.sr_code = request.form.get("sr_code", "").strip() or None
         intern.is_published = bool(request.form.get("is_published"))
         db.session.commit()
+        if intern.sr_code:
+            try:
+                update_student_in_sheet(intern.sr_code, intern.name, intern.course or "")
+            except Exception as e:
+                flash(f"Intern updated, but Sheet sync failed: {e}", "error")
+
         flash("Intern updated.", "success")
         return redirect(url_for("admin.ojt_list"))
     return render_template("admin/ojt_form.html", intern=intern, existing_batches=_get_ojt_batches())
@@ -919,6 +932,11 @@ def ojt_delete(ojt_id):
     intern = OJT.query.get_or_404(ojt_id)
     deleted_order = intern.order
     batch_label = intern.batch_label
+    if intern.sr_code:
+        try:
+            delete_student_from_sheet(intern.sr_code, intern.name)
+        except Exception as e:
+            flash(f"Sheet sync failed: {e}", "error")
     db.session.delete(intern)
     db.session.commit()
     reorder_on_delete(OJT, deleted_order, filters={"batch_label": batch_label})
@@ -955,6 +973,46 @@ def ojt_attendance():
                            dates=dates,
                            selected_date=selected_date,
                            error=error)
+from app.attendance import (
+    get_sheets_service, get_available_dates, get_attendance_for_date,
+    update_task_accomplishment, add_student_to_sheet, update_student_in_sheet,
+    delete_student_from_sheet, upload_signature,
+)
+
+@admin_bp.route("/ojt/attendance/update", methods=["POST"])
+@admin_required
+def ojt_attendance_update():
+    sr_code = request.form.get("sr_code", "").strip()
+    name = request.form.get("name", "").strip()
+    course = request.form.get("course", "").strip()
+    task = request.form.get("task", "").strip()
+    accomplishment = request.form.get("accomplishment", "").strip()
+    date_str = request.form.get("date", "").strip()
+
+    try:
+        update_task_accomplishment(sr_code, name, course, task, accomplishment, date_str)
+        flash("Task/Accomplishment updated.", "success")
+    except Exception as e:
+        flash(f"Failed to update sheet: {e}", "error")
+
+    return redirect(url_for("admin.ojt_attendance", date=date_str))
+
+
+@admin_bp.route("/ojt/attendance/signature", methods=["POST"])
+@admin_required
+def ojt_attendance_signature():
+    sr_code = request.form.get("sr_code", "").strip()
+    name = request.form.get("name", "").strip()
+    date_str = request.form.get("date", "").strip()
+    signature_data = request.form.get("signature_data", "")  # base64 PNG from canvas or file
+
+    try:
+        result = upload_signature(sr_code, name, date_str, signature_data)
+        flash("Signature saved.", "success")
+    except Exception as e:
+        flash(f"Failed to save signature: {e}", "error")
+
+    return redirect(url_for("admin.ojt_attendance", date=date_str))
 
 # ── PARTNERS ───────────────────────────────────────────────────────────────
 

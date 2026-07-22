@@ -54,6 +54,7 @@
           <th>Task for the Day</th>
           <th>Accomplishment</th>
           <th>Time Out</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -68,6 +69,10 @@
           <td>{{ r.task or '—' }}</td>
           <td>{{ r.accomplishment or '—' }}</td>
           <td>{{ r.time_out or '—' }}</td>
+          <td>
+            <button type="button" class="btn btn-secondary btn-sm"
+                    onclick='openEditModal({{ r|tojson }})'>Edit</button>
+          </td>
         </tr>
         {% endfor %}
       </tbody>
@@ -79,6 +84,49 @@
     {% endif %}
   </div>
 
+  <!-- Edit Task/Accomplishment/Signature Modal -->
+<div id="editRecordModal" class="delete-modal-overlay" style="display:none;">
+  <div class="delete-modal" style="max-width:480px;text-align:left;">
+    <h3 style="margin-bottom:16px;">Edit Attendance Record</h3>
+    <form id="editRecordForm" method="POST" action="{{ url_for('admin.ojt_attendance_update') }}">
+      <input type="hidden" name="sr_code" id="edit_sr_code">
+      <input type="hidden" name="name" id="edit_name">
+      <input type="hidden" name="course" id="edit_course">
+      <input type="hidden" name="date" value="{{ selected_date }}">
+
+      <div class="form-group">
+        <label>Task for the Day</label>
+        <textarea name="task" id="edit_task"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Accomplishment</label>
+        <textarea name="accomplishment" id="edit_accomplishment"></textarea>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:16px;">
+        <button type="submit" class="btn btn-primary" style="flex:1;">Save</button>
+        <button type="button" class="btn btn-secondary" style="flex:1;" onclick="closeEditModal()">Cancel</button>
+      </div>
+    </form>
+
+    <hr style="margin:20px 0;">
+
+    <h4 style="margin-bottom:10px;">Signature</h4>
+    <canvas id="sigCanvas" width="400" height="140" style="border:1px solid #ccc;border-radius:6px;width:100%;touch-action:none;"></canvas>
+    <div style="display:flex;gap:10px;margin-top:10px;">
+      <button type="button" class="btn btn-secondary btn-sm" onclick="clearSignature()">Clear</button>
+      <button type="button" class="btn btn-primary btn-sm" onclick="submitSignature()">Save Signature</button>
+    </div>
+    <p class="hint" style="margin-top:8px;">Draw the student's signature above, or ask them to sign on this device.</p>
+  </div>
+</div>
+
+<form id="signatureForm" method="POST" action="{{ url_for('admin.ojt_attendance_signature') }}" style="display:none;">
+  <input type="hidden" name="sr_code" id="sig_sr_code">
+  <input type="hidden" name="name" id="sig_name">
+  <input type="hidden" name="date" value="{{ selected_date }}">
+  <input type="hidden" name="signature_data" id="sig_data">
+</form>
 </div>
 
 <style>
@@ -194,6 +242,52 @@ document.getElementById('searchInput').addEventListener('input', function() {
   document.querySelectorAll('#attendanceTable tbody tr').forEach(row => {
     row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
   });
+
+  function openEditModal(r) {
+  document.getElementById('edit_sr_code').value = r.id || '';
+  document.getElementById('edit_name').value = r.name || '';
+  document.getElementById('edit_course').value = r.course || '';
+  document.getElementById('edit_task').value = r.task || '';
+  document.getElementById('edit_accomplishment').value = r.accomplishment || '';
+  document.getElementById('sig_sr_code').value = r.id || '';
+  document.getElementById('sig_name').value = r.name || '';
+  document.getElementById('editRecordModal').style.display = 'flex';
+  clearSignature();
+}
+function closeEditModal() {
+  document.getElementById('editRecordModal').style.display = 'none';
+}
+
+// ── Signature canvas ──
+const canvas = document.getElementById('sigCanvas');
+const ctx = canvas.getContext('2d');
+let drawing = false;
+
+function getPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const point = e.touches ? e.touches[0] : e;
+  return { x: (point.clientX - rect.left) * scaleX, y: (point.clientY - rect.top) * scaleX };
+}
+function startDraw(e) { drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); }
+function draw(e) { if (!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.strokeStyle = '#0f4c81'; ctx.lineWidth = 2; ctx.stroke(); e.preventDefault(); }
+function stopDraw() { drawing = false; }
+
+canvas.addEventListener('mousedown', startDraw);
+canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('mouseup', stopDraw);
+canvas.addEventListener('touchstart', startDraw);
+canvas.addEventListener('touchmove', draw);
+canvas.addEventListener('touchend', stopDraw);
+
+function clearSignature() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+function submitSignature() {
+  const dataUrl = canvas.toDataURL('image/png');
+  document.getElementById('sig_data').value = dataUrl;
+  document.getElementById('signatureForm').submit();
+}
 });
+
 </script>
 {% endblock %}

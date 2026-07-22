@@ -73,3 +73,52 @@ def get_attendance_for_date(service, date_str):
         return records, None
     except Exception as e:
         return [], str(e)
+
+import requests
+from urllib.parse import quote
+
+SHEET_ACTION_URL = os.environ.get("ATTENDANCE_SHEET_ACTION_URL")  # your Apps Script /exec URL
+
+def _post_to_sheet(payload):
+    """POST an action to the same Apps Script Web App the ESP32 uses."""
+    if not SHEET_ACTION_URL:
+        raise Exception("ATTENDANCE_SHEET_ACTION_URL not configured.")
+    resp = requests.post(SHEET_ACTION_URL, data=payload, timeout=15)
+    text = resp.text.strip()
+    if text.startswith("ERROR"):
+        raise Exception(text)
+    return text
+
+def update_task_accomplishment(sr_code, name, course, task, accomplishment, date_str):
+    return _post_to_sheet({
+        "action": "UPDATE_TASK_ACCOMPLISHMENT",
+        "id": sr_code, "name": name, "course": course,
+        "task": task, "accomplishment": accomplishment, "date": date_str,
+    })
+
+def add_student_to_sheet(sr_code, name, course):
+    """Registers a student in the Sheet so the ESP32 can later enroll their fingerprint under this ID."""
+    return _post_to_sheet({
+        "action": "ADD_STUDENT",
+        "id": sr_code, "name": name, "course": course,
+        "date": None,
+    })
+
+def update_student_in_sheet(sr_code, name, course):
+    return _post_to_sheet({
+        "action": "UPDATE_STUDENT",
+        "id": sr_code, "name": name, "course": course,
+    })
+
+def delete_student_from_sheet(sr_code, name):
+    return _post_to_sheet({
+        "action": "DELETE_STUDENT",
+        "id": sr_code, "name": name,
+    })
+
+def upload_signature(sr_code, name, date_str, base64_png):
+    return _post_to_sheet({
+        "action": "UPLOAD_SIGNATURE",
+        "id": sr_code, "name": name, "date": date_str,
+        "signature": base64_png,
+    })
